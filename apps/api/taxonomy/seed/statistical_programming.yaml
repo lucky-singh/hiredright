@@ -1,0 +1,196 @@
+# HireRight — Statistical Programming taxonomy
+# Source: client-provided 107-parameter recruitment breakdown (2026-08-28).
+# `source_ref` preserves the original numbering so this file stays traceable
+# to that document during review.
+#
+# claim_type semantics — this is what keeps the profile honest:
+#   activity     A verifiable thing the candidate has DONE. Feeds match scoring.
+#   proficiency  A tool/technique they can work IN. Feeds match scoring.
+#   trait        Self-reported disposition. Collected but EXCLUDED from scoring:
+#                every candidate claims it, so it carries no ranking signal.
+#
+# `variants` turns a single row into a version multi-select. Without it you
+# cannot answer "needs SDTM IG 3.3 specifically", which recruiters do ask.
+#
+# seniority_hint drives the "Suggested — confirm" prompts in the builder.
+# It never auto-claims on the candidate's behalf.
+
+function:
+  code: statistical-programming
+  label: Statistical Programming
+  description: >
+    Clinical statistical programming across CDISC standards, TLF production,
+    regulatory submission, and therapeutic-area analysis.
+
+competency_areas:
+
+  - code: core-programming
+    label: Core Programming & Language Proficiency
+    description: Foundation in the primary tools used to manipulate clinical data.
+    activities:
+      - { code: base-sas,               source_ref: 1,  claim_type: proficiency, seniority_hint: junior, label: "Base SAS", help_text: "DATA step processing, arrays, and core functions." }
+      - { code: sas-macro-language,     source_ref: 2,  claim_type: proficiency, seniority_hint: mid,    label: "SAS Macro Language", help_text: "Writing dynamic, reusable, robust macro code." }
+      - { code: sas-proc-sql,           source_ref: 3,  claim_type: proficiency, seniority_hint: junior, label: "SAS SQL (PROC SQL)", help_text: "Complex joins, subqueries, and set operations." }
+      - { code: sas-stat-procedures,    source_ref: 4,  claim_type: proficiency, seniority_hint: mid,    label: "SAS/STAT procedures", help_text: "PROC MIXED, FREQ, LIFETEST, PHREG." }
+      - { code: sas-graph-sgplot,       source_ref: 5,  claim_type: proficiency, seniority_hint: mid,    label: "SAS/GRAPH & SGPLOT", help_text: "Complex graphical output, including GTL." }
+      - { code: sas-hash-objects,       source_ref: 6,  claim_type: proficiency, seniority_hint: senior, label: "SAS hash objects", help_text: "In-memory hash tables for efficient merging." }
+      - { code: sas-ods,                source_ref: 7,  claim_type: proficiency, seniority_hint: junior, label: "SAS ODS", help_text: "Output Delivery System for RTF, PDF, Excel." }
+      - { code: r-base,                 source_ref: 8,  claim_type: proficiency, seniority_hint: junior, label: "R (base)", help_text: "Vectors, lists, data frames." }
+      - { code: r-tidyverse,            source_ref: 9,  claim_type: proficiency, seniority_hint: mid,    label: "R tidyverse", help_text: "dplyr, tidyr, stringr." }
+      - { code: r-shiny,                source_ref: 10, claim_type: proficiency, seniority_hint: senior, label: "R Shiny", help_text: "Interactive dashboards for data review." }
+      - { code: python-clinical,        source_ref: 11, claim_type: proficiency, seniority_hint: mid,    label: "Python for clinical data", help_text: "Pandas / NumPy on clinical datasets." }
+      - { code: code-efficiency,        source_ref: 12, claim_type: activity,    seniority_hint: senior, label: "Optimised slow-running legacy code", help_text: "Measurably improved runtime of inherited programs." }
+      - { code: language-interop,       source_ref: 13, claim_type: proficiency, seniority_hint: senior, label: "SAS ↔ R/Python interoperability", help_text: "Passing data between environments." }
+      - { code: cloud-grid-environments, source_ref: 14, claim_type: proficiency, seniority_hint: mid,   label: "Cloud / grid environments", help_text: "SAS Viya, AWS, or Azure grid environments." }
+
+  - code: cdisc-sdtm
+    label: CDISC SDTM
+    description: Converting raw clinical data into standardised tabulation formats.
+    activities:
+      - code: sdtm-implementation-guide
+        source_ref: 15
+        claim_type: proficiency
+        seniority_hint: mid
+        label: "SDTM Implementation Guide versions"
+        help_text: "Select every version you have worked to."
+        variants: ["3.1.2", "3.2", "3.3", "3.4"]
+      - { code: sdtm-general-observation-classes, source_ref: 16, claim_type: activity, seniority_hint: mid,    label: "General observation classes", help_text: "Interventions, Events, and Findings domains." }
+      - { code: sdtm-trial-design-domains,        source_ref: 17, claim_type: activity, seniority_hint: senior, label: "Trial design domains", help_text: "TS, TA, TE, TV, TI datasets." }
+      - { code: sdtm-relationship-domains,        source_ref: 18, claim_type: activity, seniority_hint: mid,    label: "SUPPQUAL & RELREC", help_text: "Programming relationship and supplemental domains." }
+      - { code: sdtm-custom-domains,              source_ref: 19, claim_type: activity, seniority_hint: senior, label: "Custom domains", help_text: "Knowing when and how to create non-standard domains." }
+      - { code: sdtm-controlled-terminology,      source_ref: 20, claim_type: activity, seniority_hint: mid,    label: "Controlled Terminology", help_text: "Mapping raw text to CDISC standard dictionaries." }
+      - { code: sdtm-mapping-specifications,      source_ref: 21, claim_type: activity, seniority_hint: senior, label: "Mapping specifications", help_text: "Authored or reviewed raw-to-SDTM mapping documents." }
+      - { code: sdtm-acrf-annotation,             source_ref: 22, claim_type: activity, seniority_hint: mid,    label: "aCRF annotation", help_text: "Created or reviewed annotated CRFs (blankcrf.pdf)." }
+      - { code: sdtm-iso8601-dates,               source_ref: 23, claim_type: activity, seniority_hint: mid,    label: "ISO 8601 date handling", help_text: "Complex date/time imputation and formatting." }
+      - { code: sdtm-screen-failures,             source_ref: 24, claim_type: activity, seniority_hint: mid,    label: "Screen failures & run-ins", help_text: "Structuring data for subjects who did not enter the main trial." }
+      - { code: sdtm-up-versioning,               source_ref: 25, claim_type: activity, seniority_hint: senior, label: "SDTM up-versioning", help_text: "Upgrading legacy datasets to newer IG versions." }
+      - { code: sdtm-non-standard-data,           source_ref: 26, claim_type: activity, seniority_hint: senior, label: "Non-standard data mapping", help_text: "PK/PD, genetics, or device data into SDTM." }
+      - { code: sdtm-traceability,                source_ref: 27, claim_type: activity, seniority_hint: mid,    label: "End-to-end traceability", help_text: "Clear lineage from raw EDC extraction to SDTM." }
+
+  - code: cdisc-adam
+    label: CDISC ADaM
+    description: Preparing analysis-ready data for statistical analysis.
+    activities:
+      - code: adam-implementation-guide
+        source_ref: 28
+        claim_type: proficiency
+        seniority_hint: mid
+        label: "ADaM Implementation Guide versions"
+        help_text: "Select every version you have worked to."
+        variants: ["1.0", "1.1", "1.2", "1.3"]
+      - { code: adam-adsl,                  source_ref: 29, claim_type: activity, seniority_hint: mid,    label: "ADSL (subject level)", help_text: "Treatment assignment and population flags." }
+      - { code: adam-bds,                   source_ref: 30, claim_type: activity, seniority_hint: mid,    label: "BDS datasets", help_text: "Continuous/categorical findings analysis data." }
+      - { code: adam-occds,                 source_ref: 31, claim_type: activity, seniority_hint: mid,    label: "OCCDS datasets", help_text: "Adverse events and concomitant medications." }
+      - { code: adam-meddra-integration,    source_ref: 32, claim_type: activity, seniority_hint: mid,    label: "MedDRA integration", help_text: "Incorporating standardised AE dictionaries." }
+      - { code: adam-whodrug-integration,   source_ref: 33, claim_type: activity, seniority_hint: mid,    label: "WHODrug integration", help_text: "Incorporating standardised medication dictionaries." }
+      - { code: adam-baseline-derivations,  source_ref: 34, claim_type: activity, seniority_hint: mid,    label: "Baseline derivations", help_text: "Complex logic for baseline flags and values." }
+      - { code: adam-change-from-baseline,  source_ref: 35, claim_type: activity, seniority_hint: junior, label: "Change from baseline", help_text: "Absolute, percent, and shift changes." }
+      - { code: adam-windowing-rules,       source_ref: 36, claim_type: activity, seniority_hint: senior, label: "Visit windowing rules", help_text: "Assigning unscheduled visits to analysis windows." }
+      - { code: adam-imputation-methods,    source_ref: 37, claim_type: activity, seniority_hint: senior, label: "Imputation methods", help_text: "LOCF, BOCF, or multiple imputation." }
+      - { code: adam-efficacy-derivations,  source_ref: 38, claim_type: activity, seniority_hint: senior, label: "Time-to-event endpoints", help_text: "Deriving PFS, OS, and similar TTE endpoints." }
+      - { code: adam-toxicity-grading,      source_ref: 39, claim_type: activity, seniority_hint: senior, label: "Toxicity grading", help_text: "Deriving CTCAE grades for lab abnormalities." }
+      - { code: adam-specifications,        source_ref: 40, claim_type: activity, seniority_hint: senior, label: "ADaM specifications", help_text: "Writing derivation logic documents for statisticians." }
+
+  - code: tlf-biostatistics
+    label: TLF & Biostatistics
+    description: Producing final results output from the Statistical Analysis Plan.
+    activities:
+      - { code: sap-interpretation,      source_ref: 41, claim_type: activity, seniority_hint: senior, label: "SAP interpretation", help_text: "Translating a Statistical Analysis Plan into programming logic." }
+      - { code: tlf-demographics-tables, source_ref: 42, claim_type: activity, seniority_hint: junior, label: "Demographics tables", help_text: "Complex baseline characteristic summaries." }
+      - { code: tlf-adverse-event-tables, source_ref: 43, claim_type: activity, seniority_hint: mid,   label: "Adverse event tables", help_text: "TEAEs, SAEs, and AEs leading to discontinuation." }
+      - { code: tlf-disposition-tables,  source_ref: 44, claim_type: activity, seniority_hint: junior, label: "Disposition tables", help_text: "Study completion and withdrawal reasons." }
+      - { code: tlf-efficacy-tables,     source_ref: 45, claim_type: activity, seniority_hint: senior, label: "Efficacy tables", help_text: "Primary and secondary endpoint tables." }
+      - { code: tlf-listings,            source_ref: 46, claim_type: activity, seniority_hint: junior, label: "Listing programming", help_text: "Grouping and paginating patient-level data." }
+      - { code: tlf-figures,             source_ref: 47, claim_type: activity, seniority_hint: mid,    label: "Figure programming", help_text: "Kaplan-Meier, waterfall, and forest plots." }
+      - { code: tlf-double-programming,  source_ref: 48, claim_type: activity, seniority_hint: mid,    label: "Independent double programming", help_text: "Acting as validator for another programmer's work." }
+      - { code: tlf-mock-shell-review,   source_ref: 49, claim_type: activity, seniority_hint: senior, label: "Mock shell design/review", help_text: "Designing or reviewing planned output layouts." }
+      - { code: tlf-patient-profiles,    source_ref: 50, claim_type: activity, seniority_hint: mid,    label: "Patient profiles", help_text: "Automated multi-page narratives per subject." }
+      - { code: tlf-blinded-unblinded,   source_ref: 51, claim_type: activity, seniority_hint: senior, label: "Blinded vs unblinded programming", help_text: "Dummy data programming prior to database lock." }
+      - { code: tlf-data-cutoffs,        source_ref: 52, claim_type: activity, seniority_hint: senior, label: "Data cutoffs (DCO)", help_text: "Programming for interim snapshot analyses." }
+
+  - code: regulatory-submissions
+    label: Regulatory Submissions & Validation
+    description: Finalising a study for FDA / EMA / PMDA submission.
+    activities:
+      - { code: p21-community,          source_ref: 53, claim_type: activity,    seniority_hint: junior, label: "Pinnacle 21 Community", help_text: "Running validations and interpreting XML reports." }
+      - { code: p21-enterprise,         source_ref: 54, claim_type: activity,    seniority_hint: mid,    label: "Pinnacle 21 Enterprise", help_text: "Enterprise suite for live compliance monitoring." }
+      - { code: p21-issue-resolution,   source_ref: 55, claim_type: activity,    seniority_hint: senior, label: "P21 issue resolution", help_text: "Fixing rule violations or writing acceptable justifications." }
+      - code: define-xml
+        source_ref: 56
+        claim_type: activity
+        seniority_hint: senior
+        label: "Define.xml generation"
+        help_text: "Machine-readable data dictionaries. Select the versions you have produced."
+        variants: ["2.0", "2.1"]
+      - { code: define-stylesheets,     source_ref: 57, claim_type: activity,    seniority_hint: senior, label: "Define stylesheets", help_text: "Applying and troubleshooting XSLT for human-readable Define." }
+      - { code: sdrg-creation,          source_ref: 58, claim_type: activity,    seniority_hint: senior, label: "SDRG authoring", help_text: "Study Data Reviewer's Guide." }
+      - { code: adrg-creation,          source_ref: 59, claim_type: activity,    seniority_hint: senior, label: "ADRG authoring", help_text: "Analysis Data Reviewer's Guide." }
+      - { code: bimo-packages,          source_ref: 60, claim_type: activity,    seniority_hint: senior, label: "BIMO packages", help_text: "Bioresearch Monitoring datasets for the FDA." }
+      - { code: ectd-structure,         source_ref: 61, claim_type: activity,    seniority_hint: mid,    label: "eCTD structure", help_text: "Where datasets and programs live in Module 5." }
+      - { code: ema-pmda-rules,         source_ref: 62, claim_type: activity,    seniority_hint: senior, label: "EMA / PMDA validation rules", help_text: "Requirements outside the US FDA." }
+      - { code: data-deidentification,  source_ref: 63, claim_type: activity,    seniority_hint: senior, label: "Data de-identification", help_text: "Anonymisation rules for public data sharing." }
+      - { code: cfr-part-11,            source_ref: 64, claim_type: proficiency, seniority_hint: mid,    label: "21 CFR Part 11", help_text: "Operating within audit-trailed, validated environments." }
+
+  - code: therapeutic-areas
+    label: Therapeutic Area Expertise
+    description: Domain-specific clinical knowledge. Select the areas you have delivered studies in.
+    activities:
+      - { code: ta-solid-tumor-oncology, source_ref: 65, claim_type: activity, seniority_hint: mid,    label: "Solid tumour oncology", help_text: "RECIST 1.1 mapping, tumour burden, best overall response." }
+      - { code: ta-hematologic-oncology, source_ref: 66, claim_type: activity, seniority_hint: senior, label: "Haematologic oncology", help_text: "Lugano criteria, IWG criteria, bone marrow response." }
+      - { code: ta-immuno-oncology,      source_ref: 67, claim_type: activity, seniority_hint: senior, label: "Immuno-oncology", help_text: "irRC, irRECIST, and pseudo-progression data." }
+      - { code: ta-vaccines,             source_ref: 68, claim_type: activity, seniority_hint: mid,    label: "Vaccines", help_text: "Reactogenicity diaries, immunogenicity titres, local/systemic reactions." }
+      - { code: ta-cardiovascular,       source_ref: 69, claim_type: activity, seniority_hint: mid,    label: "Cardiovascular", help_text: "Adjudicated MACE endpoints." }
+      - { code: ta-cns-neurology,        source_ref: 70, claim_type: activity, seniority_hint: mid,    label: "CNS / neurology", help_text: "Complex questionnaires (ADAS-Cog, MMSE) and scoring logic." }
+      - { code: ta-rare-diseases,        source_ref: 71, claim_type: activity, seniority_hint: senior, label: "Rare diseases", help_text: "Very small sample sizes and non-traditional endpoints." }
+      - { code: ta-immunology-rheum,     source_ref: 72, claim_type: activity, seniority_hint: mid,    label: "Immunology / rheumatology", help_text: "ACR20/50/70 scores and joint counts." }
+      - { code: ta-infectious-disease,   source_ref: 73, claim_type: activity, seniority_hint: mid,    label: "Infectious disease", help_text: "Viral load kinetics and resistance mutations." }
+      - { code: ta-pharmacokinetics,     source_ref: 74, claim_type: activity, seniority_hint: senior, label: "Pharmacokinetics (PK)", help_text: "NCA data preparation, concentration-time curves." }
+      - { code: ta-device-trials,        source_ref: 75, claim_type: activity, seniority_hint: senior, label: "Device trials", help_text: "Device malfunction and exposure data." }
+      - { code: ta-real-world-evidence,  source_ref: 76, claim_type: activity, seniority_hint: senior, label: "Real-world evidence", help_text: "EHR or claims data, OMOP standards." }
+
+  - code: integrated-summaries
+    label: Integrated Summaries & Complex Trials
+    description: Handling massive, multi-study programmes.
+    activities:
+      - { code: iss-safety,            source_ref: 77, claim_type: activity, seniority_hint: senior, label: "ISS (Integrated Summary of Safety)", help_text: "Pooling safety data across Phase 1–3 trials." }
+      - { code: ise-efficacy,          source_ref: 78, claim_type: activity, seniority_hint: senior, label: "ISE (Integrated Summary of Efficacy)", help_text: "Pooling efficacy endpoints across pivotal trials." }
+      - { code: data-harmonization,    source_ref: 79, claim_type: activity, seniority_hint: senior, label: "Data harmonisation", help_text: "Aligning differing SDTM/ADaM versions from legacy studies." }
+      - { code: interim-analysis,      source_ref: 80, claim_type: activity, seniority_hint: senior, label: "Interim analysis support", help_text: "Rapid turnarounds for unblinded statistical teams." }
+      - { code: dmc-dsmb-support,      source_ref: 81, claim_type: activity, seniority_hint: senior, label: "DMC / DSMB support", help_text: "Independent reports for Data Monitoring Committees." }
+      - { code: adaptive-designs,      source_ref: 82, claim_type: activity, seniority_hint: senior, label: "Adaptive designs", help_text: "Trials where doses or cohorts shift mid-study." }
+      - { code: master-protocols,      source_ref: 83, claim_type: activity, seniority_hint: senior, label: "Master protocols", help_text: "Umbrella, basket, or platform trial architectures." }
+      - { code: crossover-designs,     source_ref: 84, claim_type: activity, seniority_hint: mid,    label: "Cross-over designs", help_text: "Sequence, period, and treatment-emergent flags." }
+
+  - code: tools-systems-automation
+    label: Tools, Systems & Automation
+    description: Software engineering mindset and surrounding tech stack.
+    activities:
+      - { code: version-control,        source_ref: 85, claim_type: proficiency, seniority_hint: mid,    label: "Version control", help_text: "Git, SVN, or Bitbucket for code repositories." }
+      - { code: macro-library-ownership, source_ref: 86, claim_type: activity,   seniority_hint: senior, label: "Macro library ownership", help_text: "Developing centralised tools used department-wide." }
+      - { code: metadata-repositories,  source_ref: 87, claim_type: proficiency, seniority_hint: senior, label: "Metadata repositories (MDR)", help_text: "Systems such as Formedix or ryze." }
+      - { code: edc-familiarity,        source_ref: 88, claim_type: proficiency, seniority_hint: mid,    label: "EDC familiarity", help_text: "Medidata Rave, InForm, or Veeva structures." }
+      - { code: issue-tracking,         source_ref: 89, claim_type: proficiency, seniority_hint: junior, label: "Issue tracking", help_text: "Jira or ServiceNow for programming tasks." }
+      - { code: open-source-pharma,     source_ref: 90, claim_type: proficiency, seniority_hint: mid,    label: "Open-source pharma", help_text: "The pharmaverse R package ecosystem." }
+      - { code: agile-methodology,      source_ref: 91, claim_type: proficiency, seniority_hint: mid,    label: "Agile methodology", help_text: "Working in sprints rather than waterfall." }
+      - { code: unix-linux-cli,         source_ref: 92, claim_type: proficiency, seniority_hint: mid,    label: "Unix / Linux CLI", help_text: "Batch job execution and server navigation." }
+      - { code: automation-rpa,         source_ref: 93, claim_type: activity,    seniority_hint: senior, label: "Automation of QC tasks", help_text: "Building tools that automate repetitive QC work." }
+      - { code: llm-ai-tools,           source_ref: 94, claim_type: proficiency, seniority_hint: mid,    label: "LLM / AI tooling", help_text: "Using AI assistants such as Copilot compliantly." }
+
+  - code: leadership-oversight
+    label: Leadership, Oversight & Stakeholder Management
+    description: Leading studies and managing stakeholders.
+    activities:
+      - { code: lead-programmer,          source_ref: 95,  claim_type: activity, seniority_hint: lead,   label: "Lead programmer experience", help_text: "End-to-end accountability for a trial's deliverables." }
+      - { code: cro-oversight,            source_ref: 96,  claim_type: activity, seniority_hint: lead,   label: "CRO oversight", help_text: "Validating vendor deliverables, reviewing contracts, managing scope." }
+      - { code: resource-estimation,      source_ref: 97,  claim_type: activity, seniority_hint: lead,   label: "Resource estimation", help_text: "Projecting FTE hours required for a set of TLFs." }
+      - { code: timeline-management,      source_ref: 98,  claim_type: activity, seniority_hint: lead,   label: "Timeline management", help_text: "Hitting critical path milestones from DBL to topline." }
+      - { code: stakeholder-communication, source_ref: 99, claim_type: activity, seniority_hint: senior, label: "Stakeholder communication", help_text: "Explaining data issues to non-technical clinicians." }
+      - { code: biostatistician-collab,   source_ref: 100, claim_type: activity, seniority_hint: senior, label: "Biostatistician collaboration", help_text: "Challenging and clarifying vague SAP requirements." }
+      - { code: mentorship,               source_ref: 101, claim_type: activity, seniority_hint: senior, label: "Mentorship", help_text: "Training junior programmers on CDISC or SAS." }
+      - { code: sop-development,          source_ref: 102, claim_type: activity, seniority_hint: lead,   label: "SOP development", help_text: "Writing standard operating procedures for the department." }
+      - { code: audit-readiness,          source_ref: 103, claim_type: activity, seniority_hint: lead,   label: "Audit readiness", help_text: "Defending code and traceability during FDA/EMA inspections." }
+      - { code: capa-execution,           source_ref: 104, claim_type: activity, seniority_hint: lead,   label: "CAPA execution", help_text: "Root cause analysis for protocol or programming deviations." }
+      - { code: global-team-coordination, source_ref: 106, claim_type: activity, seniority_hint: lead,   label: "Global team coordination", help_text: "Coordinating tasks across US, EU, and APAC time zones." }
+      # --- Self-reported dispositions: collected, but excluded from match scoring.
+      - { code: scope-management,         source_ref: 105, claim_type: trait,    seniority_hint: senior, label: "Scope management", help_text: "Pushing back professionally on ad-hoc, out-of-scope requests." }
+      - { code: quality-mindset,          source_ref: 107, claim_type: trait,    seniority_hint: junior, label: "Quality mindset", help_text: "Rigorous attention to detail and zero-defect mentality." }

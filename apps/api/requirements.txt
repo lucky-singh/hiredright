@@ -1,0 +1,28 @@
+# Core
+Django~=5.1
+djangorestframework~=3.15        # >=3.15 required: ListSerializer max_length
+drf-spectacular~=0.27            # OpenAPI 3.1 schema
+psycopg[binary]~=3.2
+PyYAML~=6.0
+django-environ~=0.11
+
+# Auth — email, mobile OTP, LinkedIn OIDC
+django-allauth[socialaccount]~=65.0
+dj-rest-auth~=7.0
+djangorestframework-simplejwt~=5.3
+
+# Service-to-service auth for the recruiter portal
+django-oauth-toolkit~=3.0
+
+# Queue + cache
+celery[redis]~=5.4
+redis~=5.0
+django-redis~=5.4
+
+# S3-compatible object storage (MinIO locally) — kept behind an abstraction
+django-storages[s3]~=1.14
+pytest~=8.3
+pytest-django~=4.9
+pytest-cov~=5.0
+factory-boy~=3.3
+ruff~=0.6

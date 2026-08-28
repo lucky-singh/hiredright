@@ -1,0 +1,200 @@
+# HireRight Backend API (`apps/api`)
+
+> Django 5.1 & Django REST Framework (DRF) backend powering the HireRight talent intelligence platform, taxonomy engine, candidate profile builder, and matching algorithm.
+
+---
+
+## Table of Contents
+
+- [App Architecture](#app-architecture)
+  - [`taxonomy`](#taxonomy)
+  - [`profiles`](#profiles)
+  - [`matching`](#matching)
+  - [`api/v1`](#apiv1)
+- [Database Models & Constraints](#database-models--constraints)
+- [Management Commands](#management-commands)
+  - [`seed_taxonomy`](#seed_taxonomy)
+- [Matching Engine Integration](#matching-engine-integration)
+- [API Serializers & Payload Design](#api-serializers--payload-design)
+- [Local Development & Testing](#local-development--testing)
+
+---
+
+## App Architecture
+
+```
+apps/api/
+├── api/
+│   └── v1/
+│       └── serializers.py        # Serializers for builder & batch sync
+├── matching/
+│   ├── scoring.py                # Pure mathematical scoring function (no ORM)
+│   ├── search.py                 # Candidate profile search & SQL pre-filter
+│   └── tests/
+│       └── test_scoring.py       # Table-driven unit tests
+├── profiles/
+│   └── models.py                 # CandidateProfile, ActivityClaim, BuilderProgress
+├── taxonomy/
+│   ├── models.py                 # Function, CompetencyArea, Activity
+│   ├── management/
+│   │   └── commands/
+│   │       └── seed_taxonomy.py  # Seed loader management command
+│   └── seed/
+│       └── statistical_programming.yaml # Clinical statistical programming taxonomy
+└── requirements.txt              # Backend dependencies
+```
+
+---
+
+### `taxonomy`
+
+Defines the domain taxonomy model hierarchy:
+$$\text{Function} \xrightarrow{\text{1:N}} \text{CompetencyArea} \xrightarrow{\text{1:N}} \text{Activity}$$
+
+- **`Function`**: A major life sciences discipline (e.g. `statistical-programming`).
+- **`CompetencyArea`**: Groupings representing stages in the profile builder (e.g. `cdisc-sdtm`, `cdisc-adam`, `tlf-biostatistics`, `regulatory-submissions`).
+- **`Activity`**: The fundamental, tickable item claimed by candidates and queried by recruiters.
+
+#### Activity Fields & Rules
+- `code`: The stable public API slug (e.g. `sdtm-implementation-guide`). Changing labels is safe; changing `code` is a breaking contract.
+- `claim_type`:
+  - `activity`: Verifiable task performed (scorable).
+  - `proficiency`: Tool/language proficiency (scorable).
+  - `trait`: Self-reported disposition (excluded from scoring).
+- `seniority_hint`: `junior`, `mid`, `senior`, `lead`. Drives builder suggestion chips; never auto-claims.
+- `variants`: JSON list of allowed version strings (e.g. `["3.1.2", "3.2", "3.3", "3.4"]`).
+- `is_scorable`: Boolean property returning `True` for `activity` and `proficiency`.
+
+---
+
+### `profiles`
+
+Encapsulates candidate identities, verified claims, and wizard progress:
+
+- **`CandidateProfile`**: Extends Django's user model with headline, ISO 3166-1 country code, availability status (`open_to_opportunities`), and recruiter search visibility (`is_searchable`).
+- **`CandidateFunction`**: Links candidate to a primary or secondary function with verified `years_experience`.
+- **`ActivityClaim`**: A candidate's assertion of having performed an `Activity`.
+  - `proficiency`: 1 (`EXPOSED`), 2 (`WORKING`), 3 (`PROFICIENT`), 4 (`EXPERT`).
+  - `years_experience`: Decimal field (0 to 60 years).
+  - `last_used_year`: Integer (1980 to current year) used for recency decay.
+  - `variants`: Subset of `Activity.variants` claimed by the candidate.
+- **`BuilderProgress`**: Server-side autosave tracking completed area codes, current position, and completion timestamps. Prevents loss of candidate progress across devices.
+
+---
+
+### `matching`
+
+The matching module is architecturally decoupled into two layers:
+
+1. **`search.py` (ORM & I/O Layer)**:
+   - Queries `CandidateProfile` where `is_searchable=True` and `open_to_opportunities=True`.
+   - Pre-filters candidate IDs in SQL using `Count(distinct=True)` to ensure all required activity codes are present before loading claim rows.
+   - Converts ORM querysets into lightweight immutable `Claim` dataclasses.
+2. **`scoring.py` (Pure Functional Core)**:
+   - Pure function `score(claims, query, today=None) -> MatchResult`.
+   - Zero ORM or request dependencies, enabling instant table-driven testing without database overhead.
+
+---
+
+### `api/v1`
+
+Optimized for high responsiveness and zero-latency user flows:
+
+- **`BuilderPayloadSerializer`**: Consolidates the complete function tree, existing user claims, and builder progress into a single JSON payload. Eliminates interactive loading spinners during candidate onboarding.
+- **`ClaimBatchSerializer`**: Ingests debounced batches of up to 200 claim updates. Supports upserts and deletions (`claimed: false`). Validates against duplicate activity codes in a single batch.
+
+---
+
+## Database Models & Constraints
+
+| Model | Table / Constraint | Description |
+| :--- | :--- | :--- |
+| `CompetencyArea` | `uniq_area_code_per_function` | Unique `(function, code)` |
+| `Activity` | Unique `code` | Global slug for API stability |
+| `CandidateFunction` | `uniq_function_per_profile` | Unique `(profile, function)` |
+| `ActivityClaim` | `uniq_claim_per_profile_activity` | Unique `(profile, activity)` preventing race condition duplicates |
+| `ActivityClaim` | Index `(activity, profile)` | Fast reverse lookup for recruiter search queries |
+| `ActivityClaim` | Index `(profile, activity)` | Fast claim fetching during builder initialization |
+
+---
+
+## Management Commands
+
+### `seed_taxonomy`
+
+Loads or synchronizes domain taxonomies from YAML seed files into the database.
+
+```bash
+# Basic seed from default path (taxonomy/seed/<function_code>.yaml)
+python manage.py seed_taxonomy statistical-programming
+
+# Seed from a custom path
+python manage.py seed_taxonomy statistical-programming --path /path/to/custom_taxonomy.yaml
+
+# Dry run mode (validates and reports changes without saving to DB)
+python manage.py seed_taxonomy statistical-programming --dry-run
+
+# Prune mode (soft-deactivates DB activities not present in the seed file)
+python manage.py seed_taxonomy statistical-programming --prune
+```
+
+#### Safe Deactivation Strategy (`--prune`)
+Because `ActivityClaim.activity` uses `on_delete=models.PROTECT`, database rows are never deleted. When an activity is removed from a seed file and pruned, it is marked `is_active=False`. This prevents it from appearing in new profile builders while preserving historical claims and audit trails.
+
+---
+
+## Matching Engine Integration
+
+### Invocation Example
+
+```python
+from matching.scoring import Query
+from matching.search import search_candidates
+
+# Search for a Senior CDISC Programmer
+query = Query(
+    required_activity_codes=frozenset({
+        "sdtm-implementation-guide",
+        "adam-implementation-guide",
+        "define-xml",
+    }),
+    optional_activity_codes=frozenset({
+        "p21-enterprise",
+        "r-shiny",
+        "ta-solid-tumor-oncology",
+    }),
+    required_variants={
+        "sdtm-implementation-guide": frozenset({"3.3"}),
+        "define-xml": frozenset({"2.1"}),
+    }
+)
+
+# Search candidates (top 20)
+results = search_candidates(query, limit=20, include_near_misses=False)
+
+for ranked in results:
+    print(f"Profile ID: {ranked.profile_id} | Score: {ranked.result.score_pct}%")
+    print(f"  Matched Required: {ranked.result.matched_required}")
+    print(f"  Matched Optional: {ranked.result.matched_optional}")
+```
+
+---
+
+## Local Development & Testing
+
+### Running Tests
+
+Run the pure scoring test suite:
+
+```bash
+pytest matching/tests/test_scoring.py -v
+```
+
+### Code Quality & Linting
+
+Run Ruff to ensure compliance with PEP 8 and formatting standards:
+
+```bash
+ruff check .
+ruff format --check .
+```
