@@ -31,23 +31,44 @@ def _prefilter(query: Query):
     (e.g. SDTM IG 3.3) are checked during scoring instead: expressing JSONB
     overlap portably in the ORM is awkward, and the candidate set is already
     small by this point, so the simpler correct path wins.
+
+    The claim filter mirrors the one in `search_candidates` — same claim types,
+    same `is_active`. If the two disagreed, a profile could pass the prefilter on
+    a TRAIT claim and then be reported by the scorer as missing that very
+    requirement.
     """
     qs = CandidateProfile.objects.filter(is_searchable=True, open_to_opportunities=True)
 
     required = query.required_activity_codes
     if required:
         qs = (
-            qs.filter(claims__activity__code__in=required)
+            qs.filter(_claim_matches(required))
             .annotate(
                 n_required=Count(
                     "claims__activity__code",
-                    filter=Q(claims__activity__code__in=required),
+                    filter=_claim_matches(required),
                     distinct=True,
                 )
             )
             .filter(n_required=len(required))
         )
+    elif query.optional_activity_codes:
+        # No hard requirements, so "matches at least one optional code" is the
+        # only thing keeping this off a full scan of every searchable profile.
+        qs = qs.filter(_claim_matches(query.optional_activity_codes))
+    else:
+        return qs.none()
+
     return qs.distinct()
+
+
+def _claim_matches(codes) -> Q:
+    """A scorable, live claim on one of `codes`."""
+    return Q(
+        claims__activity__code__in=codes,
+        claims__activity__claim_type__in=ClaimType.scorable(),
+        claims__activity__is_active=True,
+    )
 
 
 def search_candidates(

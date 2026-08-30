@@ -1,10 +1,11 @@
 # Core
-Django~=5.1
+Django~=5.2                      # 5.2 LTS; migrations in this repo were generated on it
 djangorestframework~=3.15        # >=3.15 required: ListSerializer max_length
 drf-spectacular~=0.27            # OpenAPI 3.1 schema
 psycopg[binary]~=3.2
 PyYAML~=6.0
 django-environ~=0.11
+django-cors-headers~=4.4
 
 # Auth — email, mobile OTP, LinkedIn OIDC
 django-allauth[socialaccount]~=65.0

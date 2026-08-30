@@ -1,6 +1,6 @@
 # HireRight Backend API (`apps/api`)
 
-> Django 5.1 & Django REST Framework (DRF) backend powering the HireRight talent intelligence platform, taxonomy engine, candidate profile builder, and matching algorithm.
+> Django 5.2 & Django REST Framework (DRF) backend powering the HireRight talent intelligence platform, taxonomy engine, candidate profile builder, and matching algorithm.
 
 ---
 
@@ -24,24 +24,38 @@
 
 ```
 apps/api/
+├── manage.py                        # Django CLI entrypoint
+├── Dockerfile                       # API container image
+├── config/                          # Project configuration
+│   ├── settings/{base,dev,prod}.py  # Env-driven settings per environment
+│   ├── urls.py                      # Root URL routing
+│   ├── wsgi.py / asgi.py            # Server entrypoints
+│   └── celery.py                    # Celery app
+├── accounts/                        # Custom User + allauth + JWT
+│   ├── models.py                    # User (email-first, phone, verification)
+│   └── sms/backends.py              # Pluggable OTP SMS backends
 ├── api/
 │   └── v1/
-│       └── serializers.py        # Serializers for builder & batch sync
+│       ├── views.py                 # BuilderView, ClaimBatchView, SearchView
+│       ├── urls.py                  # /api/v1/ route table
+│       ├── permissions.py           # OAuth2 scope gate for recruiter search
+│       └── serializers.py           # Serializers for builder & batch sync
 ├── matching/
-│   ├── scoring.py                # Pure mathematical scoring function (no ORM)
-│   ├── search.py                 # Candidate profile search & SQL pre-filter
+│   ├── scoring.py                   # Pure mathematical scoring function (no ORM)
+│   ├── search.py                    # Candidate profile search & SQL pre-filter
 │   └── tests/
-│       └── test_scoring.py       # Table-driven unit tests
+│       └── test_scoring.py          # Table-driven unit tests
 ├── profiles/
-│   └── models.py                 # CandidateProfile, ActivityClaim, BuilderProgress
+│   └── models.py                    # CandidateProfile, ActivityClaim, BuilderProgress
 ├── taxonomy/
-│   ├── models.py                 # Function, CompetencyArea, Activity
+│   ├── models.py                    # Function, CompetencyArea, Activity
 │   ├── management/
 │   │   └── commands/
-│   │       └── seed_taxonomy.py  # Seed loader management command
+│   │       └── seed_taxonomy.py     # Seed loader management command
 │   └── seed/
 │       └── statistical_programming.yaml # Clinical statistical programming taxonomy
-└── requirements.txt              # Backend dependencies
+├── pytest.ini                       # pytest-django configuration
+└── requirements.txt                 # Backend dependencies
 ```
 
 ---
@@ -102,6 +116,61 @@ Optimized for high responsiveness and zero-latency user flows:
 
 - **`BuilderPayloadSerializer`**: Consolidates the complete function tree, existing user claims, and builder progress into a single JSON payload. Eliminates interactive loading spinners during candidate onboarding.
 - **`ClaimBatchSerializer`**: Ingests debounced batches of up to 200 claim updates. Supports upserts and deletions (`claimed: false`). Validates against duplicate activity codes in a single batch.
+
+The views (`api/v1/views.py`) expose four endpoints:
+
+| Endpoint | Method | Auth | Purpose |
+| :--- | :--- | :--- | :--- |
+| `/api/v1/builder/{function_code}/` | `GET` | Candidate JWT | Single dense payload powering the builder |
+| `/api/v1/builder/claims/` | `POST` | Candidate JWT | Debounced batch upsert/delete of claim deltas |
+| `/api/v1/builder/progress/` | `PUT` | Candidate JWT | Server-side resume state |
+| `/api/v1/search/` | `POST` | OAuth2 `candidates:search` | Recruiter matching |
+
+#### Write-path validation
+
+`update_or_create` does not run model `clean()`, so the claim batch endpoint
+validates before it writes, in `ClaimBatchView`:
+
+- every `activity_code` must exist and be `is_active` — an unknown code fails the
+  batch rather than being skipped, because a silent skip would report success
+  while discarding a candidate's answer;
+- `variants` must be a subset of that activity's declared `variants`, or a stale
+  client could store `"3.9"` against SDTM IG and poison every later variant search;
+- `last_used_year` cannot exceed the current year.
+
+#### Recruiter search authorization
+
+Search reads across the entire candidate pool, so `IsAuthenticated` is not
+sufficient — a candidate's own JWT must not open it. `HasRecruiterSearchScope`
+(`api/v1/permissions.py`) requires an OAuth2 access token whose scope includes
+`candidates:search` (registered in `OAUTH2_PROVIDER["SCOPES"]`). Tokens are
+issued at `POST /o/token/` with `grant_type=client_credentials`.
+
+---
+
+### `accounts`
+
+Email-first authentication supporting three candidate entry paths in one library:
+
+- **Email** — passwordless magic link (allauth).
+- **Mobile** — OTP via a pluggable `SMSBackend` (`accounts/sms/backends.py`); console backend in dev.
+- **LinkedIn** — OIDC social login via allauth's generic `openid_connect`
+  provider, configured with `provider_id: linkedin` and LinkedIn's discovery
+  document. Deliberately *not* allauth's `linkedin_oauth2` provider: that one
+  still calls the retired v1 profile projections (`/v2/me?projection=…`) with the
+  `r_liteprofile` / `r_emailaddress` scopes, which LinkedIn no longer issues.
+
+`SMS_BACKEND` defaults to the console backend in dev and is **required** in prod —
+`config/settings/prod.py` reads it with no fallback, because silently printing a
+login OTP into a production log would hand accounts to anyone with log access.
+
+The custom `User` model (`accounts/models.py`) drops `username` in favour of a
+unique `email`, and carries `phone_number`, `email_verified`, and
+`phone_verified` flags. Account linking is keyed by verified email, so a
+candidate who starts with email and later uses LinkedIn lands in the same
+profile. API tokens are JWT (short access, rotating refresh) via
+`dj-rest-auth` + `simplejwt`; recruiter service-to-service auth is separate
+OAuth2 client-credentials via `django-oauth-toolkit`.
 
 ---
 

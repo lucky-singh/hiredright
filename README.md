@@ -41,9 +41,22 @@ HireRight solves this through:
 ```
 hiredright/
 ├── apps/
-│   └── api/                         # Backend API (Django 5.1, DRF 3.15)
+│   └── api/                         # Backend API (Django 5.2, DRF 3.15+)
+│       ├── manage.py                # Django CLI entrypoint
+│       ├── Dockerfile               # API container image
+│       ├── config/                  # Project configuration
+│       │   ├── settings/            # base.py, dev.py, prod.py (env-driven)
+│       │   ├── urls.py              # Root routing (admin, auth, OAuth2, schema)
+│       │   ├── wsgi.py / asgi.py    # Server entrypoints
+│       │   └── celery.py            # Celery app (queue for CV parsing, etc.)
+│       ├── accounts/                # Custom User (email-first) + allauth + JWT
+│       │   ├── models.py            # User (email, phone, verification flags)
+│       │   └── sms/backends.py      # Pluggable OTP SMS backends
 │       ├── api/                     # REST API views & serializers (v1)
 │       │   └── v1/
+│       │       ├── views.py         # BuilderView, ClaimBatchView, SearchView
+│       │       ├── urls.py          # /api/v1/ route table
+│       │       ├── permissions.py   # OAuth2 scope gate for recruiter search
 │       │       └── serializers.py   # Dense builder & batch sync serializers
 │       ├── matching/                # Matching engine & pure scoring
 │       │   ├── scoring.py           # Pure scoring function & dataclasses
@@ -60,7 +73,10 @@ hiredright/
 │       │   └── seed/
 │       │       └── statistical_programming.yaml # 107-item seed breakdown
 │       ├── requirements.txt         # Python dependencies
+│       ├── pytest.ini               # pytest-django configuration
 │       └── README.md                # Backend API documentation
+├── docker-compose.yml               # postgres, redis, minio, api, worker
+├── .env.example                     # Environment variable template
 ├── docs/                            # Deep-dive documentation
 │   ├── architecture.md              # System design & architectural patterns
 │   ├── matching_engine.md           # Mathematical specification of scoring
@@ -116,17 +132,41 @@ The candidate profile builder loads all necessary data (function taxonomy tree, 
    cd hiredright
    ```
 
-2. **Set up virtual environment:**
+2. **Start infrastructure (PostgreSQL, Redis, MinIO):**
+   ```bash
+   cp .env.example .env
+   docker compose up -d db redis minio
+   ```
+
+   `.env` stays at the repo root — Docker Compose and a bare `runserver` both
+   read that one file. (An `apps/api/.env` overrides it if you need two API
+   instances on different databases.)
+
+3. **Set up virtual environment:**
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -r apps/api/requirements.txt
    ```
 
-3. **Run database migrations:**
+4. **Run database migrations:**
    ```bash
    cd apps/api
    python manage.py migrate
+   ```
+
+   The default settings module is `config.settings.dev` (SQLite-free; PostgreSQL
+   via Docker Compose). Override with `DJANGO_SETTINGS_MODULE=config.settings.prod`
+   for production.
+
+5. **Run the development server:**
+   ```bash
+   python manage.py runserver
+   ```
+
+   Or run the full stack (API + Celery worker) entirely in Docker:
+   ```bash
+   docker compose up -d
    ```
 
 ### Seeding the Taxonomy
@@ -146,10 +186,35 @@ python manage.py seed_taxonomy statistical-programming --prune
 
 ### Running Tests
 
-Execute the table-driven test suite:
+The suite is split by whether a test needs a database. The scoring core is pure,
+so its tests run instantly with nothing else up:
 
 ```bash
-pytest apps/api/matching/tests/test_scoring.py -v
+cd apps/api
+pytest matching/tests/test_scoring.py -v
+```
+
+Everything else is ORM-backed and needs PostgreSQL running (`docker compose up -d db`):
+
+```bash
+cd apps/api
+pytest -v
+```
+
+| Suite | Needs a database | Covers |
+| :--- | :---: | :--- |
+| `matching/tests/test_scoring.py` | no | Ranking maths: proficiency, recency decay, variant overlap, normalisation |
+| `matching/tests/test_search.py` | yes | SQL pre-filter, its agreement with the scorer, ranking and limits |
+| `api/v1/tests/test_builder.py` | yes | Dense builder payload, resume state |
+| `api/v1/tests/test_claims.py` | yes | Batch autosave validation and upsert/delete semantics |
+| `api/v1/tests/test_search_endpoint.py` | yes | Recruiter scope authorization and the query contract |
+
+### Code Quality
+
+```bash
+cd apps/api
+ruff check .
+ruff format --check .
 ```
 
 ---

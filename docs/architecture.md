@@ -7,6 +7,8 @@
 ## Table of Contents
 
 - [Architectural Principles](#architectural-principles)
+- [Infrastructure & Containerization](#infrastructure--containerization)
+- [Authentication Architecture](#authentication-architecture)
 - [System Architecture & Data Flows](#system-architecture--data-flows)
   - [1. Candidate Profile Builder Flow](#1-candidate-profile-builder-flow)
   - [2. Recruiter Search & Candidate Ranking Pipeline](#2-recruiter-search--candidate-ranking-pipeline)
@@ -16,6 +18,8 @@
   - [Soft Deactivation vs. Cascade Deletes](#soft-deactivation-vs-cascade-deletes)
   - [Dense Single-Fetch Payload Design](#dense-single-fetch-payload-design)
   - [Debounced Batch Synchronization](#debounced-batch-synchronization)
+  - [Serializer-Layer Validation](#serializer-layer-validation)
+  - [Atomic Batch Rejection](#atomic-batch-rejection)
 - [Performance & Scalability Strategy](#performance--scalability-strategy)
 
 ---
@@ -34,6 +38,84 @@ HireRight is built around five core architectural tenets:
    Match scores are normalized against the theoretical maximum score for that specific query, ensuring that candidate scores are comparable across diverse queries.
 5. **Near-Miss Transparency**:
    Recruiters need to inspect high-potential candidates who satisfy core requirements but miss a single version variant or optional skill. The pipeline supports surfacing near-miss diagnostics alongside strict boolean filters.
+
+---
+
+## Infrastructure & Containerization
+
+The development stack runs via Docker Compose (`docker-compose.yml`), with a shared `.env.example` at the repo root consumed by both Docker Compose and bare `manage.py runserver`.
+
+```mermaid
+graph TB
+    subgraph Docker Compose
+        db["db<br/>PostgreSQL 16 Alpine<br/>:5432"]
+        redis["redis<br/>Redis 7 Alpine<br/>:6379"]
+        minio["minio<br/>MinIO (S3-compatible)<br/>:9000 API / :9001 Console"]
+        api["api<br/>Django 5.1 runserver<br/>:8000"]
+        worker["worker<br/>Celery -A config worker<br/>(no exposed port)"]
+    end
+
+    api -->|depends_on healthy| db
+    api -->|depends_on healthy| redis
+    worker -->|depends_on healthy| db
+    worker -->|depends_on healthy| redis
+    api -.->|S3 storage| minio
+    worker -.->|S3 storage| minio
+```
+
+| Service | Image | Port(s) | Volume | Healthcheck |
+| :--- | :--- | :--- | :--- | :--- |
+| `db` | `postgres:16-alpine` | `5432` | `pgdata` | `pg_isready` |
+| `redis` | `redis:7-alpine` | `6379` | — | `redis-cli ping` |
+| `minio` | `minio/minio` | `9000`, `9001` | `miniodata` | — |
+| `api` | `apps/api/Dockerfile` | `8000` | bind mount `./apps/api:/app` | — |
+| `worker` | `apps/api/Dockerfile` | — | bind mount `./apps/api:/app` | — |
+
+The `api` and `worker` services share the same `Dockerfile` (Python 3.12-slim, `psycopg` compiled against `libpq-dev`). The worker overrides `CMD` with `celery -A config worker -l info`.
+
+---
+
+## Authentication Architecture
+
+HireRight supports three candidate login paths and a separate recruiter service-to-service flow, all converging on a single canonical identity keyed by verified email.
+
+### Custom User Model (`accounts.models.User`)
+
+The `User` model drops `username` in favour of a unique `email`:
+
+| Field | Type | Purpose |
+| :--- | :--- | :--- |
+| `email` | `EmailField(unique=True)` | Primary identifier (`USERNAME_FIELD`) |
+| `phone_number` | `CharField` | E.164 format, for mobile OTP |
+| `email_verified` | `BooleanField` | Set by `mark_email_verified()` |
+| `phone_verified` | `BooleanField` | Set by `mark_phone_verified()` |
+
+Account linking is automatic: a candidate who signs up via email and later uses LinkedIn lands in the same profile, because allauth matches on verified email.
+
+### Candidate Login Paths
+
+```mermaid
+flowchart LR
+    E["Email magic link<br/>(allauth)"] --> JWT["JWT Access Token<br/>(15 min)"]
+    M["Mobile OTP<br/>(pluggable SMS backend)"] --> JWT
+    L["LinkedIn OIDC<br/>(openid_connect provider)"] --> JWT
+    JWT --> Builder["Profile Builder<br/>/api/v1/builder/"]
+```
+
+- **Email**: Passwordless magic link via `django-allauth`.
+- **Mobile OTP**: Pluggable `SMSBackend` interface (`accounts/sms/backends.py`). `ConsoleSMSBackend` prints OTPs to stdout in development; production requires a real backend (Twilio, etc.) configured via `settings.SMS_BACKEND`.
+- **LinkedIn**: Uses allauth's generic `openid_connect` provider, **not** the deprecated `linkedin_oauth2` which relied on retired v1 profile projections and `r_liteprofile` scopes.
+
+### Token Architecture
+
+| Consumer | Mechanism | Lifetime | Library |
+| :--- | :--- | :--- | :--- |
+| Candidate | JWT (Bearer) | 15 min access / 7 day rotating refresh | `dj-rest-auth` + `simplejwt` |
+| Recruiter service | OAuth2 client-credentials | 1 hour | `django-oauth-toolkit` |
+
+### Recruiter Search Scope
+
+`POST /api/v1/search/` requires an OAuth2 access token carrying the `candidates:search` scope. A custom `HasRecruiterSearchScope` permission class enforces this — hand-rolled instead of `oauth2_provider.TokenHasScope` to prevent `500 ImproperlyConfigured` errors when non-OAuth2 requests hit the endpoint (returns a clean `403 Forbidden` instead).
 
 ---
 
@@ -79,35 +161,42 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    A[Recruiter Query: Required & Optional Codes, Required Variants] --> B[search.py: _prefilter]
-    
-    subgraph Database Layer [PostgreSQL SQL Execution]
-        B --> C[Filter is_searchable=True & open_to_opportunities=True]
-        C --> D[Filter claims__activity__code__in Required Codes]
-        D --> E["Annotate n_required = Count(distinct=True)"]
-        E --> F[Filter n_required == len(required_activity_codes)]
-        F --> G[Extract Matching Candidate Profile IDs]
+    A["Recruiter Query:<br/>Required & Optional Codes,<br/>Required Variants"] --> V["CandidateSearchSerializer:<br/>Validate inputs"]
+    V --> B{Has required codes?}
+
+    B -- Yes --> C["_prefilter with _claim_matches(required):<br/>code + scorable claim_type + is_active"]
+
+    subgraph Database Layer ["PostgreSQL SQL Execution"]
+        C --> D["Filter is_searchable=True &<br/>open_to_opportunities=True"]
+        D --> E["Annotate n_required =<br/>Count(distinct=True)"]
+        E --> F["Filter n_required ==<br/>len(required_activity_codes)"]
+        F --> G["Extract Matching Profile IDs"]
     end
 
-    G --> H[Bulk Hydrate Relevant Claims from DB]
-    
-    subgraph Pure Functional Layer [scoring.py]
-        H --> I[Transform ORM rows to Immutable Claim Dataclasses]
-        I --> J[Pure score Function per Candidate]
-        J --> K[Compute Base Weight = Proficiency * Recency Multiplier]
-        K --> L[Evaluate Variant Overlap Satisfaction]
-        L --> M[Sum Required & Optional Weights]
-        M --> N[Normalize by Max Achievable Query Weight]
+    B -- No --> B2{Has optional codes?}
+    B2 -- Yes --> O["_prefilter with<br/>_claim_matches(optional):<br/>at-least-one match"]
+    O --> G
+    B2 -- No --> EMPTY["Return empty qs.none()"]
+
+    G --> H["Bulk Hydrate Relevant Claims from DB"]
+
+    subgraph Pure Functional Layer ["scoring.py"]
+        H --> I["Transform ORM rows to<br/>Immutable Claim Dataclasses"]
+        I --> J["Pure score Function per Candidate"]
+        J --> K["Compute Base Weight =<br/>Proficiency x Recency Multiplier"]
+        K --> L["Evaluate Variant Overlap Satisfaction"]
+        L --> M["Sum Required & Optional Weights"]
+        M --> N["Normalize by Max Achievable Query Weight"]
     end
 
-    N --> O{Include Near Misses?}
-    O -- No --> P[Filter meets_requirements == True]
-    O -- Yes --> Q[Keep All with Partial Matches]
-    
-    P --> R[Sort Descending by Score]
-    Q --> R
-    R --> S[Apply Limit: Top N Candidates]
-    S --> T[Return RankedCandidate List]
+    N --> P{Include Near Misses?}
+    P -- No --> Q["Filter meets_requirements == True"]
+    P -- Yes --> R["Keep All with Partial Matches"]
+
+    Q --> S["Sort Descending by Score"]
+    R --> S
+    S --> T["Apply Limit: Top N Candidates"]
+    T --> U["Return RankedCandidate List"]
 ```
 
 ---
@@ -116,18 +205,29 @@ flowchart TD
 
 ```mermaid
 erDiagram
+    User ||--|| CandidateProfile : has
+
     Function ||--o{ CompetencyArea : contains
     CompetencyArea ||--o{ Activity : contains
-    
-    User ||--|| CandidateProfile : has
+
     CandidateProfile ||--o{ CandidateFunction : specializes_in
     Function ||--o{ CandidateFunction : references
-    
+
     CandidateProfile ||--|| BuilderProgress : tracks
     Function ||--o{ BuilderProgress : references
-    
+
     CandidateProfile ||--o{ ActivityClaim : asserts
     Activity ||--o{ ActivityClaim : referenced_by
+
+    User {
+        int id PK
+        string email UK
+        string phone_number
+        boolean email_verified
+        boolean phone_verified
+        string first_name
+        string last_name
+    }
 
     Function {
         string code PK
@@ -223,14 +323,28 @@ erDiagram
   - Reduces backend write traffic by $>80\%$ during rapid multi-select workflows.
   - `ClaimWriteSerializer` handles upserts and deletions (`claimed: false`) in a single atomic transaction.
 
+### Serializer-Layer Validation
+- **Decision**: All input validation happens in DRF serializers (`api/v1/serializers.py`), not in model `clean()` methods.
+- **Rationale**:
+  - The write path uses `update_or_create`, which bypasses `full_clean()`. Anything not checked at the serializer layer would reach the database unchecked.
+  - Serializer validation produces structured field-level error responses (`400` with field names) rather than unhandled `ValidationError` exceptions.
+
+### Atomic Batch Rejection
+- **Decision**: `ClaimBatchView` rejects the entire batch with `400` if any single claim has an unknown activity code, inactive activity, or invalid variant — rather than partially applying valid claims.
+- **Rationale**:
+  - A partial success would report `synced_count` while silently dropping a candidate's answer, which violates the "never lose work" principle.
+  - The frontend can safely retry the full batch on failure without risk of duplicating already-applied claims (upsert semantics via `UniqueConstraint`).
+
 ---
 
 ## Performance & Scalability Strategy
 
 1. **SQL-Level Aggregated Pre-filtering**:
-   Instead of retrieving thousands of profiles to score in Python, `search.py` issues a SQL query with `Count(distinct=True)` to narrow candidate IDs down to only those meeting required codes before loading claim rows.
+   Instead of retrieving thousands of profiles to score in Python, `search.py` issues a SQL query with `Count(distinct=True)` to narrow candidate IDs down to only those meeting required codes before loading claim rows. The `_claim_matches()` helper ensures the pre-filter and scorer agree on which claim types are scorable.
 2. **Compound Composite Indexes**:
    - `(activity_id, profile_id)` on `ActivityClaim` for high-throughput recruiter reverse lookups.
    - `(profile_id, activity_id)` on `ActivityClaim` for candidate profile hydration.
 3. **In-Memory Score Normalization**:
    Scoring and ranking for a pre-filtered batch of 50–200 candidates takes $<2\,\text{ms}$ in Python, easily fitting within interactive web request budgets.
+4. **Empty Query Guard**:
+   An unconstrained search (no required or optional codes) returns `qs.none()` at the pre-filter level and `400` at the serializer level, preventing accidental full-table scans.

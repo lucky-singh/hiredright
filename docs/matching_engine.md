@@ -184,23 +184,49 @@ This enables recruiters to toggle `include_near_misses=True` to review candidate
 Candidate profiles are pre-filtered at the database level before loading claim records:
 
 ```python
+def _claim_matches(codes) -> Q:
+    """A scorable, live claim on one of `codes`."""
+    return Q(
+        claims__activity__code__in=codes,
+        claims__activity__claim_type__in=ClaimType.scorable(),
+        claims__activity__is_active=True,
+    )
+
+
 def _prefilter(query: Query):
     qs = CandidateProfile.objects.filter(is_searchable=True, open_to_opportunities=True)
+
     required = query.required_activity_codes
     if required:
         qs = (
-            qs.filter(claims__activity__code__in=required)
+            qs.filter(_claim_matches(required))
             .annotate(
                 n_required=Count(
                     "claims__activity__code",
-                    filter=Q(claims__activity__code__in=required),
+                    filter=_claim_matches(required),
                     distinct=True,
                 )
             )
             .filter(n_required=len(required))
         )
+    elif query.optional_activity_codes:
+        qs = qs.filter(_claim_matches(query.optional_activity_codes))
+    else:
+        return qs.none()
+
     return qs.distinct()
 ```
+
+Two properties of this are load-bearing:
+
+- **The claim predicate matches the hydration query exactly** — same claim types,
+  same `is_active`. If the two disagreed, a profile could be selected on a TRAIT
+  claim and then reported by the scorer as *missing* the requirement it was
+  selected for, which surfaces as an inexplicable near-miss.
+- **An unconstrained query returns nothing, not everyone.** With no required
+  codes, matching at least one optional code is the only thing keeping this off a
+  full scan of every searchable profile — all of which would score `0.0` anyway.
+  With neither, the queryset is empty by construction.
 
 ### Candidate Hydration & Execution
 
@@ -215,7 +241,11 @@ def _prefilter(query: Query):
 
 ## Test Suite & Edge Cases
 
-The test suite in `matching/tests/test_scoring.py` covers key behavioral edge cases:
+Two suites, split along the same seam as the code. `matching/tests/test_scoring.py`
+is pure and needs no database; `matching/tests/test_search.py` covers the ORM half
+and does.
+
+### Pure scoring — `test_scoring.py`
 
 | Test Group | Scenario Tested | Expected Behavior |
 | :--- | :--- | :--- |
@@ -233,3 +263,18 @@ The test suite in `matching/tests/test_scoring.py` covers key behavioral edge ca
 | **Optional** | Code in both required & optional | Deduplicated; not double-counted |
 | **Normalisation**| All expert claims with optional items | Capped at exactly `1.0` |
 | **Normalisation**| Small query (1 item) vs Large query (6 items) | Comparable percentage scores |
+
+### Search pipeline — `test_search.py`
+
+| Test Group | Scenario Tested | Expected Behavior |
+| :--- | :--- | :--- |
+| **Prefilter scope** | Profile holds every required code | Returned |
+| **Prefilter scope** | Profile missing one required code | Filtered out in SQL |
+| **Prefilter scope** | `is_searchable=False` / not open to opportunities | Excluded |
+| **Layer agreement** | Only claim is a TRAIT on the required code | Not selected at all, near-misses included |
+| **Layer agreement** | Only claim is on an inactive activity | Not selected at all |
+| **Unconstrained** | No required and no optional codes | Empty result, not the whole pool |
+| **Unconstrained** | Optional-only query, profile matches nothing | Excluded |
+| **Variants** | Claimed `3.2` against required `3.3` | Dropped by default; surfaced with `include_near_misses=True` |
+| **Ranking** | Expert/recent vs exposed/stale | Ordered by descending score |
+| **Ranking** | More matches than `limit` | Truncated to `limit` |

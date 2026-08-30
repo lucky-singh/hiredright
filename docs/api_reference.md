@@ -29,12 +29,28 @@
 ## Authentication
 
 - **Candidate Flows**: Bearer JWT (`djangorestframework-simplejwt`) / Session Auth.
-- **Recruiter Service-to-Service**: OAuth2 Tokens (`django-oauth-toolkit`).
+- **Recruiter Service-to-Service**: OAuth2 client credentials (`django-oauth-toolkit`), scoped.
 
 Header format:
 ```http
 Authorization: Bearer <access_token>
 ```
+
+### Recruiter tokens
+
+`POST /api/v1/search/` is not open to candidate JWTs — it reads across the whole
+candidate pool, so it requires an OAuth2 access token carrying the
+`candidates:search` scope. Register a confidential application (client type
+`confidential`, grant type `client-credentials`) in the admin, then:
+
+```bash
+curl -X POST https://<host>/o/token/ \
+  -u "<client_id>:<client_secret>" \
+  -d grant_type=client_credentials \
+  -d scope=candidates:search
+```
+
+A token without that scope receives `403`, not `401`.
 
 ---
 
@@ -94,6 +110,7 @@ GET /api/v1/builder/{function_code}/
     }
   ],
   "progress": {
+    "function_code": "statistical-programming",
     "completed_area_codes": ["core-programming"],
     "last_area_code": "cdisc-sdtm",
     "completed_at": null
@@ -114,12 +131,18 @@ POST /api/v1/builder/claims/
 
 #### Request Payload (`ClaimBatchSerializer`)
 - `claims` (array of `ClaimWriteSerializer`, max 200 items):
-  - `activity_code` (string, required): Slug of the activity.
+  - `activity_code` (string, required): Slug of the activity. Must exist and be active.
   - `claimed` (boolean, optional, default: `true`): If `false`, deletes the claim.
   - `proficiency` (integer, optional, `1` to `4`): Proficiency rating.
   - `years_experience` (decimal, optional, `0.0` to `60.0`).
   - `last_used_year` (integer, optional, `1980` to current year).
-  - `variants` (array of strings, optional, default: `[]`).
+  - `variants` (array of strings, optional, default: `[]`). Must be a subset of
+    that activity's declared `variants`.
+
+The endpoint rejects the whole batch with `400` rather than partially applying it
+when a code is unknown/inactive, a variant is not offered by the activity, or a
+code appears twice — a partial success would report `synced_count` while
+silently dropping a candidate's answer.
 
 ```json
 {
@@ -159,8 +182,13 @@ PUT /api/v1/builder/progress/
 ```
 
 #### Request Payload (`BuilderProgressSerializer`)
+- `function_code` (string, required): Which function's builder this progress belongs to.
+- `completed_area_codes` (array of strings, optional).
+- `last_area_code` (string, optional).
+
 ```json
 {
+  "function_code": "statistical-programming",
   "completed_area_codes": ["core-programming", "cdisc-sdtm"],
   "last_area_code": "cdisc-adam"
 }
@@ -169,11 +197,15 @@ PUT /api/v1/builder/progress/
 #### Response: `200 OK`
 ```json
 {
+  "function_code": "statistical-programming",
   "completed_area_codes": ["core-programming", "cdisc-sdtm"],
   "last_area_code": "cdisc-adam",
   "completed_at": null
 }
 ```
+
+A candidate has one progress row, so switching `function_code` moves the row
+rather than creating a second one.
 
 ---
 
@@ -190,9 +222,15 @@ POST /api/v1/search/
 #### Request Payload
 - `required_activity_codes` (array of strings): Mandatory activity codes.
 - `optional_activity_codes` (array of strings): Preferred activity codes.
-- `required_variants` (object): Map of `{ activity_code: [variants] }`.
+- `required_variants` (object): Map of `{ activity_code: [variants] }`. Keys must
+  appear in `required_activity_codes` — a variant constraint on a code nobody
+  searched for would be silently inert.
 - `include_near_misses` (boolean, default: `false`): Include candidates missing variant or required codes.
 - `limit` (integer, default: `50`, max: `100`).
+
+At least one of `required_activity_codes` / `optional_activity_codes` must be
+non-empty; an unconstrained search returns `400` rather than the entire pool
+scored at zero.
 
 ```json
 {
@@ -245,8 +283,7 @@ POST /api/v1/search/
 | Status Code | Meaning | Example Scenario |
 | :--- | :--- | :--- |
 | `200 OK` | Success | Query executed or claims synchronized. |
-| `400 Bad Request` | Validation Error | Duplicate `activity_code` in batch or invalid variant. |
-| `401 Unauthorized` | Authentication Missing | Missing or expired JWT token. |
-| `403 Forbidden` | Permission Denied | Recruiter attempting to access private profile. |
-| `404 Not Found` | Resource Missing | Invalid `function_code` specified. |
-| `422 Unprocessable` | Domain Constraint | `last_used_year` is outside allowed range `1980..current_year`. |
+| `400 Bad Request` | Validation Error | Duplicate `activity_code` in batch, unknown activity code, variant not offered by the activity, `last_used_year` outside `1980..current_year`, or a search with no activity codes. |
+| `401 Unauthorized` | Authentication Missing | Missing or expired JWT / OAuth2 token. |
+| `403 Forbidden` | Permission Denied | Token lacks the `candidates:search` scope. |
+| `404 Not Found` | Resource Missing | Invalid `function_code` on the builder path. |
