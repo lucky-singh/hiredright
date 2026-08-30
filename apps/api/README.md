@@ -172,6 +172,23 @@ profile. API tokens are JWT (short access, rotating refresh) via
 `dj-rest-auth` + `simplejwt`; recruiter service-to-service auth is separate
 OAuth2 client-credentials via `django-oauth-toolkit`.
 
+For local development, the frontend authenticates against
+`POST /api/v1/auth/login/` and stores the returned access token in browser
+localStorage. The default dev account is created with the following command and
+then used in the browser UI:
+
+```bash
+cd apps/api
+source /home/lucky/Documents/projects/hiredright/.venv/bin/activate
+python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); u, created = User.objects.get_or_create(email='demo@example.com', defaults={'first_name': 'Demo', 'last_name': 'User'}); u.set_password('demo123'); u.save(); print(f'Created={created} Email={u.email}')"
+```
+
+- Email: `demo@example.com`
+- Password: `demo123`
+
+The builder autosave endpoint is `POST /api/v1/builder/claims/` and persists the
+candidate claim delta batch in PostgreSQL for the authenticated user.
+
 ---
 
 ## Database Models & Constraints

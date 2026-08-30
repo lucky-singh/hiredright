@@ -169,6 +169,32 @@ The candidate profile builder loads all necessary data (function taxonomy tree, 
    docker compose up -d
    ```
 
+6. **Create the local demo user in PostgreSQL-backed auth:**
+   The frontend logs into the API through the normal Django auth flow. Create a local dev user before testing the builder:
+
+   ```bash
+   cd apps/api
+   source /home/lucky/Documents/projects/hiredright/.venv/bin/activate
+   python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); u, created = User.objects.get_or_create(email='demo@example.com', defaults={'first_name': 'Demo', 'last_name': 'User'}); u.set_password('demo123'); u.save(); print(f'Created={created} Email={u.email}')"
+   ```
+
+   This creates the local demo account in the configured PostgreSQL database.
+
+7. **Log in for local development:**
+   The frontend uses the Django REST auth API at `/api/v1/auth/login/` and stores the returned JWT in localStorage.
+
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/auth/login/ \
+     -H "Content-Type: application/json" \
+     -d '{"email":"demo@example.com","password":"demo123"}'
+   ```
+
+   For a local database-backed demo flow, the dev user is:
+   - Email: `demo@example.com`
+   - Password: `demo123`
+
+   The candidate builder autosaves by posting claim deltas to `/api/v1/builder/claims/` with the bearer token.
+
 ### Seeding the Taxonomy
 
 Taxonomy files are loaded idempotently from YAML definitions:

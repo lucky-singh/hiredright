@@ -31,10 +31,29 @@
 - **Candidate Flows**: Bearer JWT (`djangorestframework-simplejwt`) / Session Auth.
 - **Recruiter Service-to-Service**: OAuth2 client credentials (`django-oauth-toolkit`), scoped.
 
-Header format:
+The frontend login request is:
+```http
+POST /api/v1/auth/login/
+Content-Type: application/json
+
+{"email": "demo@example.com", "password": "demo123"}
+```
+
+Create the local demo user before logging in with:
+```bash
+cd apps/api
+source /home/lucky/Documents/projects/hiredright/.venv/bin/activate
+python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); u, created = User.objects.get_or_create(email='demo@example.com', defaults={'first_name': 'Demo', 'last_name': 'User'}); u.set_password('demo123'); u.save(); print(f'Created={created} Email={u.email}')"
+```
+
+The response returns an access token, which is then sent in the bearer header:
 ```http
 Authorization: Bearer <access_token>
 ```
+
+For local development the default database-backed demo login is:
+- Email: `demo@example.com`
+- Password: `demo123`
 
 ### Recruiter tokens
 
