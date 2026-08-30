@@ -1,0 +1,140 @@
+.competency-area-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.competency-area {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.area-header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s;
+}
+
+.area-header:hover {
+  background: #f0f1f3;
+}
+
+.expand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: #667eea;
+  font-size: 12px;
+}
+
+.area-info {
+  flex: 1;
+}
+
+.area-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.area-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.activity-badge {
+  padding: 4px 10px;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.activities-list {
+  padding: 12px 0;
+  background: white;
+}
+
+.activity-item {
+  padding: 12px 16px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.activity-item:hover {
+  background: #f8f9fa;
+  border-left-color: #e0e0e0;
+}
+
+.activity-item.active {
+  background: #e8e4f3;
+  border-left-color: #667eea;
+}
+
+.activity-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.activity-label h5 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.activity-item.active .activity-label h5 {
+  color: #667eea;
+}
+
+.seniority-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.seniority-junior {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.seniority-mid {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.seniority-senior {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.seniority-lead {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.activity-help {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+}
