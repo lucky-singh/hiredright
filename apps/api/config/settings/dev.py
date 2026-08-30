@@ -30,3 +30,28 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=365),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
 }
+
+# Trust the Vite frontend origin for CSRF during authentication (SessionAuth)
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Remove SessionAuthentication to disable CSRF checks on the SPA frontend 
+# (since we are purely using JWTs for the SPA)
+REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (
+    "rest_framework_simplejwt.authentication.JWTAuthentication",
+    "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
+)
+
+# Also ensure dj-rest-auth doesn't try to use sessions
+REST_AUTH["SESSION_LOGIN"] = False
+
+# Ensure allauth knows username is completely disabled
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email' # Legacy setting just in case dj-rest-auth expects it
+
+# Force dj-rest-auth to use our custom register serializer that drops the username field
+
+# Force dj-rest-auth to use our custom register serializer
+REST_AUTH["REGISTER_SERIALIZER"] = "api.v1.auth_serializers.CustomRegisterSerializer"

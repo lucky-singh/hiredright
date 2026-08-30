@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import type { CompetencyArea } from '@/lib/api/types';
-import { CheckCircle2, Circle, CircleDot } from 'lucide-react';
+import { CheckCircle2, Circle, CircleDot, LogOut } from 'lucide-react';
 
 interface ProgressSidebarProps {
   areas: CompetencyArea[];
@@ -77,6 +77,20 @@ export function ProgressSidebar({
           })}
         </ul>
       </nav>
+
+      <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
+        <button
+          onClick={async () => {
+            const { logoutUser } = await import('@/lib/api/auth');
+            await logoutUser();
+            window.location.href = '/login';
+          }}
+          className="w-full flex items-center justify-center gap-2 py-2 px-3 text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800"
+        >
+          <LogOut className="w-4 h-4" />
+          Log out
+        </button>
+      </div>
     </aside>
   );
 }

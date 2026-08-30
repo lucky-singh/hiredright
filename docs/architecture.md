@@ -297,6 +297,14 @@ erDiagram
 
 ## Design Decisions & Trade-Offs
 
+### Authentication & Identity
+- **Decision**: The backend implements a custom `User` model (`apps/api/accounts/models.py`) with `username = None`, relying entirely on `email` as the unique identifier.
+- **Decision**: Authentication uses JSON Web Tokens (JWT) via `dj-rest-auth` and `djangorestframework-simplejwt`, with session authentication explicitly disabled in the REST Framework.
+- **Rationale**:
+  - Drops legacy Django `username` cruft, which simplifies magic-link and OAuth2 social login paths.
+  - Using pure JWT (`SESSION_LOGIN = False`) eliminates CSRF token friction for the decoupled Vite SPA.
+  - A custom `RegisterSerializer` is provided to ensure strict email uniqueness checks since the default `dj-rest-auth` serializer skips DB-level email existence checks if `ACCOUNT_EMAIL_VERIFICATION` is optional.
+
 ### Pure Functional Scoring Engine
 - **Decision**: `scoring.py` does not touch Django models or database connections. It receives plain Python dataclasses (`Claim`, `Query`) and outputs `MatchResult`.
 - **Rationale**:
