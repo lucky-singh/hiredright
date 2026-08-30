@@ -361,6 +361,7 @@ erDiagram
 The Candidate Profile Builder is a pure Single Page Application (SPA) located in `apps/web/`.
 
 - **Tech Stack**: React 19, Vite, TypeScript, Tailwind CSS v4, shadcn/ui.
+- **Testing**: UI components and routing are tested using Vitest, jsdom, and React Testing Library, allowing for fast, headless DOM verification of API mocking and state transitions.
 - **State Management**: Zustand manages the dense taxonomy tree and user claims in local memory, enabling sub-millisecond UI reactions (e.g. implicit claiming) without waiting on network requests.
 - **Debounced Syncing**: The `use-claim-sync` hook batches user interactions into atomic `ClaimBatch` payloads, emitting a background POST to the Django API after 500ms of inactivity.
 - **Proxy**: In development, Vite proxies `/api` to `localhost:8000` to bypass CORS. In production, the built static files are served via CDN/Nginx, consuming the API over HTTPS.
