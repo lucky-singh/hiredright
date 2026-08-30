@@ -4,9 +4,8 @@ from .models import Activity, CompetencyArea, Function
 
 
 class ActivityInline(admin.TabularInline):
-    model = Activity
+    model = Activity.competency_areas.through
     extra = 0
-    fields = ("code", "label", "claim_type", "seniority_hint", "sort_order", "is_active")
 
 
 @admin.register(Function)

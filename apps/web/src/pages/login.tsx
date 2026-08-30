@@ -31,7 +31,7 @@ export function LoginPage() {
         password: formData.password,
       });
       // Redirect to builder
-      navigate('/builder');
+      navigate('/functions');
     } catch (err: any) {
       console.error(err);
       if (err.body) {

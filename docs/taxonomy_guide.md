@@ -29,11 +29,11 @@
 
 HireRight structures professional domains into a three-tier hierarchy:
 
-$$\text{Function} \longrightarrow \text{CompetencyArea} \longrightarrow \text{Activity}$$
+$$\text{Function} \longleftrightarrow \text{CompetencyArea} \longleftrightarrow \text{Activity}$$
 
-1. **Function**: Top-level job specialization (e.g. `statistical-programming`, `clinical-data-management`, `medical-writing`).
-2. **CompetencyArea**: Thematic step in the candidate builder flow, typically containing 8–15 activities (e.g. `cdisc-sdtm`, `tlf-biostatistics`).
-3. **Activity**: The atomic, scorable skill, deliverable, or tool proficiency that candidates claim and recruiters query.
+1. **Function**: Top-level job specialization (e.g. `statistical-programming`, `clinical-operations`).
+2. **CompetencyArea**: Thematic step in the candidate builder flow, typically containing 8–15 activities (e.g. `cdisc-sdtm`, `site-visit-execution`).
+3. **Activity**: The atomic, scorable skill, deliverable, or tool proficiency that candidates claim and recruiters query. Activities are connected via a **Many-to-Many** relationship, meaning a single activity (e.g. "ICH-GCP Compliance") can be reused across multiple competency areas and functions without data duplication.
 
 ---
 
@@ -115,37 +115,19 @@ An optional integer preserving traceability to the original domain specification
 
 ---
 
-## Reference Breakdown: Statistical Programming
+## Reference Breakdowns
 
-The Statistical Programming taxonomy (`statistical_programming.yaml`) contains **107 items** across 9 competency areas:
+### Statistical Programming
+The Statistical Programming taxonomy (`statistical_programming.yaml`) contains **122 items** across 14 competency areas, covering core SAS/R, CDISC, complex therapeutics, Cloud/HPC, and AI workflows.
 
-```
-Statistical Programming (107 Total Items)
-├── 1. Core Programming & Language Proficiency (14 items)
-│      SAS (Base, Macro, SQL, STAT, GRAPH, Hash, ODS), R (Base, Tidyverse, Shiny), Python
-├── 2. CDISC SDTM (13 items)
-│      SDTM IG (3.1.2–3.4), Observation Classes, Trial Design, SUPPQUAL/RELREC, aCRF, ISO 8601
-├── 3. CDISC ADaM (13 items)
-│      ADaM IG (1.0–1.3), ADSL, BDS, OCCDS, MedDRA, WHODrug, Baseline, Windowing, Imputations
-├── 4. TLF & Biostatistics (12 items)
-│      SAP interpretation, Tables (Demog, AE, Disp, Efficacy), Listings, Figures, Double Prog
-├── 5. Regulatory Submissions & Validation (12 items)
-│      Pinnacle 21 (Community, Enterprise, Issues), Define-XML (2.0/2.1), SDRG, ADRG, BIMO, eCTD
-├── 6. Therapeutic Area Expertise (12 items)
-│      Solid Tumor, Heme-Onc, Immuno-Onc, Vaccines, Cardio, CNS, Rare Diseases, PK/PD
-├── 7. Integrated Summaries & Complex Trials (8 items)
-│      ISS Safety, ISE Efficacy, Harmonisation, Interim Analysis, DMC/DSMB, Adaptive Designs
-├── 8. Tools, Systems & Automation (10 items)
-│      Git, Macro Libraries, MDR (Formedix), EDC (Rave/Veeva), Jira, Linux, LLM/AI Tools
-└── 9. Leadership, Oversight & Stakeholder Management (13 items)
-       Lead Programmer, CRO Oversight, Resourcing, Timelines, Mentorship, SOPs, Traits
-```
+### Clinical Operations (CRA)
+The Clinical Operations taxonomy (`clinical_operations.yaml`) contains **150 items** across 14 competency areas, covering site visit execution, risk-based quality management (RBQM), audit readiness, core GCP compliance, and therapeutic expertise.
 
 ---
 
 ## Adding a New Domain Function
 
-Adding a new discipline (e.g. `clinical-data-management.yaml` or `medical-writing.yaml`) requires **zero schema migrations**:
+Adding a new discipline (e.g. `clinical-data-management.yaml` or `medical-writing.yaml`) requires **zero schema migrations or UI deployments**:
 
 1. Create a new YAML file: `apps/api/taxonomy/seed/clinical_data_management.yaml`.
 2. Define the `function`, `competency_areas`, and `activities`.
@@ -153,7 +135,7 @@ Adding a new discipline (e.g. `clinical-data-management.yaml` or `medical-writin
    ```bash
    python manage.py seed_taxonomy clinical-data-management
    ```
-4. The new function and its tree immediately become available to the profile builder API.
+4. The new function instantly appears in the `GET /api/v1/functions/` endpoint, and the React frontend's `FunctionSelectionPage` will dynamically render a new card for users to select.
 
 ---
 

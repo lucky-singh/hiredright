@@ -75,6 +75,30 @@ A token without that scope receives `403`, not `401`.
 
 ## Candidate Profile Builder Endpoints
 
+
+
+### GET `/api/v1/functions/`
+**Authentication**: Required
+
+Fetches all active job functions available for candidate onboarding.
+
+#### Response
+
+```json
+[
+  {
+    "code": "statistical-programming",
+    "label": "Statistical Programming",
+    "description": "Clinical statistical programming across CDISC standards..."
+  },
+  {
+    "code": "clinical-operations",
+    "label": "Clinical Operations",
+    "description": "Clinical Research Associate (CRA) monitoring, site execution..."
+  }
+]
+```
+
 ### 1. Fetch Builder Working Set
 
 Retrieves the entire function taxonomy tree, current candidate claims, and builder progress in a single dense payload.

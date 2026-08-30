@@ -52,36 +52,44 @@ def taxonomy(db):
     area = CompetencyArea.objects.create(
         function=function, code="cdisc-sdtm", label="CDISC SDTM"
     )
+    sdtm = Activity.objects.create(
+        code="sdtm-implementation-guide",
+        label="SDTM Implementation Guide versions",
+        claim_type=ClaimType.PROFICIENCY,
+        variants=["3.2", "3.3"],
+    )
+    sdtm.competency_areas.add(area)
+    
+    adam = Activity.objects.create(
+        code="adam-implementation-guide",
+        label="ADaM Implementation Guide versions",
+        claim_type=ClaimType.ACTIVITY,
+    )
+    adam.competency_areas.add(area)
+    
+    trait = Activity.objects.create(
+        code="quality-mindset",
+        label="Quality mindset",
+        claim_type=ClaimType.TRAIT,
+    )
+    trait.competency_areas.add(area)
+    
+    retired = Activity.objects.create(
+        code="retired-activity",
+        label="Retired activity",
+        claim_type=ClaimType.ACTIVITY,
+        is_active=False,
+    )
+    retired.competency_areas.add(area)
+
     return SimpleNamespace(
         function=function,
         other_function=other_function,
         area=area,
-        sdtm=Activity.objects.create(
-            competency_area=area,
-            code="sdtm-implementation-guide",
-            label="SDTM Implementation Guide versions",
-            claim_type=ClaimType.PROFICIENCY,
-            variants=["3.2", "3.3"],
-        ),
-        adam=Activity.objects.create(
-            competency_area=area,
-            code="adam-implementation-guide",
-            label="ADaM Implementation Guide versions",
-            claim_type=ClaimType.ACTIVITY,
-        ),
-        trait=Activity.objects.create(
-            competency_area=area,
-            code="quality-mindset",
-            label="Quality mindset",
-            claim_type=ClaimType.TRAIT,
-        ),
-        retired=Activity.objects.create(
-            competency_area=area,
-            code="retired-activity",
-            label="Retired activity",
-            claim_type=ClaimType.ACTIVITY,
-            is_active=False,
-        ),
+        sdtm=sdtm,
+        adam=adam,
+        trait=trait,
+        retired=retired,
     )
 
 

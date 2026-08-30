@@ -38,9 +38,7 @@ competency_areas:
       - { code: r-base,                 source_ref: 8,  claim_type: proficiency, seniority_hint: junior, label: "R (base)", help_text: "Vectors, lists, data frames." }
       - { code: r-tidyverse,            source_ref: 9,  claim_type: proficiency, seniority_hint: mid,    label: "R tidyverse", help_text: "dplyr, tidyr, stringr." }
       - { code: r-shiny,                source_ref: 10, claim_type: proficiency, seniority_hint: senior, label: "R Shiny", help_text: "Interactive dashboards for data review." }
-      - { code: python-clinical,        source_ref: 11, claim_type: proficiency, seniority_hint: mid,    label: "Python for clinical data", help_text: "Pandas / NumPy on clinical datasets." }
       - { code: code-efficiency,        source_ref: 12, claim_type: activity,    seniority_hint: senior, label: "Optimised slow-running legacy code", help_text: "Measurably improved runtime of inherited programs." }
-      - { code: language-interop,       source_ref: 13, claim_type: proficiency, seniority_hint: senior, label: "SAS ↔ R/Python interoperability", help_text: "Passing data between environments." }
       - { code: cloud-grid-environments, source_ref: 14, claim_type: proficiency, seniority_hint: mid,   label: "Cloud / grid environments", help_text: "SAS Viya, AWS, or Azure grid environments." }
 
   - code: cdisc-sdtm
@@ -146,7 +144,6 @@ competency_areas:
       - { code: ta-infectious-disease,   source_ref: 73, claim_type: activity, seniority_hint: mid,    label: "Infectious disease", help_text: "Viral load kinetics and resistance mutations." }
       - { code: ta-pharmacokinetics,     source_ref: 74, claim_type: activity, seniority_hint: senior, label: "Pharmacokinetics (PK)", help_text: "NCA data preparation, concentration-time curves." }
       - { code: ta-device-trials,        source_ref: 75, claim_type: activity, seniority_hint: senior, label: "Device trials", help_text: "Device malfunction and exposure data." }
-      - { code: ta-real-world-evidence,  source_ref: 76, claim_type: activity, seniority_hint: senior, label: "Real-world evidence", help_text: "EHR or claims data, OMOP standards." }
 
   - code: integrated-summaries
     label: Integrated Summaries & Complex Trials
@@ -174,7 +171,6 @@ competency_areas:
       - { code: agile-methodology,      source_ref: 91, claim_type: proficiency, seniority_hint: mid,    label: "Agile methodology", help_text: "Working in sprints rather than waterfall." }
       - { code: unix-linux-cli,         source_ref: 92, claim_type: proficiency, seniority_hint: mid,    label: "Unix / Linux CLI", help_text: "Batch job execution and server navigation." }
       - { code: automation-rpa,         source_ref: 93, claim_type: activity,    seniority_hint: senior, label: "Automation of QC tasks", help_text: "Building tools that automate repetitive QC work." }
-      - { code: llm-ai-tools,           source_ref: 94, claim_type: proficiency, seniority_hint: mid,    label: "LLM / AI tooling", help_text: "Using AI assistants such as Copilot compliantly." }
 
   - code: leadership-oversight
     label: Leadership, Oversight & Stakeholder Management
@@ -194,3 +190,48 @@ competency_areas:
       # --- Self-reported dispositions: collected, but excluded from match scoring.
       - { code: scope-management,         source_ref: 105, claim_type: trait,    seniority_hint: senior, label: "Scope management", help_text: "Pushing back professionally on ad-hoc, out-of-scope requests." }
       - { code: quality-mindset,          source_ref: 107, claim_type: trait,    seniority_hint: junior, label: "Quality mindset", help_text: "Rigorous attention to detail and zero-defect mentality." }
+
+  - code: ai-ml-automation
+    label: Artificial Intelligence, LLMs, & Automation
+    description: Leveraging AI/ML to accelerate programming workflows and extract insights.
+    activities:
+      - { code: llm-copilot-integration,  source_ref: 108, claim_type: proficiency, seniority_hint: mid,    label: "LLM/Copilot Integration", help_text: "Using GitHub Copilot or internal LLMs to accelerate code generation compliantly." }
+      - { code: nlp-patient-narratives,   source_ref: 109, claim_type: activity,    seniority_hint: senior, label: "NLP for Patient Narratives", help_text: "Programming NLP pipelines to auto-generate or QC patient safety narratives." }
+      - { code: predictive-data-quality,  source_ref: 110, claim_type: activity,    seniority_hint: senior, label: "Predictive Data Quality", help_text: "ML algorithms to detect multivariate anomalies in raw EDC data." }
+      - { code: llm-assisted-mapping,     source_ref: 111, claim_type: activity,    seniority_hint: senior, label: "LLM-Assisted Mapping", help_text: "Piloting AI to auto-map raw vendor data structures into SDTM." }
+
+  - code: python-ecosystem
+    label: Python Ecosystem & Multi-Language Environments
+    description: Readiness for the increasing adoption of Python in clinical data science.
+    activities:
+      - { code: python-data-wrangling,    source_ref: 112, claim_type: proficiency, seniority_hint: mid,    label: "Python GxP Data Wrangling", help_text: "Fluency in pandas and polars for memory-efficient data manipulation." }
+      - { code: python-based-submissions, source_ref: 113, claim_type: activity,    seniority_hint: senior, label: "Python-Based Submissions", help_text: "Understanding FDA pilot programs for submitting Python scripts and virtual environments." }
+      - { code: polyglot-programming,     source_ref: 114, claim_type: proficiency, seniority_hint: senior, label: "Polyglot Programming", help_text: "Seamlessly passing data between SAS, R, and Python environments." }
+      - { code: python-clinical-dashboards,source_ref: 115, claim_type: activity,   seniority_hint: mid,    label: "Python Clinical Dashboards", help_text: "Developing interactive clinical review tools using Streamlit or Dash." }
+
+  - code: rwe-omop
+    label: Real-World Evidence (RWE) & OMOP Integration
+    description: Working with observational data to support regulatory or post-market commitments.
+    activities:
+      - { code: omop-cdm,                 source_ref: 116, claim_type: proficiency, seniority_hint: senior, label: "OMOP Common Data Model (CDM)", help_text: "Mapping clinical trial SDTM data into the OMOP CDM structure." }
+      - { code: ehr-claims-engineering,   source_ref: 117, claim_type: activity,    seniority_hint: senior, label: "EHR & Claims Data Engineering", help_text: "Wrangling datasets from vendors like Flatiron or Optum." }
+      - { code: synthetic-control-arms,   source_ref: 118, claim_type: activity,    seniority_hint: lead,   label: "Synthetic Control Arms (SCA)", help_text: "Programming datasets bridging historical RWE with active trial data." }
+      - { code: rwd-missingness,          source_ref: 119, claim_type: activity,    seniority_hint: senior, label: "Missingness in RWD", help_text: "Handling non-random missing data in EHRs using multiple imputation." }
+
+  - code: cloud-native-computing
+    label: Cloud-Native Architectures & Big Data
+    description: Scalable cloud data lakes and distributed computing for clinical data.
+    activities:
+      - { code: clinical-data-lake,       source_ref: 120, claim_type: proficiency, seniority_hint: senior, label: "Clinical Data Lake Architecture", help_text: "Working within AWS S3, Azure Data Lake, Databricks, or Snowflake." }
+      - { code: spark-distributed-computing,source_ref: 121, claim_type: proficiency, seniority_hint: senior, label: "Spark & Distributed Computing", help_text: "Using PySpark or SparkR to process massive high-frequency data." }
+      - { code: serverless-execution,     source_ref: 122, claim_type: activity,    seniority_hint: lead,   label: "Serverless Execution", help_text: "Triggering programmatic SDTM/ADaM builds via AWS Lambda or Azure Functions." }
+      - { code: api-first-microservices,  source_ref: 123, claim_type: activity,    seniority_hint: lead,   label: "API-First Microservices", help_text: "Building internal REST APIs for clinical operations to pull trial metrics." }
+
+  - code: complex-therapeutics-designs
+    label: Advanced Trial Designs & Complex Therapeutics
+    description: Programming for the most mathematically and structurally complex trial protocols.
+    activities:
+      - { code: tipping-point-analysis,   source_ref: 124, claim_type: activity,    seniority_hint: lead,   label: "Tipping Point Analysis", help_text: "Simulations to assess efficacy endpoints under MNAR assumptions." }
+      - { code: atmps,                    source_ref: 125, claim_type: activity,    seniority_hint: senior, label: "Advanced Therapy Medicinal Products", help_text: "Handling specialized domains for CAR-T cell therapies and cell kinetics." }
+      - { code: n-of-1-trials,            source_ref: 126, claim_type: activity,    seniority_hint: senior, label: "N-of-1 Trials & Intra-patient Modeling", help_text: "Adapting ADaM structures for ultra-rare populations and intra-patient modeling." }
+

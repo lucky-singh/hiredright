@@ -56,8 +56,8 @@ export function ActivityItem({ activity }: ActivityItemProps) {
         <div className="mt-1">
           <Checkbox 
             checked={isClaimed} 
-            onCheckedChange={(checked) => {
-              // already handled by parent div onClick
+            onCheckedChange={() => {
+              toggleClaim(activity.code);
             }}
             className={cn(
               "w-5 h-5 transition-colors border-2",

@@ -37,6 +37,12 @@ class CompetencyAreaSerializer(serializers.ModelSerializer):
         fields = ("code", "label", "description", "activities")
 
 
+class FunctionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Function
+        fields = ("code", "label", "description")
+
+
 class FunctionTreeSerializer(serializers.ModelSerializer):
     competency_areas = CompetencyAreaSerializer(many=True, read_only=True)
 

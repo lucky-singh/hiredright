@@ -94,8 +94,8 @@ class Activity(TimestampedModel):
     changing a `code` is a breaking change for any recruiter integration.
     """
 
-    competency_area = models.ForeignKey(
-        CompetencyArea, on_delete=models.CASCADE, related_name="activities"
+    competency_areas = models.ManyToManyField(
+        CompetencyArea, related_name="activities"
     )
     code = models.SlugField(max_length=96, unique=True)
     label = models.CharField(max_length=300)
@@ -128,7 +128,6 @@ class Activity(TimestampedModel):
         ordering = ("sort_order", "label")
         indexes = [
             models.Index(fields=("claim_type",)),
-            models.Index(fields=("competency_area", "sort_order")),
         ]
 
     def __str__(self) -> str:

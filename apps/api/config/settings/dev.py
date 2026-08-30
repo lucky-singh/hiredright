@@ -55,3 +55,10 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email' # Legacy setting just in case dj-rest-au
 
 # Force dj-rest-auth to use our custom register serializer
 REST_AUTH["REGISTER_SERIALIZER"] = "api.v1.auth_serializers.CustomRegisterSerializer"
+
+# Swap order so OAuth2 runs before SimpleJWT. 
+# SimpleJWT throws an exception if a Bearer token is not a JWT, which blocks DOT.
+REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (
+    "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
+    "rest_framework_simplejwt.authentication.JWTAuthentication",
+)

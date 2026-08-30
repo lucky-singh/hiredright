@@ -2,7 +2,6 @@ import type { FunctionTree } from '@/lib/api/types';
 import { useBuilderStore } from '@/stores/builder-store';
 import { Badge } from '@/components/ui/badge';
 import { Pencil } from 'lucide-react';
-import { ProficiencySelect } from './proficiency-select'; // Just for labels
 
 interface ProfileSummaryProps {
   functionTree: FunctionTree;

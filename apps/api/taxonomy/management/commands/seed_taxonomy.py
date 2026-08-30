@@ -73,11 +73,19 @@ class Command(BaseCommand):
 
             pruned = 0
             if options["prune"]:
-                pruned = (
-                    Activity.objects.filter(competency_area__function=function, is_active=True)
-                    .exclude(code__in=seen_activity_codes)
-                    .update(is_active=False)
-                )
+                # Find activities that were historically in this function but are missing from the current seed
+                missing_activities = Activity.objects.filter(
+                    competency_areas__function=function, is_active=True
+                ).exclude(code__in=seen_activity_codes)
+                
+                for act in missing_activities:
+                    # Remove from this function's areas
+                    act.competency_areas.remove(*list(function.competency_areas.all()))
+                    # If it now belongs to no areas at all, deactivate it globally
+                    if not act.competency_areas.exists():
+                        act.is_active = False
+                        act.save()
+                        pruned += 1
 
             if options["dry_run"]:
                 transaction.set_rollback(True)
@@ -162,7 +170,6 @@ class Command(BaseCommand):
         activity, _ = Activity.objects.update_or_create(
             code=act_data["code"],
             defaults={
-                "competency_area": area,
                 "label": act_data["label"],
                 "help_text": (act_data.get("help_text") or "").strip(),
                 "claim_type": act_data.get("claim_type", ClaimType.ACTIVITY),
@@ -173,4 +180,8 @@ class Command(BaseCommand):
                 "is_active": True,
             },
         )
+        # Clear out any areas from this specific function so it only belongs to the area specified in the YAML
+        areas_in_function = list(area.function.competency_areas.all())
+        activity.competency_areas.remove(*areas_in_function)
+        activity.competency_areas.add(area)
         return activity

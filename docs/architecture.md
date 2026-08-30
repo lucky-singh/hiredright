@@ -208,7 +208,7 @@ erDiagram
     User ||--|| CandidateProfile : has
 
     Function ||--o{ CompetencyArea : contains
-    CompetencyArea ||--o{ Activity : contains
+    CompetencyArea }o--o{ Activity : contains
 
     CandidateProfile ||--o{ CandidateFunction : specializes_in
     Function ||--o{ CandidateFunction : references
@@ -247,7 +247,6 @@ erDiagram
 
     Activity {
         string code PK
-        string competency_area_id FK
         string label
         string claim_type
         string seniority_hint

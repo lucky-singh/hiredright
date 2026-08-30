@@ -41,7 +41,7 @@ export function SignupPage() {
       // or at least trust that we now have a real token in local storage.
       
       // Redirect to builder
-      navigate('/builder');
+      navigate('/functions');
     } catch (err: any) {
       console.error(err);
       if (err.body) {

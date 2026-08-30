@@ -25,7 +25,18 @@ from .serializers import (
     BuilderProgressSerializer,
     CandidateSearchSerializer,
     ClaimBatchSerializer,
+    FunctionListSerializer,
 )
+
+
+class FunctionListView(APIView):
+    """GET /api/v1/functions/ — list all active functions to select from."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        functions = Function.objects.filter(is_active=True).order_by("sort_order", "label")
+        serializer = FunctionListSerializer(functions, many=True)
+        return Response(serializer.data)
 
 
 class BuilderView(APIView):
@@ -39,7 +50,7 @@ class BuilderView(APIView):
 
         claims = ActivityClaim.objects.filter(
             profile=profile,
-            activity__competency_area__function=function,
+            activity__competency_areas__function=function,
         ).select_related("activity")
 
         progress = BuilderProgress.objects.filter(
