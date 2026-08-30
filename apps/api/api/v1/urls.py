@@ -10,8 +10,8 @@ from .views import (
 )
 
 urlpatterns = [
-    path("builder/<slug:function_code>/", BuilderView.as_view(), name="builder"),
     path("builder/claims/", ClaimBatchView.as_view(), name="builder-claims"),
     path("builder/progress/", BuilderProgressView.as_view(), name="builder-progress"),
+    path("builder/<slug:function_code>/", BuilderView.as_view(), name="builder"),
     path("search/", CandidateSearchView.as_view(), name="candidate-search"),
 ]

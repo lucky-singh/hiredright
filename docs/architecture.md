@@ -348,3 +348,12 @@ erDiagram
    Scoring and ranking for a pre-filtered batch of 50–200 candidates takes $<2\,\text{ms}$ in Python, easily fitting within interactive web request budgets.
 4. **Empty Query Guard**:
    An unconstrained search (no required or optional codes) returns `qs.none()` at the pre-filter level and `400` at the serializer level, preventing accidental full-table scans.
+
+## Frontend Architecture (Vite SPA)
+
+The Candidate Profile Builder is a pure Single Page Application (SPA) located in `apps/web/`.
+
+- **Tech Stack**: React 19, Vite, TypeScript, Tailwind CSS v4, shadcn/ui.
+- **State Management**: Zustand manages the dense taxonomy tree and user claims in local memory, enabling sub-millisecond UI reactions (e.g. implicit claiming) without waiting on network requests.
+- **Debounced Syncing**: The `use-claim-sync` hook batches user interactions into atomic `ClaimBatch` payloads, emitting a background POST to the Django API after 500ms of inactivity.
+- **Proxy**: In development, Vite proxies `/api` to `localhost:8000` to bypass CORS. In production, the built static files are served via CDN/Nginx, consuming the API over HTTPS.

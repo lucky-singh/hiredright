@@ -24,3 +24,9 @@ STORAGES = {
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+# Extend JWT token lifetime for development
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=365),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
+}

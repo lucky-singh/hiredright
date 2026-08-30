@@ -186,3 +186,16 @@ python manage.py seed_taxonomy statistical-programming --prune
 - Activities removed from the seed file have `is_active` set to `False`.
 - Inactive activities are excluded from new builder sessions and search queries.
 - Existing candidate `ActivityClaim` records remain intact, preserving historical data integrity.
+
+## Django Admin Interface
+
+The HireRight Django backend is equipped with a rich admin panel (`/admin/`) customized for managing both the taxonomy and candidate claims.
+
+### Taxonomy Admin (`taxonomy.models`)
+- **Functions, Competency Areas, and Activities**: Fully exposed with relational lookups.
+- **Read-Only Fields**: Key structural fields like `code`, `claim_type`, and `variants` should generally be managed via the YAML seed files rather than manual database edits to prevent drift between the source-of-truth seed file and the DB.
+- **Deactivation/Visibility**: You can manually toggle `is_active` in the admin to immediately pull an activity from the builder without needing to deploy a new seed file.
+
+### Profile & Claims Admin (`profiles.models`)
+- **Candidate Profiles**: View profiles, searchable by User email or UUID. Displays their `is_searchable` and `open_to_opportunities` statuses.
+- **Activity Claims**: An inline view allows admins to inspect precisely what a candidate has claimed (proficiencies, variants, last used years). Useful for debugging search matching issues when a candidate complains they weren't surfaced in a query.

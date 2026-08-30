@@ -228,6 +228,15 @@ Two properties of this are load-bearing:
   full scan of every searchable profile — all of which would score `0.0` anyway.
   With neither, the queryset is empty by construction.
 
+### Input Validation (Serializer Layer)
+
+Before queries ever reach the Python matching engine or SQL filters, they pass through strict DRF serializer validation (`CandidateSearchSerializer`):
+
+- **Mutual Exclusion**: An activity code cannot exist in both `required_activity_codes` and `optional_activity_codes` simultaneously.
+- **Variant Restrictions**: `variant_requirements` can only be supplied for activity codes that are listed in `required_activity_codes`.
+- **Taxonomy Validation**: All provided activity codes are checked against the active taxonomy. Non-existent or inactive codes trigger immediate `400 Bad Request` rejections.
+- **Empty Query Guards**: If both `required_activity_codes` and `optional_activity_codes` are empty, validation fails (as the query would return no meaningful results anyway).
+
 ### Candidate Hydration & Execution
 
 1. Extracts candidate profile IDs from `_prefilter`.

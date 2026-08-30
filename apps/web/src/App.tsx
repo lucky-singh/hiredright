@@ -1,32 +1,7 @@
-import { useState, useEffect } from 'react'
-import './App.css'
-import { BuilderPage } from './pages/BuilderPage'
-import { LoginPage } from './pages/LoginPage'
+import { BuilderShell } from './components/builder/builder-shell';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const token = localStorage.getItem('access_token')
-    setIsLoggedIn(!!token)
-    setIsLoading(false)
-  }, [])
-
-  if (isLoading) {
-    return <div className="loading">Loading...</div>
-  }
-
-  return isLoggedIn ? (
-    <BuilderPage onLogout={() => {
-      localStorage.removeItem('access_token')
-      setIsLoggedIn(false)
-    }} />
-  ) : (
-    <LoginPage onLogin={() => {
-      setIsLoggedIn(true)
-    }} />
-  )
+  return <BuilderShell functionCode="statistical-programming" />;
 }
 
-export default App
+export default App;

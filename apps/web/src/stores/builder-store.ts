@@ -82,11 +82,11 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
   setProficiency: (code, level) => {
     set((state) => {
-      const existing = state.claims[code] ?? { ...DEFAULT_CLAIM, claimed: true };
+      const existing = state.claims[code] ?? { ...DEFAULT_CLAIM };
       const newDirty = new Set(state.dirty);
       newDirty.add(code);
       return {
-        claims: { ...state.claims, [code]: { ...existing, proficiency: level } },
+        claims: { ...state.claims, [code]: { ...existing, claimed: true, proficiency: level } },
         dirty: newDirty,
       };
     });
@@ -94,11 +94,11 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
   setVariants: (code, variants) => {
     set((state) => {
-      const existing = state.claims[code] ?? { ...DEFAULT_CLAIM, claimed: true };
+      const existing = state.claims[code] ?? { ...DEFAULT_CLAIM };
       const newDirty = new Set(state.dirty);
       newDirty.add(code);
       return {
-        claims: { ...state.claims, [code]: { ...existing, variants } },
+        claims: { ...state.claims, [code]: { ...existing, claimed: true, variants } },
         dirty: newDirty,
       };
     });
@@ -106,11 +106,11 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
   setLastUsedYear: (code, year) => {
     set((state) => {
-      const existing = state.claims[code] ?? { ...DEFAULT_CLAIM, claimed: true };
+      const existing = state.claims[code] ?? { ...DEFAULT_CLAIM };
       const newDirty = new Set(state.dirty);
       newDirty.add(code);
       return {
-        claims: { ...state.claims, [code]: { ...existing, lastUsedYear: year } },
+        claims: { ...state.claims, [code]: { ...existing, claimed: true, lastUsedYear: year } },
         dirty: newDirty,
       };
     });
