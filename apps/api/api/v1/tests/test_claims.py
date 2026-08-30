@@ -88,6 +88,18 @@ class TestRejectedBatches:
         )
         assert response.status_code == 400
 
+    def test_duplicate_variants_rejected(self, post, taxonomy):
+        response = post(
+            [
+                {
+                    "activity_code": taxonomy.sdtm.code,
+                    "claimed": True,
+                    "variants": ["3.2", "3.2"],
+                }
+            ]
+        )
+        assert response.status_code == 400
+
     def test_duplicate_code_in_one_batch_is_rejected(self, post, taxonomy):
         response = post(
             [
@@ -129,6 +141,20 @@ class TestAcceptedBatches:
         assert claim.proficiency == 3
         assert claim.last_used_year == 2025
         assert sorted(claim.variants) == ["3.2", "3.3"]
+
+    def test_null_last_used_year_is_accepted(self, post, taxonomy, candidate):
+        response = post(
+            [
+                {
+                    "activity_code": taxonomy.adam.code,
+                    "claimed": True,
+                    "last_used_year": None,
+                }
+            ]
+        )
+        assert response.status_code == 200
+        claim = ActivityClaim.objects.get(activity=taxonomy.adam)
+        assert claim.last_used_year is None
 
     def test_replaying_the_same_batch_does_not_duplicate(self, post, taxonomy):
         """The debounce can double-fire; the (profile, activity) constraint and

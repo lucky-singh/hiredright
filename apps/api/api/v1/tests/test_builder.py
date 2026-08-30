@@ -84,6 +84,16 @@ class TestProgress:
         response = put({"function_code": "no-such-function"})
         assert response.status_code == 400
 
+    def test_invalid_completed_area_codes_rejected(self, put, taxonomy):
+        response = put(
+            {
+                "function_code": taxonomy.function.code,
+                "completed_area_codes": [123],
+            }
+        )
+        assert response.status_code == 400
+        assert "completed_area_codes" in response.data
+
     def test_switching_function_moves_the_single_row(self, put, taxonomy):
         """BuilderProgress is a OneToOne on profile. Keying the upsert on
         (profile, function) would miss the existing row here and then trip the
@@ -109,3 +119,20 @@ class TestProgress:
         )
         assert response.status_code in (401, 403)
         assert not BuilderProgress.objects.exists()
+
+class TestFunctionList:
+    def test_returns_active_functions_only(self, api_client, candidate, taxonomy):
+        taxonomy.other_function.is_active = False
+        taxonomy.other_function.save()
+        
+        api_client.force_authenticate(user=candidate)
+        response = api_client.get(reverse("function-list"))
+        
+        assert response.status_code == 200
+        codes = [f["code"] for f in response.data]
+        assert taxonomy.function.code in codes
+        assert taxonomy.other_function.code not in codes
+
+    def test_anonymous_is_rejected(self, api_client):
+        response = api_client.get(reverse("function-list"))
+        assert response.status_code in (401, 403)
