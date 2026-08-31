@@ -10,6 +10,7 @@ from __future__ import annotations
 from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -35,6 +36,7 @@ class FunctionListView(APIView):
     """GET /api/v1/functions/ — list all active functions to select from."""
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(responses=FunctionListSerializer(many=True))
     def get(self, request):
         functions = Function.objects.filter(is_active=True).order_by("sort_order", "label")
         serializer = FunctionListSerializer(functions, many=True)
@@ -67,6 +69,14 @@ class SkillListView(APIView):
 
     TRUTHY = {"1", "true", "yes", "on"}
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("function", OpenApiTypes.STR, description="Function code to filter by"),
+            OpenApiParameter("q", OpenApiTypes.STR, description="Search query for labels or codes"),
+            OpenApiParameter("include_traits", OpenApiTypes.BOOL, description="Include TRAIT items"),
+        ],
+        responses={200: SkillSerializer(many=True)}
+    )
     def get(self, request):
         function_code = request.query_params.get("function") or ""
         query = (request.query_params.get("q") or "").strip()
@@ -280,6 +290,11 @@ class CandidateSearchView(APIView):
 
     permission_classes = [HasRecruiterSearchScope | IsRecruiterUser]
 
+    @extend_schema(
+        request=CandidateSearchSerializer,
+        responses={200: OpenApiTypes.OBJECT},
+        description="Search for candidates matching specific skill requirements."
+    )
     def post(self, request):
         serializer = CandidateSearchSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
