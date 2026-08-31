@@ -290,3 +290,13 @@ HireRight features an intelligent resume parsing engine powered by Google Gemini
 4. **Extraction**: The worker extracts raw text via `pypdf`.
 5. **Contextual Matching**: The text, along with the *context-specific* taxonomy for the active job function, is sent to Gemini.
 6. **Auto-Fill**: Gemini returns a JSON object of validated Activity codes which are automatically inserted as `ActivityClaim` rows in Postgres.
+
+---
+
+## 🔒 Production TODO
+**IMPORTANT**: In the local development environment, the MinIO bucket is explicitly configured with a **Public Download Policy**, and AWS cryptographical signatures are stripped from the resume URLs. This bypasses the `SignatureDoesNotMatch` errors caused by routing MinIO requests through the local Docker bridge to the host machine's browser. 
+
+**Before deploying to production:**
+1. Revoke the public policy on the S3 bucket (`AWS_DEFAULT_ACL = "private"`).
+2. Remove the URL signature stripping hack in `CandidateProfileView` (`apps/api/api/v1/views.py`).
+3. Ensure the backend and frontend are utilizing the identical, externally resolvable S3 domain (e.g. `AWS_S3_CUSTOM_DOMAIN`) to ensure pre-signed URL signatures correctly validate!

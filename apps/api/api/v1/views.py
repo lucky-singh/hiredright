@@ -397,15 +397,18 @@ class CandidateProfileView(APIView):
                 data["resume"] = url.replace("minio:9000", "localhost:9000")
                 
             # Fetch all claims
-            claims = ActivityClaim.objects.filter(profile=profile).select_related('activity')
+            claims = ActivityClaim.objects.filter(profile=profile).select_related('activity').prefetch_related('activity__competency_areas')
             
             # Format claims
             claims_data = []
             for claim in claims:
+                areas = list(claim.activity.competency_areas.all())
+                category_label = areas[0].label if areas else "General"
                 claims_data.append({
                     "activity_code": claim.activity.code,
                     "activity_label": claim.activity.label,
-                    "proficiency": claim.proficiency
+                    "proficiency": claim.proficiency,
+                    "category": category_label
                 })
             data["claims"] = claims_data
                 
