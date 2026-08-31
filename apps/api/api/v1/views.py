@@ -426,7 +426,9 @@ class CandidateProfileView(APIView):
                     "activity_label": claim.activity.label,
                     "proficiency": claim.proficiency,
                     "category": category_label,
-                    "is_ai_inferred": claim.is_ai_inferred
+                    "is_ai_inferred": claim.is_ai_inferred,
+                    "years_experience": str(claim.years_experience) if claim.years_experience else None,
+                    "last_used_year": claim.last_used_year
                 })
             data["claims"] = claims_data
                 

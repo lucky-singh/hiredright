@@ -26,6 +26,8 @@ export function ActivityItem({ activity }: ActivityItemProps) {
   const toggleClaim = useBuilderStore((s) => s.toggleClaim);
   const setProficiency = useBuilderStore((s) => s.setProficiency);
   const setVariants = useBuilderStore((s) => s.setVariants);
+  const setYearsExperience = useBuilderStore((s) => s.setYearsExperience);
+  const setLastUsedYear = useBuilderStore((s) => s.setLastUsedYear);
   
   const { scheduleFlush } = useClaimSync();
 
@@ -104,7 +106,7 @@ export function ActivityItem({ activity }: ActivityItemProps) {
           )}
 
           {/* Always visible inline controls */}
-          <div className="mt-4">
+          <div className={cn("mt-4", !isClaimed && "opacity-50 pointer-events-none")} onClick={(e) => e.stopPropagation()}>
             {activity.claim_type === 'proficiency' && (
               <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/50">
                 <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2">
@@ -126,6 +128,46 @@ export function ActivityItem({ activity }: ActivityItemProps) {
                 />
               </div>
             )}
+
+            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/50 flex gap-4">
+              <div className="flex-1">
+                <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1 block">
+                  Years of Exp (Optional)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="60"
+                  step="0.5"
+                  value={claim?.yearsExperience ?? ''}
+                  onChange={(e) => {
+                    setYearsExperience(activity.code, e.target.value ? Number(e.target.value) : null);
+                    scheduleFlush();
+                  }}
+                  className="w-full px-3 py-1.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. 2.5"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1 block">
+                  Last Used Year (Optional)
+                </label>
+                <select
+                  value={claim?.lastUsedYear ?? ''}
+                  onChange={(e) => {
+                    setLastUsedYear(activity.code, e.target.value ? Number(e.target.value) : null);
+                    scheduleFlush();
+                  }}
+                  className="w-full px-3 py-1.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select year...</option>
+                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

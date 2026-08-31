@@ -21,6 +21,7 @@ interface BuilderState {
   toggleClaim: (code: string) => void;
   setProficiency: (code: string, level: number | null) => void;
   setVariants: (code: string, variants: string[]) => void;
+  setYearsExperience: (code: string, years: number | null) => void;
   setLastUsedYear: (code: string, year: number | null) => void;
   markStepComplete: (areaCode: string) => void;
   setCurrentStep: (step: number) => void;
@@ -73,9 +74,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       return {
         claims: {
           ...state.claims,
-          [code]: existing.claimed
-            ? { ...DEFAULT_CLAIM }
-            : { ...existing, claimed: true },
+          [code]: { ...existing, claimed: !existing.claimed },
         },
         dirty: newDirty,
       };
@@ -101,6 +100,21 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       newDirty.add(code);
       return {
         claims: { ...state.claims, [code]: { ...existing, claimed: true, variants } },
+        dirty: newDirty,
+      };
+    });
+  },
+
+  setYearsExperience: (code, years) => {
+    set((state) => {
+      const existing = state.claims[code] ?? { ...DEFAULT_CLAIM };
+      const newDirty = new Set(state.dirty);
+      newDirty.add(code);
+      return {
+        claims: {
+          ...state.claims,
+          [code]: { ...existing, claimed: true, yearsExperience: years },
+        },
         dirty: newDirty,
       };
     });

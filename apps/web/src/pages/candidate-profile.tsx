@@ -16,6 +16,8 @@ interface ProfileData {
     proficiency: number | null;
     category?: string;
     is_ai_inferred?: boolean;
+    years_experience?: string | null;
+    last_used_year?: number | null;
   }[];
 }
 
@@ -163,11 +165,23 @@ export function CandidateProfilePage() {
                             )}
                           </div>
                         </div>
-                        {claim.proficiency && (
-                          <Badge variant="secondary" className="ml-4 shrink-0 bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
-                            {PROFICIENCY_LABELS[claim.proficiency]}
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-3 shrink-0 ml-4">
+                          {claim.years_experience && (
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                              {claim.years_experience} yrs
+                            </span>
+                          )}
+                          {claim.last_used_year && (
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:inline">
+                              (Last: {claim.last_used_year})
+                            </span>
+                          )}
+                          {claim.proficiency && (
+                            <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                              {PROFICIENCY_LABELS[claim.proficiency]}
+                            </Badge>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
