@@ -158,7 +158,7 @@ export function CandidateProfilePage() {
                           </div>
                         </div>
                         {claim.proficiency && (
-                          <Badge variant="secondary" className="ml-4 shrink-0">
+                          <Badge variant="secondary" className="ml-4 shrink-0 bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
                             {PROFICIENCY_LABELS[claim.proficiency]}
                           </Badge>
                         )}
