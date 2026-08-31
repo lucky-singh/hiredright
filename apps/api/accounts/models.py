@@ -52,6 +52,13 @@ class User(AbstractUser):
     )
     phone_verified = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
+    is_recruiter = models.BooleanField(
+        default=False,
+        help_text=(
+            "Grants access to candidate search, which reads across the whole "
+            "pool. Off by default: authentication alone must not open it."
+        ),
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

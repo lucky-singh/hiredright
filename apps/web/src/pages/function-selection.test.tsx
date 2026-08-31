@@ -72,8 +72,6 @@ describe('FunctionSelectionPage', () => {
     ];
     vi.mocked(api.fetchFunctions).mockResolvedValue(mockFunctions);
     
-    let testLocation = '';
-    
     render(
       <MemoryRouter initialEntries={['/functions']}>
         <Routes>

@@ -11,7 +11,7 @@ from pathlib import Path
 import environ
 
 BASE_DIR = Path(__file__).resolve().parents[2]  # apps/api
-REPO_ROOT = BASE_DIR.parents[1]
+REPO_ROOT = BASE_DIR.parents[1] if len(BASE_DIR.parents) > 1 else BASE_DIR
 
 env = environ.Env(
     DEBUG=(bool, False),

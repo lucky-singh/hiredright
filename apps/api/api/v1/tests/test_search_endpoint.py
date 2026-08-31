@@ -42,6 +42,48 @@ class TestAuthorization:
         )
         assert response.status_code == 403
 
+    def test_a_recruiter_login_is_allowed(self, api_client, recruiter, taxonomy):
+        """The browser path: a recruiter is a person with a JWT, not a service
+        holding a client secret."""
+        api_client.force_authenticate(user=recruiter)
+        response = api_client.post(
+            reverse(URL_NAME),
+            {"required_activity_codes": [taxonomy.adam.code]},
+            format="json",
+        )
+        assert response.status_code == 200
+
+    def test_the_recruiter_flag_is_what_grants_access_not_authentication(
+        self, api_client, candidate, taxonomy
+    ):
+        """Guard on the `HasRecruiterSearchScope | IsRecruiterUser` composition:
+        loosening `IsRecruiterUser` to `IsAuthenticated` would open the whole
+        pool to every candidate, and every other test here would still pass.
+        """
+        candidate.is_recruiter = True
+        candidate.save(update_fields=["is_recruiter"])
+        api_client.force_authenticate(user=candidate)
+        assert (
+            api_client.post(
+                reverse(URL_NAME),
+                {"required_activity_codes": [taxonomy.adam.code]},
+                format="json",
+            ).status_code
+            == 200
+        )
+
+        candidate.is_recruiter = False
+        candidate.save(update_fields=["is_recruiter"])
+        api_client.force_authenticate(user=candidate)
+        assert (
+            api_client.post(
+                reverse(URL_NAME),
+                {"required_activity_codes": [taxonomy.adam.code]},
+                format="json",
+            ).status_code
+            == 403
+        )
+
     def test_a_token_without_the_scope_is_refused_not_crashed(self, api_client, candidate):
         """`TokenHasScope` raises ImproperlyConfigured (a 500) for non-OAuth2
         auth; this must be a clean 403 instead."""

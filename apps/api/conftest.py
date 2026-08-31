@@ -34,6 +34,22 @@ def candidate(db):
 
 
 @pytest.fixture
+def recruiter(db):
+    """A recruiter *person* — the browser search path.
+
+    Distinct from the `candidate` fixture by exactly one flag, which is the whole
+    gate: see `api.v1.permissions.IsRecruiterUser`.
+    """
+    from django.contrib.auth import get_user_model
+
+    return get_user_model().objects.create_user(
+        email="recruiter@example.com",
+        password="not-a-real-password",
+        is_recruiter=True,
+    )
+
+
+@pytest.fixture
 def taxonomy(db):
     """A miniature Statistical Programming tree covering every claim_type.
 

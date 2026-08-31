@@ -8,6 +8,7 @@ batches of claim deltas, upserted atomically.
 from __future__ import annotations
 
 from django.db import transaction
+from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -17,15 +18,16 @@ from rest_framework.views import APIView
 from matching.scoring import Query
 from matching.search import search_candidates
 from profiles.models import ActivityClaim, BuilderProgress, CandidateProfile
-from taxonomy.models import Activity, Function
+from taxonomy.models import Activity, ClaimType, CompetencyArea, Function
 
-from .permissions import HasRecruiterSearchScope
+from .permissions import HasRecruiterSearchScope, IsRecruiterUser
 from .serializers import (
     BuilderPayloadSerializer,
     BuilderProgressSerializer,
     CandidateSearchSerializer,
     ClaimBatchSerializer,
     FunctionListSerializer,
+    SkillSerializer,
 )
 
 
@@ -37,6 +39,72 @@ class FunctionListView(APIView):
         functions = Function.objects.filter(is_active=True).order_by("sort_order", "label")
         serializer = FunctionListSerializer(functions, many=True)
         return Response(serializer.data)
+
+
+class SkillListView(APIView):
+    """GET /api/v1/skills/ — the searchable skill vocabulary, for recruiter search.
+
+    Deliberately separate from `BuilderView`: that endpoint is candidate-scoped
+    (it creates a `CandidateProfile` and returns that candidate's own claims), so
+    a recruiter UI reading it would both acquire a profile row and pull data it
+    has no use for.
+
+    Only scorable claim types are listed. A TRAIT code passed to search matches
+    nobody — `matching.search._prefilter` filters on `ClaimType.scorable()` — so
+    offering traits as search chips would hand recruiters a guaranteed-empty
+    query with no visible reason. `include_traits=1` opts back in for callers
+    that want the full vocabulary to display rather than to search on.
+
+    Query params:
+        function        Function code. Scopes both the results and the `areas`
+                        reported on each skill.
+        q               Free-text match on label, code or help text. Works
+                        without `function`, for cross-function lookup.
+        include_traits  Include TRAIT items. Default false.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    TRUTHY = {"1", "true", "yes", "on"}
+
+    def get(self, request):
+        function_code = request.query_params.get("function") or ""
+        query = (request.query_params.get("q") or "").strip()
+        include_traits = (
+            request.query_params.get("include_traits", "").lower() in self.TRUTHY
+        )
+
+        skills = Activity.objects.filter(is_active=True)
+        if not include_traits:
+            skills = skills.filter(claim_type__in=ClaimType.scorable())
+
+        if function_code:
+            skills = skills.filter(competency_areas__function__code=function_code)
+
+        if query:
+            skills = skills.filter(
+                Q(label__icontains=query)
+                | Q(code__icontains=query)
+                | Q(help_text__icontains=query)
+            )
+
+        # Without this prefetch, serializing `areas` is one query per skill —
+        # ~150 for a single function. Scoping the prefetch to the requested
+        # function also keeps each chip labelled with the area the recruiter is
+        # actually browsing, rather than an area from some other function that
+        # happens to reuse the same activity.
+        areas = CompetencyArea.objects.select_related("function")
+        if function_code:
+            areas = areas.filter(function__code=function_code)
+
+        skills = (
+            skills.prefetch_related(Prefetch("competency_areas", queryset=areas))
+            .distinct()
+            .order_by("sort_order", "label")
+        )
+
+        serializer = SkillSerializer(skills, many=True)
+        return Response({"count": len(serializer.data), "results": serializer.data})
 
 
 class BuilderView(APIView):
@@ -198,16 +266,19 @@ class BuilderProgressView(APIView):
 
 
 class CandidateSearchView(APIView):
-    """POST /api/v1/search/ — recruiter service-to-service matching.
+    """POST /api/v1/search/ — recruiter matching, for services and for people.
 
-    Gated on an OAuth2 client-credentials token carrying the recruiter search
-    scope, deliberately not on plain authentication: this endpoint reads across
-    the entire candidate pool, so a candidate's own JWT must not open it.
+    Two ways in, and no third: an OAuth2 client-credentials token carrying the
+    recruiter search scope (service-to-service), or a logged-in user flagged
+    `is_recruiter` (the recruiter web UI). Plain authentication is deliberately
+    not enough — this endpoint reads across the entire candidate pool, so an
+    ordinary candidate's JWT must not open it.
+
     Candidate PII is excluded from results — only profile_id and match
     diagnostics are returned.
     """
 
-    permission_classes = [HasRecruiterSearchScope]
+    permission_classes = [HasRecruiterSearchScope | IsRecruiterUser]
 
     def post(self, request):
         serializer = CandidateSearchSerializer(data=request.data)

@@ -8,10 +8,12 @@ from .views import (
     CandidateSearchView,
     ClaimBatchView,
     FunctionListView,
+    SkillListView,
 )
 
 urlpatterns = [
     path("functions/", FunctionListView.as_view(), name="function-list"),
+    path("skills/", SkillListView.as_view(), name="skill-list"),
     path("builder/claims/", ClaimBatchView.as_view(), name="builder-claims"),
     path("builder/progress/", BuilderProgressView.as_view(), name="builder-progress"),
     path("builder/<slug:function_code>/", BuilderView.as_view(), name="builder"),

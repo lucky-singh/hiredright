@@ -43,6 +43,45 @@ class FunctionListSerializer(serializers.ModelSerializer):
         fields = ("code", "label", "description")
 
 
+class SkillAreaSerializer(serializers.ModelSerializer):
+    """Where a skill lives — carried on the skill itself, not the other way round.
+
+    The search UI needs a heading for each chip group and, for a cross-function
+    query, a label saying which function a hit came from.
+    """
+
+    function_code = serializers.CharField(source="function.code", read_only=True)
+    function_label = serializers.CharField(source="function.label", read_only=True)
+
+    class Meta:
+        model = CompetencyArea
+        fields = ("code", "label", "function_code", "function_label")
+
+
+class SkillSerializer(serializers.ModelSerializer):
+    """One searchable skill, flattened for the recruiter's chip list.
+
+    `areas` is a list because `Activity.competency_areas` is many-to-many by
+    design — an activity like ICH-GCP Compliance is deliberately reused across
+    functions. Filtering by `function` narrows it to one entry; an unscoped `q`
+    search relies on the full list to say where each hit came from.
+    """
+
+    areas = SkillAreaSerializer(source="competency_areas", many=True, read_only=True)
+
+    class Meta:
+        model = Activity
+        fields = (
+            "code",
+            "label",
+            "help_text",
+            "claim_type",
+            "seniority_hint",
+            "variants",
+            "areas",
+        )
+
+
 class FunctionTreeSerializer(serializers.ModelSerializer):
     competency_areas = CompetencyAreaSerializer(many=True, read_only=True)
 

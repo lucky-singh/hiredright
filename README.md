@@ -164,10 +164,27 @@ The candidate profile builder loads all necessary data (function taxonomy tree, 
    python manage.py runserver
    ```
 
-   Or run the full stack (API + Celery worker) entirely in Docker:
+   Or run the backend stack (API + Celery worker + DB) entirely in Docker:
    ```bash
    docker compose up -d
    ```
+   *(Note: Database data is safely persisted via Docker named volumes (`pgdata`). Do not run `docker compose down -v` unless you intentionally want to wipe your local database).*
+
+### Running the Frontend UI
+
+The frontend is a Vite + React application located in `apps/web`. It runs on your host machine (rather than in Docker) to provide the fastest possible Hot Module Replacement (HMR) and developer experience.
+
+1. **Ensure the backend is running** via Docker:
+   ```bash
+   docker compose up -d
+   ```
+2. **Start the UI:**
+   ```bash
+   cd apps/web
+   npm install
+   npm run dev
+   ```
+   *This starts the Vite dev server (usually on `http://localhost:5173`) which points to your local backend API.*
 
 6. **Create the local demo user in PostgreSQL-backed auth:**
    The frontend logs into the API through the normal Django auth flow. Create a local dev user before testing the builder:
@@ -202,6 +219,9 @@ Taxonomy files are loaded idempotently from YAML definitions:
 ```bash
 # Seed Statistical Programming taxonomy
 python manage.py seed_taxonomy statistical-programming
+
+# Seed Clinical Operations taxonomy
+python manage.py seed_taxonomy clinical-operations
 
 # Preview changes without modifying the database
 python manage.py seed_taxonomy statistical-programming --dry-run
@@ -254,3 +274,8 @@ ruff format --check .
 | [**Taxonomy Guide**](docs/taxonomy_guide.md) | Authoring taxonomy YAMLs, claim semantics, seniority hints, version variants, and seed lifecycle. |
 | [**API Reference**](docs/api_reference.md) | REST API endpoints, serializers, batch claim sync contracts, and query schemas. |
 | [**Backend API Guide**](apps/api/README.md) | Django application structure, models, database constraints, and development workflow. |
+
+### Recruiter Search Dashboard
+The system includes a dedicated Recruiter Search interface (`http://localhost:3000/search`) allowing authenticated recruiters to search candidate profiles. 
+- You must create a user with the `is_recruiter=True` flag in the Django admin to access the underlying API endpoints (`/api/v1/search/`).
+- The dashboard allows configuring multiple skill requirements (Required vs. Optional) per function and instantly calculates a candidate % match score via the internal `scoring.py` engine based on skill recency and proficiency.
