@@ -88,6 +88,14 @@ describe('FunctionSelectionPage', () => {
     const user = userEvent.setup();
     await user.click(screen.getByText('Function 1'));
     
+    // Wait for the Resume interstitial screen to appear
+    await waitFor(() => {
+      expect(screen.getByText('Auto-fill your Function 1 profile')).toBeInTheDocument();
+    });
+    
+    // Click skip to go to builder
+    await user.click(screen.getByText('Skip & do it manually'));
+    
     await waitFor(() => {
       expect(screen.getByTestId('builder-mock')).toBeInTheDocument();
     });

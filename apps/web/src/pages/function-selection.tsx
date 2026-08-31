@@ -96,6 +96,15 @@ export function FunctionSelectionPage() {
     );
   }
 
+  if (error && step === 'select') {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+        <h2 className="text-xl font-bold text-red-600 mb-2">Failed to load functions</h2>
+        <p className="text-zinc-500">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 relative">
       <UserMenu />

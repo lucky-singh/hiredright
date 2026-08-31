@@ -139,3 +139,14 @@ class TestNormalisation:
             today=TODAY,
         )
         assert small.score == pytest.approx(large.score, abs=0.01)
+
+    def test_other_skills_isolated(self):
+        q = Query(required_activity_codes=frozenset({"req1"}), optional_activity_codes=frozenset({"opt1"}))
+        claims = [
+            claim("req1", prof=3),
+            claim("opt1", prof=3),
+            claim("extra1", prof=3),
+            claim("extra2", prof=3)
+        ]
+        r = score(claims, q, today=TODAY)
+        assert r.other_skills == ("extra1", "extra2")

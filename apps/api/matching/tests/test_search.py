@@ -162,3 +162,10 @@ class TestRanking:
             Query(required_activity_codes=frozenset({taxonomy.adam.code})), limit=2
         )
         assert len(results) == 2
+
+class TestOtherSkills:
+    def test_search_fetches_other_skills(self, taxonomy, make_profile):
+        profile = make_profile(claims=[(taxonomy.adam, []), (taxonomy.sdtm, ["3.3"])])
+        query = Query(required_activity_codes=frozenset({taxonomy.adam.code}))
+        results = search_candidates(query)
+        assert results[0].result.other_skills == (taxonomy.sdtm.code,)

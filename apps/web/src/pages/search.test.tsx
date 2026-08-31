@@ -54,7 +54,7 @@ describe('SearchPage', () => {
     );
     
     await waitFor(() => {
-      expect(screen.getByText('Recruiter Search')).toBeInTheDocument();
+      expect(screen.getByText('Candidate Search')).toBeInTheDocument();
       expect(screen.getByText('Candidate Matches')).toBeInTheDocument();
       expect(screen.getByText('No skills selected')).toBeInTheDocument();
     });

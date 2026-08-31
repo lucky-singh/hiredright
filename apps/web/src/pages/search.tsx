@@ -99,7 +99,7 @@ export function SearchPage() {
       <div className="w-full max-w-7xl flex gap-8 h-full min-h-0">
         {/* Sidebar: Skills Selection */}
         <div className="w-1/3 flex flex-col gap-4 h-full min-w-0 min-h-0">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 shrink-0 mb-2">Recruiter Search</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 shrink-0 mb-2">Candidate Search</h1>
           
           <Card className="flex flex-col min-h-0 flex-1 border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
             <CardHeader className="shrink-0 border-b border-zinc-100 dark:border-zinc-800/50 pb-4">
@@ -248,6 +248,20 @@ export function SearchPage() {
                             ))}
                           </div>
                         </div>
+                      )}
+                      {result.other_skills && result.other_skills.length > 0 && (
+                        <details className="mt-2 group">
+                          <summary className="text-xs font-medium text-zinc-500 cursor-pointer hover:text-zinc-700 dark:hover:text-zinc-300 list-none inline-flex items-center gap-1 transition-colors">
+                            <span className="group-open:hidden opacity-70">▶</span>
+                            <span className="hidden group-open:inline opacity-70">▼</span>
+                            View {result.other_skills.length} other skills
+                          </summary>
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {result.other_skills.map(m => (
+                              <span key={m.code} className="bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-xs text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">{m.label}</span>
+                            ))}
+                          </div>
+                        </details>
                       )}
                     </div>
                   </CardContent>

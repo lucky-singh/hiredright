@@ -51,6 +51,7 @@ class MatchResult:
     matched_required: tuple[str, ...]
     missing_required: tuple[str, ...]
     matched_optional: tuple[str, ...]
+    other_skills: tuple[str, ...] = ()
 
     @property
     def score_pct(self) -> int:
@@ -143,10 +144,16 @@ def score(
         denominator = max_required + max_optional
         final = (required_weight + optional_weight) / denominator if denominator else 0.0
 
+    other_skills: list[str] = []
+    for code in sorted(by_code.keys()):
+        if code not in query.required_activity_codes and code not in query.optional_activity_codes:
+            other_skills.append(code)
+
     return MatchResult(
         score=round(min(final, 1.0), 4),
         meets_requirements=meets,
         matched_required=tuple(matched_required),
         missing_required=tuple(missing_required),
         matched_optional=tuple(matched_optional),
+        other_skills=tuple(other_skills),
     )

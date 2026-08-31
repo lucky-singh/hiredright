@@ -97,7 +97,6 @@ def search_candidates(
     claim_rows = (
         ActivityClaim.objects.filter(
             profile_id__in=profile_ids,
-            activity__code__in=relevant_codes,
             activity__claim_type__in=ClaimType.scorable(),
             activity__is_active=True,
         )

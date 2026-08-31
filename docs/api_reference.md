@@ -394,6 +394,10 @@ scored at zero.
       "missing_required": [],
       "matched_optional": [
         "p21-enterprise"
+      ],
+      "other_skills": [
+        "r-base",
+        "python-pandas"
       ]
     }
   ]

@@ -322,6 +322,8 @@ class CandidateSearchView(APIView):
         )
 
         all_codes = set(query.required_activity_codes) | set(query.optional_activity_codes)
+        for r in ranked:
+            all_codes.update(r.result.other_skills)
         activities = Activity.objects.filter(code__in=all_codes).prefetch_related("competency_areas__function")
         skills_by_code = {
             act["code"]: act
@@ -337,6 +339,7 @@ class CandidateSearchView(APIView):
                 "matched_required": [skills_by_code[c] for c in r.result.matched_required if c in skills_by_code],
                 "missing_required": [skills_by_code[c] for c in r.result.missing_required if c in skills_by_code],
                 "matched_optional": [skills_by_code[c] for c in r.result.matched_optional if c in skills_by_code],
+                "other_skills": [skills_by_code[c] for c in getattr(r.result, 'other_skills', ()) if c in skills_by_code],
             }
             for r in ranked
         ]
