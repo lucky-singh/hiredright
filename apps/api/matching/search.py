@@ -105,6 +105,7 @@ def search_candidates(
             "profile_id",
             "activity__code",
             "proficiency",
+            "years_experience",
             "last_used_year",
             "variants",
         )
@@ -116,6 +117,7 @@ def search_candidates(
             Claim(
                 activity_code=row["activity__code"],
                 proficiency=row["proficiency"],
+                years_experience=float(row["years_experience"]) if row["years_experience"] else None,
                 last_used_year=row["last_used_year"],
                 variants=frozenset(row["variants"] or ()),
             )

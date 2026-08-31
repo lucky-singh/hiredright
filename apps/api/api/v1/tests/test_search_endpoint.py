@@ -8,6 +8,7 @@ them.
 from types import SimpleNamespace
 
 import pytest
+from profiles.models import CandidateProfile, ActivityClaim
 from django.conf import settings
 from django.urls import reverse
 
@@ -164,3 +165,40 @@ class TestRequestContract:
             }
         )
         assert response.status_code == 200
+
+class TestResponseContract:
+    def test_search_results_include_claim_metadata(self, api_client, django_user_model, taxonomy):
+        # Create a candidate profile with a claim
+        user = django_user_model.objects.create(email="candidate@example.com", is_recruiter=True)
+        profile = CandidateProfile.objects.create(user=user, is_searchable=True, open_to_opportunities=True)
+        ActivityClaim.objects.create(
+            profile=profile,
+            activity=taxonomy.sdtm,
+            proficiency=4,
+            years_experience=3.5,
+            last_used_year=2025
+        )
+        api_client.force_authenticate(user=user)
+        
+        # Act
+        res = api_client.post(
+            "/api/v1/search/",
+            {
+                "required_activity_codes": [taxonomy.sdtm.code],
+                "optional_activity_codes": []
+            },
+            format="json"
+        )
+        
+        # Assert
+        assert res.status_code == 200
+        data = res.json()
+        assert data["count"] == 1
+        
+        matched_required = data["results"][0]["matched_required"]
+        assert len(matched_required) == 1
+        skill = matched_required[0]
+        assert skill["code"] == taxonomy.sdtm.code
+        assert skill["proficiency"] == 4
+        assert skill["years_experience"] == 3.5
+        assert skill["last_used_year"] == 2025

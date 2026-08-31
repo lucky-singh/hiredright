@@ -11,6 +11,7 @@ from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
+from .serializers import SearchResponseSerializer
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -298,7 +299,7 @@ class CandidateSearchView(APIView):
 
     @extend_schema(
         request=CandidateSearchSerializer,
-        responses={200: OpenApiTypes.OBJECT},
+        responses={200: SearchResponseSerializer},
         description="Search for candidates matching specific skill requirements."
     )
     def post(self, request):
@@ -330,16 +331,25 @@ class CandidateSearchView(APIView):
             for act in SkillSerializer(activities, many=True).data
         }
 
+        def enrich_skill(c, result_obj, is_missing=False):
+            base = skills_by_code[c].copy()
+            if not is_missing and c in getattr(result_obj, 'claims_dict', {}):
+                claim = result_obj.claims_dict[c]
+                base["proficiency"] = claim.proficiency
+                base["years_experience"] = claim.years_experience
+                base["last_used_year"] = claim.last_used_year
+            return base
+
         results = [
             {
                 "profile_id": r.profile_id,
                 "score": r.result.score,
                 "score_pct": r.result.score_pct,
                 "meets_requirements": r.result.meets_requirements,
-                "matched_required": [skills_by_code[c] for c in r.result.matched_required if c in skills_by_code],
-                "missing_required": [skills_by_code[c] for c in r.result.missing_required if c in skills_by_code],
-                "matched_optional": [skills_by_code[c] for c in r.result.matched_optional if c in skills_by_code],
-                "other_skills": [skills_by_code[c] for c in getattr(r.result, 'other_skills', ()) if c in skills_by_code],
+                "matched_required": [enrich_skill(c, r.result) for c in r.result.matched_required if c in skills_by_code],
+                "missing_required": [enrich_skill(c, r.result, is_missing=True) for c in r.result.missing_required if c in skills_by_code],
+                "matched_optional": [enrich_skill(c, r.result) for c in r.result.matched_optional if c in skills_by_code],
+                "other_skills": [enrich_skill(c, r.result) for c in getattr(r.result, 'other_skills', ()) if c in skills_by_code],
             }
             for r in ranked
         ]

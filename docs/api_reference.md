@@ -387,17 +387,32 @@ scored at zero.
       "score_pct": 94,
       "meets_requirements": true,
       "matched_required": [
-        "adam-implementation-guide",
-        "define-xml",
-        "sdtm-implementation-guide"
+        {
+          "code": "sdtm-implementation-guide",
+          "label": "SDTM Implementation Guide",
+          "proficiency": 3,
+          "years_experience": "4.5",
+          "last_used_year": 2025
+        }
       ],
       "missing_required": [],
       "matched_optional": [
-        "p21-enterprise"
+        {
+          "code": "p21-enterprise",
+          "label": "Pinnacle 21 Enterprise",
+          "proficiency": 4,
+          "years_experience": "2.0",
+          "last_used_year": 2026
+        }
       ],
       "other_skills": [
-        "r-base",
-        "python-pandas"
+        {
+          "code": "r-base",
+          "label": "R Programming",
+          "proficiency": 4,
+          "years_experience": "5.0",
+          "last_used_year": 2026
+        }
       ]
     }
   ]

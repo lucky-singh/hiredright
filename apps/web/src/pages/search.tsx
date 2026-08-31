@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input';
 import { Search, Loader2 } from 'lucide-react';
 import { UserMenu } from '../components/user-menu';
+import { CompareModal } from '../components/compare-modal';
 
 type SkillState = 'off' | 'required' | 'optional';
 
@@ -13,6 +14,27 @@ export function SearchPage() {
   const [selectedFunction, setSelectedFunction] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [skillStates, setSkillStates] = useState<Record<string, SkillState>>({});
+  
+  const [selectedProfileIds, setSelectedProfileIds] = useState<Set<number>>(new Set());
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+  
+  const toggleProfileSelection = (id: number) => {
+    const next = new Set(selectedProfileIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else if (next.size < 3) {
+      next.add(id);
+    }
+    setSelectedProfileIds(next);
+  };
+  
+  const compareTop3 = () => {
+    if (!searchResults) return;
+    const top3 = searchResults.results.slice(0, 3).map(r => r.profile_id);
+    setSelectedProfileIds(new Set(top3));
+    setIsCompareModalOpen(true);
+  };
+  
 
   const { data: functions } = useQuery({
     queryKey: ['functions'],
@@ -176,11 +198,30 @@ export function SearchPage() {
 
         {/* Main Content: Results */}
         <div className="w-2/3 flex flex-col gap-4 h-full min-w-0 min-h-0">
-          <div className="shrink-0 flex items-end justify-between mb-2">
-            <h2 className="text-2xl font-bold tracking-tight">Candidate Matches</h2>
-            <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-              Found {searchResults?.count || 0} candidates
+          <div className="shrink-0 flex flex-col gap-2 mb-2">
+            <div className="flex items-end justify-between">
+              <h2 className="text-2xl font-bold tracking-tight">Candidate Matches</h2>
+              <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+                Found {searchResults?.count || 0} candidates
+              </div>
             </div>
+            {searchResults && searchResults.results.length > 0 && (
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setIsCompareModalOpen(true)}
+                  disabled={selectedProfileIds.size < 2}
+                  className="px-3 py-1.5 text-sm rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-1.5 shadow-sm"
+                >
+                  Compare Selected ({selectedProfileIds.size}/3)
+                </button>
+                <button 
+                  onClick={compareTop3}
+                  className="px-3 py-1.5 text-sm rounded bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors font-medium shadow-sm"
+                >
+                  Compare Top 3
+                </button>
+              </div>
+            )}
           </div>
           
           <div className="flex-1 overflow-y-auto min-h-0 pl-2 pr-4 pt-2 space-y-4 pb-6 custom-scrollbar -ml-2">
@@ -211,7 +252,18 @@ export function SearchPage() {
                 <Card key={result.profile_id} className={`transition-all ${result.meets_requirements ? 'border-green-500/30 dark:border-green-500/20 shadow-sm' : 'border-zinc-200 dark:border-zinc-800 opacity-80'}`}>
                   <CardHeader className="pb-3 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-100 dark:border-zinc-800">
                     <div className="flex justify-between items-center">
-                      <CardTitle className="text-lg">Candidate Profile #{result.profile_id}</CardTitle>
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center cursor-pointer" title="Compare this candidate">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+                            checked={selectedProfileIds.has(result.profile_id)}
+                            onChange={() => toggleProfileSelection(result.profile_id)}
+                            disabled={!selectedProfileIds.has(result.profile_id) && selectedProfileIds.size >= 3}
+                          />
+                        </label>
+                        <CardTitle className="text-lg">Candidate Profile #{result.profile_id}</CardTitle>
+                      </div>
                       <div className={`px-2.5 py-1 rounded-full text-xs font-bold ${result.meets_requirements ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'}`}>
                         {result.score_pct}% Match
                       </div>
@@ -271,6 +323,13 @@ export function SearchPage() {
           </div>
         </div>
       </div>
+      
+      {isCompareModalOpen && searchResults && (
+        <CompareModal
+          candidates={searchResults.results.filter(r => selectedProfileIds.has(r.profile_id))}
+          onClose={() => setIsCompareModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -33,6 +33,7 @@ class Claim:
     activity_code: str
     proficiency: int | None = None
     last_used_year: int | None = None
+    years_experience: float | None = None
     variants: frozenset[str] = frozenset()
 
 
@@ -52,6 +53,7 @@ class MatchResult:
     missing_required: tuple[str, ...]
     matched_optional: tuple[str, ...]
     other_skills: tuple[str, ...] = ()
+    claims_dict: dict = field(default_factory=dict)
 
     @property
     def score_pct(self) -> int:
@@ -156,4 +158,5 @@ def score(
         missing_required=tuple(missing_required),
         matched_optional=tuple(matched_optional),
         other_skills=tuple(other_skills),
+        claims_dict=by_code,
     )

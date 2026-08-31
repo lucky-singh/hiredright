@@ -274,3 +274,22 @@ class CustomUserDetailsSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ("pk", "email", "first_name", "last_name", "is_recruiter")
         read_only_fields = ("email",)
+
+class EnrichedSkillSerializer(SkillSerializer):
+    proficiency = serializers.IntegerField(allow_null=True, required=False)
+    years_experience = serializers.FloatField(allow_null=True, required=False)
+    last_used_year = serializers.IntegerField(allow_null=True, required=False)
+    
+class SearchResultItemSerializer(serializers.Serializer):
+    profile_id = serializers.IntegerField()
+    score = serializers.FloatField()
+    score_pct = serializers.IntegerField()
+    meets_requirements = serializers.BooleanField()
+    matched_required = EnrichedSkillSerializer(many=True)
+    missing_required = EnrichedSkillSerializer(many=True)
+    matched_optional = EnrichedSkillSerializer(many=True)
+    other_skills = EnrichedSkillSerializer(many=True)
+
+class SearchResponseSerializer(serializers.Serializer):
+    count = serializers.IntegerField()
+    results = SearchResultItemSerializer(many=True)
