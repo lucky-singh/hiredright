@@ -369,3 +369,47 @@ class ResumeUploadView(APIView):
         parse_resume_task.delay(profile.pk, function_code)
 
         return Response({"detail": "Resume uploaded successfully, processing started."}, status=status.HTTP_202_ACCEPTED)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from profiles.models import CandidateProfile, ActivityClaim
+
+class CandidateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        
+        # We don't really have a rich profile, but we have user.first_name, etc.
+        data = {
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "is_recruiter": getattr(user, 'is_recruiter', False),
+            "claims": []
+        }
+        
+        try:
+            profile = CandidateProfile.objects.get(user=user)
+            if profile.resume:
+                url = profile.resume.url
+                # Swap internal docker hostname for localhost so browser can download it
+                data["resume"] = url.replace("minio:9000", "localhost:9000")
+                
+            # Fetch all claims
+            claims = ActivityClaim.objects.filter(profile=profile).select_related('activity')
+            
+            # Format claims
+            claims_data = []
+            for claim in claims:
+                claims_data.append({
+                    "activity_code": claim.activity.code,
+                    "activity_label": claim.activity.label,
+                    "proficiency": claim.proficiency
+                })
+            data["claims"] = claims_data
+                
+        except CandidateProfile.DoesNotExist:
+            pass
+            
+        return Response(data)

@@ -4,6 +4,7 @@ import { SignupPage } from './pages/signup';
 import { LoginPage } from './pages/login';
 import { FunctionSelectionPage } from './pages/function-selection';
 import { SearchPage } from './pages/search';
+import { CandidateProfilePage } from './pages/candidate-profile';
 
 function BuilderShellWrapper() {
   const { functionCode } = useParams<{ functionCode: string }>();
@@ -19,6 +20,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/functions" element={<FunctionSelectionPage />} />
         <Route path="/builder/:functionCode" element={<BuilderShellWrapper />} />
+        <Route path="/profile" element={<CandidateProfilePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/" element={<Navigate to="/signup" replace />} />
       </Routes>

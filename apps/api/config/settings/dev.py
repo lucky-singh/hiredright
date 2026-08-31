@@ -14,11 +14,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # SMS backend — console in dev (no real SMS provider).
 SMS_BACKEND = "accounts.sms.ConsoleSMSBackend"
 
-# Storage — local filesystem in dev (MinIO optional via env).
-STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
-}
+# Storage — We use MinIO in dev so we inherit STORAGES from base.py
 
 # Disable HTTPS-only cookies locally.
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"

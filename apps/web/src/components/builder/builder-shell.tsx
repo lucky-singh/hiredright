@@ -118,7 +118,7 @@ export function BuilderShell({ functionCode }: BuilderShellProps) {
     markStepComplete(currentArea.code);
     await flushClaims(); // ensure all claims are saved before completing
     await saveProgress(currentArea.code);
-    setViewMode('summary');
+    window.location.href = '/profile';
   };
 
   return (

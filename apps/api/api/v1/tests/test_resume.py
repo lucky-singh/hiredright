@@ -7,15 +7,16 @@ from unittest.mock import patch
 from taxonomy.models import Function
 
 @pytest.mark.django_db
-def test_resume_upload_view(candidate_client, candidate_user):
+def test_resume_upload_view(api_client, candidate):
     url = reverse("resume-upload")
     
     # 1. Test GET
-    res = candidate_client.get(url)
+    res = api_client.get(url)
     assert res.status_code == status.HTTP_200_OK
     
     # 2. Test POST without file
-    res = candidate_client.post(url, {})
+    api_client.force_authenticate(user=candidate)
+    res = api_client.post(url, {})
     assert res.status_code == status.HTTP_400_BAD_REQUEST
 
     # 3. Test POST with file
@@ -23,7 +24,7 @@ def test_resume_upload_view(candidate_client, candidate_user):
     resume_file = SimpleUploadedFile("test.pdf", pdf_content, content_type="application/pdf")
     
     with patch('profiles.tasks.parse_resume_task.delay') as mock_task:
-        res = candidate_client.post(url, {"resume": resume_file, "functionCode": "test-func"}, format="multipart")
+        res = api_client.post(url, {"resume": resume_file, "functionCode": "test-func"}, format="multipart")
         assert res.status_code == status.HTTP_202_ACCEPTED
         assert "processing started" in res.data["detail"]
         mock_task.assert_called_once()

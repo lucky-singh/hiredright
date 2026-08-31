@@ -386,3 +386,8 @@ To trace the exact flow of data:
 4. **Celery**: The worker pulls the file directly from MinIO, parses it with `pypdf`, and queries Gemini.
 5. **LLM**: Gemini replies with `{"codes": ["clin_ops_trial_master_file", "clin_ops_edc_entry"]}`.
 6. **Postgres**: Celery loops and provisions `ActivityClaim` rows for those specific codes.
+
+### Global Candidate Profile
+Upon completing the builder flow, users are redirected to their global `/profile` dashboard.
+- The UI fetches from `/api/v1/profile/`, a read-only endpoint aggregating `CandidateProfile` details (like the presigned S3 resume URL) and all verified `ActivityClaim` rows across all job functions.
+- The presigned URL generation automatically maps internal docker hostnames (e.g., `minio:9000`) to `localhost:9000` via Django's storage overrides to ensure files are downloadable on the host machine.

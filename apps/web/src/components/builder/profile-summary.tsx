@@ -106,6 +106,16 @@ export function ProfileSummary({ functionTree, onEdit }: ProfileSummaryProps) {
           ))
         )}
       </div>
+      
+      {/* Final Action / Next Step */}
+      <div className="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-800 text-center">
+        <a 
+          href="/profile"
+          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+        >
+          Finish & View Global Profile
+        </a>
+      </div>
     </div>
   );
 }
