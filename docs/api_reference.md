@@ -149,7 +149,8 @@ GET /api/v1/builder/{function_code}/
       "proficiency": 3,
       "years_experience": "4.5",
       "last_used_year": 2025,
-      "variants": ["3.2", "3.3"]
+      "variants": ["3.2", "3.3"],
+      "is_ai_inferred": true
     }
   ],
   "progress": {
@@ -251,6 +252,86 @@ A candidate has one progress row, so switching `function_code` moves the row
 rather than creating a second one.
 
 ---
+
+
+---
+
+## Candidate Profile & Resume Parsing Endpoints
+
+### 1. Upload Resume for AI Parsing
+
+Uploads a PDF resume and triggers background Celery extraction via Gemini LLM.
+
+```http
+POST /api/v1/profile/resume/
+```
+
+#### Request Payload (Multipart Form Data)
+- `resume` (file, required): The PDF resume.
+- `functionCode` (string, required): The function taxonomy slug to guide the LLM context.
+
+#### Response: `202 Accepted`
+```json
+{
+  "detail": "Resume processing started in background.",
+  "task_id": "c3515991-a9b1-41b7-aae3-7ea21279c8c1"
+}
+```
+
+---
+
+### 2. Check Resume Parsing Status
+
+Polls the background extraction status.
+
+```http
+GET /api/v1/profile/resume/status/{task_id}/
+```
+
+#### Path Parameters
+- `task_id` (string, required): The Celery task ID returned by the upload endpoint.
+
+#### Response: `200 OK`
+```json
+{
+  "task_id": "c3515991-a9b1-41b7-aae3-7ea21279c8c1",
+  "status": "SUCCESS",
+  "result": 12
+}
+```
+*Note: `status` can be `PENDING`, `SUCCESS`, or `FAILURE`. `result` on success is the count of skills created.*
+
+---
+
+### 3. Fetch Global Candidate Profile
+
+Returns read-only aggregation of the candidate's metadata and all verified claims.
+
+```http
+GET /api/v1/profile/
+```
+
+#### Response: `200 OK`
+```json
+{
+  "email": "demo@example.com",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "resume": "http://localhost:9000/hiredright/resumes/Jane_Doe_CV.pdf",
+  "claims": [
+    {
+      "activity_code": "sdtm-implementation-guide",
+      "activity_label": "SDTM Implementation Guide",
+      "proficiency": 3,
+      "category": "CDISC SDTM",
+      "category_sort_order": 1,
+      "is_ai_inferred": true,
+      "years_experience": "4.5",
+      "last_used_year": 2025
+    }
+  ]
+}
+```
 
 ## Recruiter Search & Matching Endpoints
 
