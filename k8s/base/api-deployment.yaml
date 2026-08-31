@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hiredright-api
+  labels:
+    app: hiredright-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hiredright-api
+  template:
+    metadata:
+      labels:
+        app: hiredright-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/your-org/hiredright-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: hiredright-secrets
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health/ # Adjust based on your healthcheck endpoint
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5

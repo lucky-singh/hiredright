@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hiredright-celery
+  labels:
+    app: hiredright-celery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hiredright-celery
+  template:
+    metadata:
+      labels:
+        app: hiredright-celery
+    spec:
+      containers:
+        - name: celery
+          image: ghcr.io/your-org/hiredright-api:latest
+          command: ["celery", "-A", "config", "worker", "-l", "info"]
+          envFrom:
+            - secretRef:
+                name: hiredright-secrets

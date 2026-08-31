@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hiredright-web
+  labels:
+    app: hiredright-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hiredright-web
+  template:
+    metadata:
+      labels:
+        app: hiredright-web
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/your-org/hiredright-web:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
