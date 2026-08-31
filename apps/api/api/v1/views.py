@@ -421,11 +421,13 @@ class CandidateProfileView(APIView):
             for claim in claims:
                 areas = list(claim.activity.competency_areas.all())
                 category_label = areas[0].label if areas else "General"
+                category_sort = areas[0].sort_order if areas else 999
                 claims_data.append({
                     "activity_code": claim.activity.code,
                     "activity_label": claim.activity.label,
                     "proficiency": claim.proficiency,
                     "category": category_label,
+                    "category_sort_order": category_sort,
                     "is_ai_inferred": claim.is_ai_inferred,
                     "years_experience": str(claim.years_experience) if claim.years_experience else None,
                     "last_used_year": claim.last_used_year
