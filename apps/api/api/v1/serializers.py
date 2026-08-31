@@ -55,7 +55,7 @@ class SkillAreaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompetencyArea
-        fields = ("code", "label", "function_code", "function_label")
+        fields = ("code", "label", "sort_order", "function_code", "function_label")
 
 
 class SkillSerializer(serializers.ModelSerializer):

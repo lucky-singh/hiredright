@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchFunctions } from '../lib/api/builder';
 import { getSkills, searchCandidates, type SearchResult } from '../lib/api/search';
@@ -31,17 +31,53 @@ export function SearchPage() {
     .filter(([_, state]) => state === 'optional')
     .map(([code]) => code);
 
-  const { data: searchResults, isLoading: searchLoading } = useQuery({
+  const { data: searchResults, isFetching: searchLoading, error: searchError } = useQuery({
     queryKey: ['search', requiredCodes, optionalCodes],
     queryFn: () => searchCandidates({
       required_activity_codes: requiredCodes,
       optional_activity_codes: optionalCodes,
       required_variants: {}, // simplified for now
-      limit: 50,
+      limit: 100,
       include_near_misses: true,
     }),
     enabled: requiredCodes.length > 0 || optionalCodes.length > 0,
+    retry: false, // Don't retry on 403s
   });
+
+  const groupedSkills = useMemo(() => {
+    if (!skillsData?.results) return {};
+    const groups: Record<string, typeof skillsData.results> = {};
+    const groupSortOrders: Record<string, number> = {};
+    
+    skillsData.results.forEach(skill => {
+      let groupName = 'Other Skills';
+      let sortOrder = 9999;
+      
+      if (skill.areas && skill.areas.length > 0) {
+        const relevantArea = selectedFunction 
+          ? skill.areas.find(a => a.function_code === selectedFunction) || skill.areas[0]
+          : skill.areas[0];
+        groupName = selectedFunction 
+          ? relevantArea.label 
+          : `${relevantArea.function_label}: ${relevantArea.label}`;
+        sortOrder = relevantArea.sort_order;
+      }
+      
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+        groupSortOrders[groupName] = sortOrder;
+      }
+      groups[groupName].push(skill);
+    });
+    
+    // Sort groups by their API sort_order (same as candidate builder)
+    return Object.keys(groups)
+      .sort((a, b) => groupSortOrders[a] - groupSortOrders[b])
+      .reduce((acc, key) => {
+        acc[key] = groups[key];
+        return acc;
+      }, {} as typeof groups);
+  }, [skillsData, selectedFunction]);
 
   const cycleSkillState = (code: string) => {
     setSkillStates(prev => {
@@ -90,37 +126,46 @@ export function SearchPage() {
                 />
               </div>
 
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-col gap-6 mt-2">
                 {skillsLoading ? (
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Loading skills...
                   </div>
+                ) : Object.keys(groupedSkills).length === 0 ? (
+                  <div className="text-sm text-muted-foreground">No skills found.</div>
                 ) : (
-                  skillsData?.results?.map(skill => {
-                    const state = skillStates[skill.code] || 'off';
-                    
-                    let stateClasses = '';
-                    if (state === 'off') {
-                      stateClasses = 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400';
-                    } else if (state === 'required') {
-                      stateClasses = 'bg-blue-600 border-blue-600 text-white shadow-sm ring-2 ring-blue-600/20';
-                    } else if (state === 'optional') {
-                      stateClasses = 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 border-dashed';
-                    }
-                    
-                    return (
-                      <button
-                        key={skill.code}
-                        onClick={() => cycleSkillState(skill.code)}
-                        className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium transition-all focus:outline-none ${stateClasses}`}
-                      >
-                        {skill.label}
-                        {state === 'required' && <span className="ml-1.5 text-xs opacity-80 font-bold tracking-wider uppercase">Req</span>}
-                        {state === 'optional' && <span className="ml-1.5 text-xs opacity-80 font-bold tracking-wider uppercase">Opt</span>}
-                      </button>
-                    )
-                  })
+                  Object.entries(groupedSkills).map(([groupName, groupSkills]) => (
+                    <div key={groupName} className="space-y-3">
+                      <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800 pb-1 mb-2">{groupName}</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {groupSkills.map(skill => {
+                          const state = skillStates[skill.code] || 'off';
+                          
+                          let stateClasses = '';
+                          if (state === 'off') {
+                            stateClasses = 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400';
+                          } else if (state === 'required') {
+                            stateClasses = 'bg-blue-600 border-blue-600 text-white shadow-sm ring-2 ring-blue-600/20';
+                          } else if (state === 'optional') {
+                            stateClasses = 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 border-dashed';
+                          }
+                          
+                          return (
+                            <button
+                              key={skill.code}
+                              onClick={() => cycleSkillState(skill.code)}
+                              className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium transition-all focus:outline-none ${stateClasses}`}
+                            >
+                              {skill.label}
+                              {state === 'required' && <span className="ml-1.5 text-xs opacity-80 font-bold tracking-wider uppercase">Req</span>}
+                              {state === 'optional' && <span className="ml-1.5 text-xs opacity-80 font-bold tracking-wider uppercase">Opt</span>}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             </CardContent>
@@ -137,7 +182,17 @@ export function SearchPage() {
           </div>
           
           <div className="flex-1 overflow-y-auto min-h-0 pl-2 pr-4 pt-2 space-y-4 pb-6 custom-scrollbar -ml-2">
-            {requiredCodes.length === 0 && optionalCodes.length === 0 ? (
+            {searchError ? (
+              <Card className="bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50 shadow-none">
+                <CardContent className="p-8 text-center text-red-600 dark:text-red-400 flex flex-col items-center justify-center">
+                  <div className="mb-3 text-red-500/50">
+                    <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  </div>
+                  <h3 className="font-semibold text-lg mb-1">Search Access Denied</h3>
+                  <p className="max-w-md">You do not have permission to search the candidate pool. The active user account must have the <code className="bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded mx-1">is_recruiter=True</code> permission.</p>
+                </CardContent>
+              </Card>
+            ) : requiredCodes.length === 0 && optionalCodes.length === 0 ? (
               <Card className="bg-white/50 dark:bg-zinc-900/50 border-dashed border-2 shadow-none">
                 <CardContent className="p-16 text-center text-zinc-500 dark:text-zinc-400 flex flex-col items-center justify-center">
                   <Search className="h-10 w-10 mb-4 opacity-20" />
@@ -167,7 +222,7 @@ export function SearchPage() {
                           <span className="font-semibold text-green-700 dark:text-green-400 block mb-1">✓ Matched Required</span>
                           <div className="flex flex-wrap gap-1">
                             {result.matched_required.map(m => (
-                              <span key={m} className="bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-xs text-zinc-700 dark:text-zinc-300">{m}</span>
+                              <span key={m.code} className="bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-xs text-zinc-700 dark:text-zinc-300">{m.label}</span>
                             ))}
                           </div>
                         </div>
@@ -177,7 +232,7 @@ export function SearchPage() {
                           <span className="font-semibold text-red-600 dark:text-red-400 block mb-1">✗ Missing Required</span>
                           <div className="flex flex-wrap gap-1">
                             {result.missing_required.map(m => (
-                              <span key={m} className="bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded text-xs text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/50">{m}</span>
+                              <span key={m.code} className="bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded text-xs text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/50">{m.label}</span>
                             ))}
                           </div>
                         </div>
@@ -187,7 +242,7 @@ export function SearchPage() {
                           <span className="font-semibold text-blue-600 dark:text-blue-400 block mb-1">+ Matched Optional</span>
                           <div className="flex flex-wrap gap-1">
                             {result.matched_optional.map(m => (
-                              <span key={m} className="bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded text-xs text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/50">{m}</span>
+                              <span key={m.code} className="bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded text-xs text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/50">{m.label}</span>
                             ))}
                           </div>
                         </div>

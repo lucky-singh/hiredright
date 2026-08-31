@@ -315,15 +315,22 @@ class CandidateSearchView(APIView):
             include_near_misses=data["include_near_misses"],
         )
 
+        all_codes = set(query.required_activity_codes) | set(query.optional_activity_codes)
+        activities = Activity.objects.filter(code__in=all_codes).prefetch_related("competency_areas__function")
+        skills_by_code = {
+            act["code"]: act
+            for act in SkillSerializer(activities, many=True).data
+        }
+
         results = [
             {
                 "profile_id": r.profile_id,
                 "score": r.result.score,
                 "score_pct": r.result.score_pct,
                 "meets_requirements": r.result.meets_requirements,
-                "matched_required": list(r.result.matched_required),
-                "missing_required": list(r.result.missing_required),
-                "matched_optional": list(r.result.matched_optional),
+                "matched_required": [skills_by_code[c] for c in r.result.matched_required if c in skills_by_code],
+                "missing_required": [skills_by_code[c] for c in r.result.missing_required if c in skills_by_code],
+                "matched_optional": [skills_by_code[c] for c in r.result.matched_optional if c in skills_by_code],
             }
             for r in ranked
         ]
