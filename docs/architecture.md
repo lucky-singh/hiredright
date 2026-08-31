@@ -393,6 +393,8 @@ To trace the exact flow of data:
 6. **Postgres**: Celery loops and provisions `ActivityClaim` rows for those specific codes.
 
 ### Global Candidate Profile
-Upon completing the builder flow, users are redirected to their global `/profile` dashboard.
+Upon completing the builder flow, users are redirected to their global `/profile` dashboard (titled "My Profile").
 - The UI fetches from `/api/v1/profile/`, a read-only endpoint aggregating `CandidateProfile` details (like the presigned S3 resume URL) and all verified `ActivityClaim` rows across all job functions.
 - The presigned URL generation automatically maps internal docker hostnames (e.g., `minio:9000`) to `localhost:9000` via Django's storage overrides to ensure files are downloadable on the host machine.
+- **Skill Grouping & Ordering**: Verified skills are grouped by their parent `CompetencyArea`. The API serializes the taxonomy's `sort_order`, which the frontend uses to display categories in the exact same priority sequence as the step-by-step Builder flow.
+- **Rich Metadata**: The dashboard displays explicit metadata alongside proficiency badges, including a candidate's manually entered "Years of Experience" and "Last Used Year". In the builder, these fields utilize strict native controls (like a 15-year `<select>` dropdown) and are grayed out safely in a preserved read-only state if a skill is temporarily unticked.
