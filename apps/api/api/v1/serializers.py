@@ -196,12 +196,24 @@ class BuilderProgressSerializer(serializers.ModelSerializer):
 class BuilderPayloadSerializer(serializers.Serializer):
     """The single fetch that powers the whole builder flow."""
 
-    function = FunctionTreeSerializer()
+    function = serializers.SerializerMethodField()
     claims = ClaimSerializer(many=True)
     progress = BuilderProgressSerializer(allow_null=True)
     years_experience = serializers.DecimalField(
         max_digits=4, decimal_places=1, allow_null=True
     )
+
+    def get_function(self, obj):
+        from django.core.cache import cache
+        function_obj = obj["function"]
+        cache_key = f"taxonomy:function_tree:{function_obj.code}"
+        
+        data = cache.get(cache_key)
+        if data is None:
+            data = FunctionTreeSerializer(function_obj).data
+            # Cache the heavily nested taxonomy for 24 hours
+            cache.set(cache_key, data, timeout=60 * 60 * 24)
+        return data
 
 
 class CandidateSearchSerializer(serializers.Serializer):

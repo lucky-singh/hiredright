@@ -144,3 +144,30 @@ class Activity(TimestampedModel):
     @property
     def is_scorable(self) -> bool:
         return self.claim_type in ClaimType.scorable()
+
+
+# --- Cache Invalidation Signals ---
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.core.cache import cache
+
+def clear_taxonomy_cache(function_code):
+    cache.delete(f"taxonomy:function_tree:{function_code}")
+    # Also clear the function list cache which is managed by @cache_page
+    cache.clear()
+
+@receiver([post_save, post_delete], sender=Function)
+def invalidate_function_cache(sender, instance, **kwargs):
+    clear_taxonomy_cache(instance.code)
+
+@receiver([post_save, post_delete], sender=CompetencyArea)
+def invalidate_area_cache(sender, instance, **kwargs):
+    if instance.function:
+        clear_taxonomy_cache(instance.function.code)
+
+@receiver([post_save, post_delete], sender=Activity)
+def invalidate_activity_cache(sender, instance, **kwargs):
+    # An activity can belong to multiple areas across functions
+    for area in instance.competency_areas.all():
+        if area.function:
+            clear_taxonomy_cache(area.function.code)
