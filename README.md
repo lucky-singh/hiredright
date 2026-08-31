@@ -278,4 +278,6 @@ ruff format --check .
 ### Recruiter Search Dashboard
 The system includes a dedicated Recruiter Search interface (`http://localhost:3000/search`) allowing authenticated recruiters to search candidate profiles. 
 - You must create a user with the `is_recruiter=True` flag in the Django admin to access the underlying API endpoints (`/api/v1/search/`).
+- The login page automatically detects the `is_recruiter` role on login and redirects recruiters to the Search Dashboard, while standard candidates are routed to the Profile Builder.
 - The dashboard allows configuring multiple skill requirements (Required vs. Optional) per function and instantly calculates a candidate % match score via the internal `scoring.py` engine based on skill recency and proficiency.
+- A global User Menu is available in the top right corner across all authenticated pages to display the active profile's role and allow quick navigation.

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SearchPage } from './search';
 import * as builderApi from '../lib/api/builder';
@@ -46,7 +47,9 @@ describe('SearchPage', () => {
 
     render(
       <QueryClientProvider client={client}>
-        <SearchPage />
+        <MemoryRouter>
+          <SearchPage />
+        </MemoryRouter>
       </QueryClientProvider>
     );
     
