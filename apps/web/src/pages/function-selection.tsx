@@ -4,6 +4,8 @@ import { fetchFunctions } from '@/lib/api/builder';
 import type { JobFunction } from '@/lib/api/types';
 import { Loader2 } from 'lucide-react';
 
+import { UserMenu } from '@/components/user-menu';
+
 export function FunctionSelectionPage() {
   const [functions, setFunctions] = useState<JobFunction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,8 @@ export function FunctionSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 relative">
+      <UserMenu />
       <div className="max-w-3xl w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">

@@ -5,6 +5,7 @@ import { getSkills, searchCandidates, type SearchResult } from '../lib/api/searc
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Search, Loader2 } from 'lucide-react';
+import { UserMenu } from '../components/user-menu';
 
 type SkillState = 'off' | 'required' | 'optional';
 
@@ -93,7 +94,8 @@ export function SearchPage() {
   };
 
   return (
-    <div className="h-screen bg-zinc-50 dark:bg-zinc-950 flex justify-center py-8 px-4 sm:px-6 lg:px-8 text-zinc-900 dark:text-zinc-100 overflow-hidden">
+    <div className="h-screen bg-zinc-50 dark:bg-zinc-950 flex justify-center py-8 px-4 sm:px-6 lg:px-8 text-zinc-900 dark:text-zinc-100 overflow-hidden relative">
+      <UserMenu />
       <div className="w-full max-w-7xl flex gap-8 h-full min-h-0">
         {/* Sidebar: Skills Selection */}
         <div className="w-1/3 flex flex-col gap-4 h-full min-w-0 min-h-0">

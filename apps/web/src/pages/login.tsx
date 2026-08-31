@@ -26,12 +26,16 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await loginUser({
+      const responseData = await loginUser({
         email: formData.email,
         password: formData.password,
       });
-      // Redirect to builder
-      navigate('/functions');
+      // Redirect to builder or search
+      if (responseData.user?.is_recruiter) {
+        navigate('/search');
+      } else {
+        navigate('/functions');
+      }
     } catch (err: any) {
       console.error(err);
       if (err.body) {

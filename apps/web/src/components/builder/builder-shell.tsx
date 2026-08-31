@@ -10,6 +10,7 @@ import { CompetencyAreaStep } from './competency-area-step';
 import { StepNavigation } from './step-navigation';
 import { ProfileSummary } from './profile-summary';
 import { Loader2 } from 'lucide-react';
+import { UserMenu } from '../user-menu';
 
 interface BuilderShellProps {
   functionCode: string;
@@ -119,7 +120,8 @@ export function BuilderShell({ functionCode }: BuilderShellProps) {
   };
 
   return (
-    <div className="flex h-screen bg-white dark:bg-zinc-950 overflow-hidden">
+    <div className="flex h-screen bg-white dark:bg-zinc-950 overflow-hidden relative">
+      <UserMenu />
       <ProgressSidebar 
         areas={areas}
         currentStep={currentStep}
