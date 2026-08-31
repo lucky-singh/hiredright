@@ -392,7 +392,7 @@ class CandidateProfileView(APIView):
         try:
             profile = CandidateProfile.objects.get(user=user)
             if profile.resume:
-                url = profile.resume.url
+                url = profile.resume.url.split('?')[0]
                 # Swap internal docker hostname for localhost so browser can download it
                 data["resume"] = url.replace("minio:9000", "localhost:9000")
                 
