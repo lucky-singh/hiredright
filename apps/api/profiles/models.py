@@ -24,6 +24,7 @@ class CandidateProfile(TimestampedModel):
     )
     headline = models.CharField(max_length=200, blank=True)
     location_country = models.CharField(max_length=2, blank=True, help_text="ISO 3166-1 alpha-2.")
+    resume = models.FileField(upload_to="resumes/", null=True, blank=True)
     open_to_opportunities = models.BooleanField(default=True)
     is_searchable = models.BooleanField(
         default=True,

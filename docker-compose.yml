@@ -37,6 +37,18 @@ services:
     volumes:
       - miniodata:/data
 
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb myminio/hiredright || true;
+      /usr/bin/mc anonymous set download myminio/hiredright || true;
+      exit 0;
+      "
+
   api:
     build:
       context: ./apps/api

@@ -32,11 +32,15 @@ from .serializers import (
 )
 
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 class FunctionListView(APIView):
     """GET /api/v1/functions/ — list all active functions to select from."""
     permission_classes = [IsAuthenticated]
 
     @extend_schema(responses=FunctionListSerializer(many=True))
+    @method_decorator(cache_page(60 * 60 * 24)) # cache for 24 hours
     def get(self, request):
         functions = Function.objects.filter(is_active=True).order_by("sort_order", "label")
         serializer = FunctionListSerializer(functions, many=True)
@@ -77,6 +81,7 @@ class SkillListView(APIView):
         ],
         responses={200: SkillSerializer(many=True)}
     )
+    @method_decorator(cache_page(60 * 60 * 24)) # cache for 24 hours
     def get(self, request):
         function_code = request.query_params.get("function") or ""
         query = (request.query_params.get("q") or "").strip()
@@ -335,3 +340,32 @@ class CandidateSearchView(APIView):
             for r in ranked
         ]
         return Response({"count": len(results), "results": results})
+
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import status
+from profiles.tasks import parse_resume_task
+
+class ResumeUploadView(APIView):
+    """POST /api/v1/builder/resume/ — upload a resume to MinIO and trigger Celery."""
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get(self, request):
+        return Response({"detail": "Send a POST request with a 'resume' file to upload your CV."})
+
+    def post(self, request):
+        if "resume" not in request.FILES:
+            return Response({"detail": "No resume file provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        profile = CandidateProfile.objects.get_or_create(user=request.user)[0]
+        resume_file = request.FILES["resume"]
+        function_code = request.data.get("functionCode")
+        
+        # Save to MinIO via django-storages
+        profile.resume.save(resume_file.name, resume_file)
+        profile.save()
+
+        # Trigger Celery background task
+        parse_resume_task.delay(profile.pk, function_code)
+
+        return Response({"detail": "Resume uploaded successfully, processing started."}, status=status.HTTP_202_ACCEPTED)

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { fetchFunctions } from '@/lib/api/builder';
 import type { JobFunction } from '@/lib/api/types';
 import { Loader2 } from 'lucide-react';
-
 import { UserMenu } from '@/components/user-menu';
 
 export function FunctionSelectionPage() {
@@ -51,10 +50,11 @@ export function FunctionSelectionPage() {
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
             Select Your Role
           </h2>
-          <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400 mb-8">
             Choose the function you want to build your profile for.
           </p>
         </div>
+        
         
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {functions.map((func) => (

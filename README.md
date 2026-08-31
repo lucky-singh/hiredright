@@ -281,3 +281,12 @@ The system includes a dedicated Recruiter Search interface (`http://localhost:30
 - The login page automatically detects the `is_recruiter` role on login and redirects recruiters to the Search Dashboard, while standard candidates are routed to the Profile Builder.
 - The dashboard allows configuring multiple skill requirements (Required vs. Optional) per function and instantly calculates a candidate % match score via the internal `scoring.py` engine based on skill recency and proficiency.
 - A global User Menu is available in the top right corner across all authenticated pages to display the active profile's role and allow quick navigation.
+
+## Smart Resume Parsing (AI)
+HireRight features an intelligent resume parsing engine powered by Google Gemini (e.g., `gemini-2.5-flash`).
+1. **Upload**: Users upload their PDF resume on the frontend Builder screen.
+2. **Storage**: The document is securely pushed to MinIO via `django-storages`.
+3. **Queue**: A Celery task (`parse_resume_task`) is dispatched into the Redis queue.
+4. **Extraction**: The worker extracts raw text via `pypdf`.
+5. **Contextual Matching**: The text, along with the *context-specific* taxonomy for the active job function, is sent to Gemini.
+6. **Auto-Fill**: Gemini returns a JSON object of validated Activity codes which are automatically inserted as `ActivityClaim` rows in Postgres.

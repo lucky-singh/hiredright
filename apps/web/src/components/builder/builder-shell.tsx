@@ -8,6 +8,7 @@ import type { BuilderPayload } from '@/lib/api/types';
 import { ProgressSidebar } from './progress-sidebar';
 import { CompetencyAreaStep } from './competency-area-step';
 import { StepNavigation } from './step-navigation';
+import { ResumeUpload } from '../resume-upload';
 import { ProfileSummary } from './profile-summary';
 import { Loader2 } from 'lucide-react';
 import { UserMenu } from '../user-menu';
@@ -17,6 +18,7 @@ interface BuilderShellProps {
 }
 
 export function BuilderShell({ functionCode }: BuilderShellProps) {
+
   const [payload, setPayload] = useState<BuilderPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'builder' | 'summary'>('builder');
@@ -130,6 +132,7 @@ export function BuilderShell({ functionCode }: BuilderShellProps) {
       />
       
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto relative bg-zinc-50/50 dark:bg-zinc-950">
+        <ResumeUpload functionCode={functionCode} />
         <div className="flex-1 pb-24">
           <CompetencyAreaStep area={currentArea} />
         </div>

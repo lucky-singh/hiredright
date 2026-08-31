@@ -60,6 +60,7 @@ THIRD_PARTY_APPS = [
     "dj_rest_auth.registration",
     "oauth2_provider",
     "corsheaders",
+    "storages",
 ]
 
 LOCAL_APPS = [
@@ -279,3 +280,23 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ---------------------------------------------------------------------------
 
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default=[])
+# Storages (S3 / MinIO)
+# The default backend for file uploads
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+AWS_ACCESS_KEY_ID = env("MINIO_ROOT_USER", default="minioadmin")
+AWS_SECRET_ACCESS_KEY = env("MINIO_ROOT_PASSWORD", default="minioadmin")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="hiredright")
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="http://minio:9000")
+AWS_S3_REGION_NAME = "us-east-1"
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+# Allow presigned URLs (no public read)
+AWS_DEFAULT_ACL = "private"
+AWS_S3_FILE_OVERWRITE = False

@@ -9,6 +9,7 @@ from .views import (
     ClaimBatchView,
     FunctionListView,
     SkillListView,
+    ResumeUploadView,
 )
 
 urlpatterns = [
@@ -16,6 +17,7 @@ urlpatterns = [
     path("skills/", SkillListView.as_view(), name="skill-list"),
     path("builder/claims/", ClaimBatchView.as_view(), name="builder-claims"),
     path("builder/progress/", BuilderProgressView.as_view(), name="builder-progress"),
+    path("profile/resume/", ResumeUploadView.as_view(), name="resume-upload"),
     path("builder/<slug:function_code>/", BuilderView.as_view(), name="builder"),
     path("search/", CandidateSearchView.as_view(), name="candidate-search"),
 ]

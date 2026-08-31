@@ -365,3 +365,24 @@ The Candidate Profile Builder is a pure Single Page Application (SPA) located in
 - **State Management**: Zustand manages the dense taxonomy tree and user claims in local memory, enabling sub-millisecond UI reactions (e.g. implicit claiming) without waiting on network requests.
 - **Debounced Syncing**: The `use-claim-sync` hook batches user interactions into atomic `ClaimBatch` payloads, emitting a background POST to the Django API after 500ms of inactivity.
 - **Proxy**: In development, Vite proxies `/api` to `localhost:8000` to bypass CORS. In production, the built static files are served via CDN/Nginx, consuming the API over HTTPS.
+
+## AI Resume Parsing Architecture
+The resume parsing pipeline delegates heavy lifting to a background queue to prevent blocking user requests.
+*   **Storage Backend**: S3-compatible object storage (MinIO locally, AWS S3 in production) holds the uploaded PDFs.
+*   **Message Broker**: Redis handles message routing for Celery.
+*   **LLM Provider**: The `google-genai` SDK interfaces with Gemini (`gemini-2.5-flash`) for rapid, structured extraction using `response_mime_type: 'application/json'`.
+*   **Data Flow**:
+    1.  Client POSTs multipart form data to `/api/v1/profile/resume/` with `functionCode`.
+    2.  Django saves file to MinIO and enqueues `profile_id` & `functionCode` to Celery.
+    3.  Celery downloads PDF, extracts text, fetches relevant taxonomy subset, queries Gemini.
+    4.  Gemini returns JSON `{"codes": [...]}`.
+    5.  Celery creates `ActivityClaim` rows. Frontend re-fetches payload to display results.
+
+### A Resume's Lifecycle Example
+To trace the exact flow of data:
+1. **MinIO**: `Jane_Doe_CV.pdf` is uploaded and saved to `s3://hiredright/resumes/Jane_Doe_CV_x8f9a2.pdf`.
+2. **Postgres**: The `CandidateProfile.resume` column stores the relative path string `resumes/Jane_Doe_CV_x8f9a2.pdf`.
+3. **Redis**: The `parse_resume_task` job is pushed to the queue with args `[profile_id=42, functionCode="clinical-operations"]`.
+4. **Celery**: The worker pulls the file directly from MinIO, parses it with `pypdf`, and queries Gemini.
+5. **LLM**: Gemini replies with `{"codes": ["clin_ops_trial_master_file", "clin_ops_edc_entry"]}`.
+6. **Postgres**: Celery loops and provisions `ActivityClaim` rows for those specific codes.
