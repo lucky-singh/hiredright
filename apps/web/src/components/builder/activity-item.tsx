@@ -2,6 +2,8 @@ import { cn } from '@/lib/utils';
 import type { Activity } from '@/lib/api/types';
 import { useBuilderStore } from '@/stores/builder-store';
 import { useClaimSync } from '@/hooks/use-claim-sync';
+import { Bot }
+from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ProficiencySelect } from './proficiency-select';
 import { VariantMultiSelect } from './variant-multi-select';
@@ -71,10 +73,15 @@ export function ActivityItem({ activity }: ActivityItemProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center flex-wrap gap-2">
             <h4 className={cn(
-              "text-base font-semibold transition-colors",
+              "text-base font-semibold transition-colors flex items-center gap-2",
               isClaimed ? "text-blue-900 dark:text-blue-100" : "text-zinc-900 dark:text-zinc-100"
             )}>
               {activity.label}
+              {claim?.isAiInferred && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                  <Bot className="w-3 h-3 mr-1 inline" /> AI
+                </span>
+              )}
             </h4>
             
             {activity.claim_type === 'trait' && (

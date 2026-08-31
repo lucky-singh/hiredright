@@ -101,6 +101,7 @@ class ClaimSerializer(serializers.ModelSerializer):
             "activity_code",
             "proficiency",
             "years_experience",
+            "is_ai_inferred",
             "last_used_year",
             "variants",
         )

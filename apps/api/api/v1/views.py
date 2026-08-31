@@ -247,6 +247,7 @@ class ClaimBatchView(APIView):
                     "years_experience": delta.get("years_experience"),
                     "last_used_year": delta.get("last_used_year"),
                     "variants": delta.get("variants") or [],
+                    "is_ai_inferred": False,
                 },
             )
             synced += 1
@@ -366,9 +367,25 @@ class ResumeUploadView(APIView):
         profile.save()
 
         # Trigger Celery background task
-        parse_resume_task.delay(profile.pk, function_code)
+        task = parse_resume_task.delay(profile.pk, function_code)
 
-        return Response({"detail": "Resume uploaded successfully, processing started."}, status=status.HTTP_202_ACCEPTED)
+        return Response({"detail": "Resume uploaded successfully, processing started.", "task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+
+from celery.result import AsyncResult
+
+class ResumeTaskStatusView(APIView):
+    """GET /api/v1/profile/resume/status/<task_id>/ — Check celery task status"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, task_id):
+        res = AsyncResult(task_id)
+        # res.result contains the return value of the task if successful, or Exception if failed
+        result_data = str(res.result) if res.result else None
+        return Response({
+            "task_id": task_id,
+            "status": res.status,
+            "result": result_data
+        })
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -408,7 +425,8 @@ class CandidateProfileView(APIView):
                     "activity_code": claim.activity.code,
                     "activity_label": claim.activity.label,
                     "proficiency": claim.proficiency,
-                    "category": category_label
+                    "category": category_label,
+                    "is_ai_inferred": claim.is_ai_inferred
                 })
             data["claims"] = claims_data
                 

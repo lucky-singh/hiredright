@@ -372,11 +372,16 @@ The resume parsing pipeline delegates heavy lifting to a background queue to pre
 *   **Message Broker**: Redis handles message routing for Celery.
 *   **LLM Provider**: The `google-genai` SDK interfaces with Gemini (`gemini-2.5-flash`) for rapid, structured extraction using `response_mime_type: 'application/json'`.
 *   **Data Flow**:
-    1.  Client POSTs multipart form data to `/api/v1/profile/resume/` with `functionCode`.
-    2.  Django saves file to MinIO and enqueues `profile_id` & `functionCode` to Celery.
-    3.  Celery downloads PDF, extracts text, fetches relevant taxonomy subset, queries Gemini.
-    4.  Gemini returns JSON `{"codes": [...]}`.
-    5.  Celery creates `ActivityClaim` rows. Frontend re-fetches payload to display results.
+    1.  User selects a Function on the UI and is presented an interstitial prompt to upload a PDF or skip.
+    2.  Client POSTs multipart form data to `/api/v1/profile/resume/` with `functionCode`.
+    3.  Django saves file to MinIO, enqueues `profile_id` & `functionCode` to Celery, and returns a `task_id`.
+    4.  Frontend polls `/api/v1/profile/resume/status/<task_id>` while Celery processes the PDF.
+    5.  Celery downloads PDF, extracts text, queries Gemini.
+    6.  Gemini returns JSON `{"codes": [...]}`.
+    7.  Celery creates `ActivityClaim` rows tagged with `is_ai_inferred=True`.
+    8.  Frontend transitions to a summary success screen, then routes into the Builder.
+    9.  The UI displays a distinctive purple 'AI Found' badge next to any skill where `is_ai_inferred=True`.
+    10. If the user manually edits any AI-inferred claim (e.g. changing proficiency), the Debounced Batch Sync flips `is_ai_inferred` back to `False`, officially converting it to a manually-verified claim and removing the AI badge.
 
 ### A Resume's Lifecycle Example
 To trace the exact flow of data:

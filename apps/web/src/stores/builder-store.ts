@@ -7,6 +7,7 @@ export interface LocalClaim {
   yearsExperience: number | null;
   lastUsedYear: number | null;
   variants: string[];
+  isAiInferred?: boolean;
 }
 
 interface BuilderState {
@@ -53,6 +54,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         yearsExperience: claim.years_experience ? Number(claim.years_experience) : null,
         lastUsedYear: claim.last_used_year,
         variants: claim.variants ?? [],
+        isAiInferred: claim.is_ai_inferred,
       };
     }
     set({

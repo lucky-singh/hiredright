@@ -79,6 +79,10 @@ class ActivityClaim(TimestampedModel):
         blank=True,
         validators=[MinValueValidator(0), MaxValueValidator(60)],
     )
+    is_ai_inferred = models.BooleanField(
+        default=False,
+        help_text="True if this claim was automatically extracted from a resume by AI"
+    )
     last_used_year = models.PositiveSmallIntegerField(
         null=True,
         blank=True,

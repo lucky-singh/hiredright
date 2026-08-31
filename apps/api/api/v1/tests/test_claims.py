@@ -183,6 +183,34 @@ class TestAcceptedBatches:
         assert response.status_code == 200
         assert ActivityClaim.objects.filter(activity=taxonomy.trait).exists()
 
+    def test_manual_edit_clears_is_ai_inferred(self, post, taxonomy, candidate):
+        from profiles.models import CandidateProfile
+        profile = CandidateProfile.objects.get_or_create(user=candidate)[0]
+        # 1. Create a claim with is_ai_inferred=True
+        ActivityClaim.objects.create(
+            profile=profile,
+            activity=taxonomy.sdtm,
+            proficiency=3,
+            is_ai_inferred=True
+        )
+        
+        # 2. Sync a manual update (like changing proficiency)
+        response = post(
+            [
+                {
+                    "activity_code": taxonomy.sdtm.code,
+                    "claimed": True,
+                    "proficiency": 4,
+                }
+            ]
+        )
+        assert response.status_code == 200
+        
+        # 3. Assert is_ai_inferred is flipped to False
+        claim = ActivityClaim.objects.get(activity=taxonomy.sdtm)
+        assert claim.proficiency == 4
+        assert claim.is_ai_inferred is False
+
     def test_batch_over_the_cap_is_rejected(self, post, taxonomy):
         response = post(
             [{"activity_code": f"code-{i}", "claimed": True} for i in range(201)]

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserMenu } from '@/components/user-menu';
-import { Loader2, FileText, CheckCircle2 } from 'lucide-react';
+import { Loader2, FileText, CheckCircle2, Bot } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface ProfileData {
@@ -15,6 +15,7 @@ interface ProfileData {
     activity_label: string;
     proficiency: number | null;
     category?: string;
+    is_ai_inferred?: boolean;
   }[];
 }
 
@@ -153,8 +154,13 @@ export function CandidateProfilePage() {
                       <li key={idx} className="p-4 sm:p-6 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                         <div className="flex items-center gap-4">
                           <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                          <div>
+                          <div className="flex items-center gap-2">
                             <p className="font-medium text-zinc-900 dark:text-zinc-100">{claim.activity_label}</p>
+                            {claim.is_ai_inferred && (
+                              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800 text-[10px] uppercase tracking-wider py-0 h-5">
+                                <Bot className="w-3 h-3 mr-1 inline" /> AI Found
+                              </Badge>
+                            )}
                           </div>
                         </div>
                         {claim.proficiency && (

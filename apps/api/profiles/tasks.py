@@ -93,7 +93,7 @@ def parse_resume_task(profile_id: int, function_code: str = None):
             claim, created = ActivityClaim.objects.get_or_create(
                 profile=profile,
                 activity=activity,
-                defaults={"proficiency": Proficiency.WORKING}
+                defaults={"proficiency": Proficiency.WORKING, "is_ai_inferred": True}
             )
             if created:
                 created_count += 1
