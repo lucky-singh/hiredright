@@ -12,9 +12,11 @@ from .views import (
     ResumeUploadView,
     ResumeTaskStatusView,
     CandidateProfileView,
+    HealthCheckView,
 )
 
 urlpatterns = [
+    path("health/", HealthCheckView.as_view(), name="health-check"),
     # Auth endpoints via dj-rest-auth
     path("auth/", include("dj_rest_auth.urls")),
     path("auth/registration/", include("dj_rest_auth.registration.urls")),

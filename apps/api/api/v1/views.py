@@ -450,3 +450,23 @@ class CandidateProfileView(APIView):
             pass
             
         return Response(data)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.db import connection
+
+class HealthCheckView(APIView):
+    """
+    Lightweight health check endpoint for Kubernetes readiness/liveness probes.
+    Pings the database to ensure the backend is fully operational.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, *args, **kwargs):
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+            return Response({"status": "ok", "database": "connected"})
+        except Exception as e:
+            return Response({"status": "error", "database": "disconnected", "details": str(e)}, status=503)
