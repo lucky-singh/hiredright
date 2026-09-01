@@ -78,11 +78,11 @@ export function SearchPage() {
       
       if (skill.areas && skill.areas.length > 0) {
         const relevantArea = selectedFunction 
-          ? skill.areas.find(a => a.function_code === selectedFunction) || skill.areas[0]
+          ? skill.areas.find(a => a.role_code === selectedFunction) || skill.areas[0]
           : skill.areas[0];
         groupName = selectedFunction 
           ? relevantArea.label 
-          : `${relevantArea.function_label}: ${relevantArea.label}`;
+          : `${relevantArea.role_label}: ${relevantArea.label}`;
         sortOrder = relevantArea.sort_order;
       }
       
