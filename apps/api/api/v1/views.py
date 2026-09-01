@@ -423,9 +423,7 @@ class CandidateProfileView(APIView):
         try:
             profile = CandidateProfile.objects.get(user=user)
             if profile.resume:
-                url = profile.resume.url.split('?')[0]
-                # Swap internal docker hostname for localhost so browser can download it
-                data["resume"] = url.replace("minio:9000", "localhost:9000")
+                data["resume"] = profile.resume.url
                 
             # Fetch all claims
             claims = ActivityClaim.objects.filter(profile=profile).select_related('activity').prefetch_related('activity__competency_areas')

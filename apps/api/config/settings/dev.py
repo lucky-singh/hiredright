@@ -58,3 +58,7 @@ REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (
     "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
     "rest_framework_simplejwt.authentication.JWTAuthentication",
 )
+
+# For local development with MinIO, use localhost:9000 so the browser can download files.
+AWS_S3_CUSTOM_DOMAIN = 'localhost:9000/hiredright'
+AWS_S3_URL_PROTOCOL = 'http:'
