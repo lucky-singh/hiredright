@@ -272,7 +272,7 @@ class CustomUserDetailsSerializer(serializers.ModelSerializer):
     """Adds is_recruiter to the auth response so the frontend can redirect appropriately."""
     class Meta:
         model = get_user_model()
-        fields = ("pk", "email", "first_name", "last_name", "is_recruiter")
+        fields = ("pk", "email", "first_name", "last_name", "phone_number", "is_recruiter")
         read_only_fields = ("email",)
 
 class EnrichedSkillSerializer(SkillSerializer):

@@ -1,4 +1,9 @@
-from django.contrib.auth import get_user_model
+import re
+
+with open("apps/api/api/v1/auth_serializers.py", "r") as f:
+    content = f.read()
+
+new_content = """from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
 
@@ -30,3 +35,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.last_name = self.validated_data.get('last_name', '')
         user.phone_number = self.validated_data.get('phone_number', '')
         user.save()
+"""
+
+with open("apps/api/api/v1/auth_serializers.py", "w") as f:
+    f.write(new_content)

@@ -15,6 +15,9 @@ export function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    first_name: '',
+    last_name: '',
+    phone_number: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,16 +39,15 @@ export function SignupPage() {
         email: formData.email,
         password1: formData.password,
         password2: formData.confirmPassword,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        phone_number: formData.phone_number,
       });
-      // Clear our hardcoded DEV_TOKEN fallback in client.ts
-      // or at least trust that we now have a real token in local storage.
-      
       // Redirect to builder
       navigate('/functions');
     } catch (err: any) {
       console.error(err);
       if (err.body) {
-        // Simple error formatter for drf errors
         const msg = Object.entries(err.body).map(([k, v]) => `${k}: ${v}`).join(', ');
         setError(msg);
       } else {
@@ -78,7 +80,7 @@ export function SignupPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-zinc-900 dark:text-zinc-300">Email</Label>
+              <Label htmlFor="email" className="text-zinc-900 dark:text-zinc-300">Email *</Label>
               <Input 
                 id="email" 
                 name="email" 
@@ -90,8 +92,49 @@ export function SignupPage() {
                 className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-600"
               />
             </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="first_name" className="text-zinc-900 dark:text-zinc-300">First Name</Label>
+                <Input 
+                  id="first_name" 
+                  name="first_name" 
+                  type="text" 
+                  placeholder="Optional"
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-600"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="last_name" className="text-zinc-900 dark:text-zinc-300">Last Name</Label>
+                <Input 
+                  id="last_name" 
+                  name="last_name" 
+                  type="text" 
+                  placeholder="Optional"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-600"
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-zinc-900 dark:text-zinc-300">Password</Label>
+              <Label htmlFor="phone_number" className="text-zinc-900 dark:text-zinc-300">Phone Number</Label>
+              <Input 
+                id="phone_number" 
+                name="phone_number" 
+                type="tel" 
+                placeholder="Optional (e.g. +14155552671)"
+                value={formData.phone_number}
+                onChange={handleChange}
+                className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-600"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-zinc-900 dark:text-zinc-300">Password *</Label>
               <Input 
                 id="password" 
                 name="password" 
@@ -103,7 +146,7 @@ export function SignupPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-zinc-900 dark:text-zinc-300">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-zinc-900 dark:text-zinc-300">Confirm Password *</Label>
               <Input 
                 id="confirmPassword" 
                 name="confirmPassword" 
