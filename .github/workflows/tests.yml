@@ -51,7 +51,11 @@ jobs:
       - name: Run Backend Tests
         working-directory: ./apps/api
         env:
-          DATABASE_URL: postgres://test_user:test_password@localhost:5432/test_hiredright
+          POSTGRES_DB: test_hiredright
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
           REDIS_URL: redis://localhost:6379/0
           CELERY_BROKER_URL: redis://localhost:6379/1
           SECRET_KEY: test_secret_key
