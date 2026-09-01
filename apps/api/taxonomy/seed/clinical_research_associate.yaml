@@ -1,6 +1,6 @@
 role:
-  code: clinical-operations
-  label: Clinical Operations
+  code: clinical-research-associate
+  label: Clinical Research Associate
   description: Site execution, trial monitoring, clinical operations logistics, and cross-functional site management.
 competency_areas:
 - code: site-visit-execution-strategy

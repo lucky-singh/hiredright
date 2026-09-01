@@ -135,8 +135,8 @@ Fetches all active job roles available for candidate onboarding.
     "description": "Clinical statistical programming across CDISC standards..."
   },
   {
-    "code": "clinical-operations",
-    "label": "Clinical Operations",
+    "code": "clinical-research-associate",
+    "label": "Clinical Research Associate",
     "description": "Clinical Research Associate (CRA) monitoring, site execution..."
   }
 ]

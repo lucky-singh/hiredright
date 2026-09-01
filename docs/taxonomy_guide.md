@@ -31,7 +31,7 @@ HireRight structures professional domains into a three-tier hierarchy:
 
 $$\text{Role} \longleftrightarrow \text{CompetencyArea} \longleftrightarrow \text{Activity}$$
 
-1. **Role**: Top-level job specialization (e.g. `statistical-programming`, `clinical-operations`).
+1. **Role**: Top-level job specialization (e.g. `statistical-programming`, `clinical-research-associate`).
 2. **CompetencyArea**: Thematic step in the candidate builder flow, typically containing 8–15 activities (e.g. `cdisc-sdtm`, `site-visit-execution`).
 3. **Activity**: The atomic, scorable skill, deliverable, or tool proficiency that candidates claim and recruiters query. Activities are connected via a **Many-to-Many** relationship, meaning a single activity (e.g. "ICH-GCP Compliance") can be reused across multiple competency areas and roles without data duplication.
 
@@ -121,7 +121,7 @@ An optional integer preserving traceability to the original domain specification
 The Statistical Programming taxonomy (`statistical_programming.yaml`) contains **122 items** across 14 competency areas, covering core SAS/R, CDISC, complex therapeutics, Cloud/HPC, and AI workflows.
 
 ### Clinical Operations (CRA)
-The Clinical Operations taxonomy (`clinical_operations.yaml`) contains **150 items** across 14 competency areas, covering site visit execution, risk-based quality management (RBQM), audit readiness, core GCP compliance, and therapeutic expertise.
+The Clinical Operations taxonomy (`clinical_research_associate.yaml`) contains **150 items** across 14 competency areas, covering site visit execution, risk-based quality management (RBQM), audit readiness, core GCP compliance, and therapeutic expertise.
 
 ### Clinical Data Management (CDM)
 The Clinical Data Management taxonomy (`clinical_data_management.yaml`) contains **150 items** across 14 competency areas, focusing on database architecture, edit check logic, medical coding, vendor reconciliation, and overall data governance. This taxonomy natively shares 20 activities with Statistical Programming and Clinical Operations.
@@ -185,7 +185,7 @@ If you need to rename a code (e.g., standardizing `solid-tumor-oncology` to `ta-
 2. **Seed the New Codes (Without Pruning):**
    Run the seed command normally so the new codes exist in the database.
    ```bash
-   python manage.py seed_taxonomy clinical-operations
+   python manage.py seed_taxonomy clinical-research-associate
    ```
 
 3. **Migrate Existing User Data:**
@@ -220,7 +220,7 @@ If you need to rename a code (e.g., standardizing `solid-tumor-oncology` to `ta-
 4. **Prune the Old Codes:**
    Now that no users are attached to the old code, you can safely prune it. This will soft-deactivate the old code and remove it from the UI.
    ```bash
-   python manage.py seed_taxonomy clinical-operations --prune
+   python manage.py seed_taxonomy clinical-research-associate --prune
    ```
 
 ## Django Admin Interface

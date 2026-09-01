@@ -387,7 +387,7 @@ The resume parsing pipeline delegates heavy lifting to a background queue to pre
 To trace the exact flow of data:
 1. **MinIO**: `Jane_Doe_CV.pdf` is uploaded and saved to `s3://hiredright/resumes/Jane_Doe_CV_x8f9a2.pdf`.
 2. **Postgres**: The `CandidateProfile.resume` column stores the relative path string `resumes/Jane_Doe_CV_x8f9a2.pdf`.
-3. **Redis**: The `parse_resume_task` job is pushed to the queue with args `[profile_id=42, functionCode="clinical-operations"]`.
+3. **Redis**: The `parse_resume_task` job is pushed to the queue with args `[profile_id=42, functionCode="clinical-research-associate"]`.
 4. **Celery**: The worker pulls the file directly from MinIO, parses it with `pypdf`, and queries Gemini.
 5. **LLM**: Gemini replies with `{"codes": ["clin_ops_trial_master_file", "clin_ops_edc_entry"]}`.
 6. **Postgres**: Celery loops and provisions `ActivityClaim` rows for those specific codes.
