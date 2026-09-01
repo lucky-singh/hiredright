@@ -115,6 +115,22 @@ python manage.py seed_taxonomy statistical-programming --dry-run
 python manage.py seed_taxonomy statistical-programming --prune
 ```
 
+
+### Database Management & Backups
+
+If you are running the backend in Docker and need to safely backup or snapshot the database (e.g., before pruning taxonomy codes), use Django's `dumpdata` command from inside the container. This exports the data to a database-agnostic JSON file.
+
+**To create a backup:**
+```bash
+docker compose exec api bash -c "python manage.py dumpdata > /app/hiredright_docker_db_backup_$(date +%Y%m%d_%H%M%S).json"
+```
+*Note: Because the `/app` directory is mounted via a volume, the resulting `.json` file will safely appear on your host machine in the `apps/api` folder.*
+
+**To restore from a backup:**
+```bash
+docker compose exec api python manage.py loaddata /app/hiredright_docker_db_backup_XXXXXX_XXXXXX.json
+```
+
 ### Running Tests
 
 The suite is split by whether a test needs a database. The scoring core is pure,
