@@ -403,12 +403,12 @@ competency_areas:
 - code: therapeutic-expertise-oncology-systemic-trials
   label: 'Therapeutic Expertise: Oncology & Systemic Trials'
   activities:
-  - code: solid-tumor-oncology
+  - code: ta-solid-tumor-oncology
     source_ref: 76
     claim_type: activity
     label: Solid Tumor Oncology
     help_text: Structuring RECIST 1.1 tumor evaluation forms, target lesion tracking, and overall response derivations.
-  - code: hematologic-oncology
+  - code: ta-hematologic-oncology
     source_ref: 77
     claim_type: activity
     label: Hematologic Oncology
@@ -448,7 +448,7 @@ competency_areas:
     claim_type: activity
     label: Infectious Disease
     help_text: Managing rapid-turnaround viral load data integration and strict PK sample timing logs.
-  - code: pharmacokinetics
+  - code: ta-pharmacokinetics
     source_ref: 85
     claim_type: activity
     label: Pharmacokinetics (PK)
@@ -461,37 +461,37 @@ competency_areas:
     claim_type: activity
     label: Device Trials
     help_text: Building eCRFs for Unanticipated Adverse Device Effects (UADE) and device serial number tracking.
-  - code: atmp-advanced-therapy
+  - code: ta-atmp
     source_ref: 87
     claim_type: activity
     label: Advanced Therapy Medicinal Products (ATMP)
     help_text: Structuring eCRFs for CAR-T cell processing, apheresis logistics, and long-term follow-up.
-  - code: pediatrics
+  - code: ta-pediatrics
     source_ref: 88
     claim_type: activity
     label: Pediatrics
     help_text: Building logic to accommodate Assent vs. Consent dates, guardian changes, and age-adjusted lab normals.
-  - code: ophthalmology
+  - code: ta-ophthalmology
     source_ref: 89
     claim_type: activity
     label: Ophthalmology
     help_text: Designing eCRFs explicitly separated by Study Eye vs. Fellow Eye, BCVA scores, and OCT integration.
-  - code: dermatology
+  - code: ta-dermatology
     source_ref: 90
     claim_type: activity
     label: Dermatology
     help_text: Structuring Body Surface Area (BSA) mapping forms, PASI score calculators, and clinical photography logs.
-  - code: women-s-health
+  - code: ta-women-s-health
     source_ref: 91
     claim_type: activity
     label: Women's Health
     help_text: Managing continuous menstrual cycle diaries, hormonal washout tracking, and pregnancy test logic.
-  - code: endocrinology
+  - code: ta-endocrinology
     source_ref: 92
     claim_type: activity
     label: Endocrinology
     help_text: Integrating continuous glucose monitor (CGM) flat files and mapping hypoglycemic event diaries.
-  - code: gastroenterology
+  - code: ta-gastroenterology
     source_ref: 93
     claim_type: activity
     label: Gastroenterology

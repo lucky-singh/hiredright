@@ -1,8 +1,7 @@
 role:
   code: clinical-operations
   label: Clinical Operations
-  description: Clinical Research Associate (CRA) monitoring, site execution, and clinical
-    operations logistics.
+  description: Site execution, trial monitoring, clinical operations logistics, and cross-functional site management.
 competency_areas:
 - code: site-visit-execution-strategy
   label: Site Visit Execution & Strategy
@@ -19,8 +18,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Site Initiation Visits (SIV)
-    help_text: Delivering protocol training and preparing the site for first-patient-in
-      (FPI).
+    help_text: Delivering protocol training and preparing the site for first-patient-in (FPI).
   - code: interim-monitoring-visits-imv
     source_ref: 3
     claim_type: activity
@@ -38,22 +36,20 @@ competency_areas:
     claim_type: proficiency
     seniority_hint: mid
     label: Remote/Virtual Monitoring
-    help_text: Conducting comprehensive site assessments via phone/video without being
-      on-site.
+    help_text: Conducting comprehensive site assessments via phone/video without being on-site.
   - code: co-monitoring-assessment-visits
     source_ref: 6
     claim_type: activity
     seniority_hint: mid
     label: Co-Monitoring/Assessment Visits
-    help_text: Traveling with junior CRAs to assess their performance or receiving
-      sign-off.
+    help_text: Traveling with junior CRAs to assess their performance or receiving sign-off.
   - code: unblinded-monitoring
     source_ref: 7
     claim_type: activity
     seniority_hint: mid
     label: Unblinded Monitoring
-    help_text: Operating strictly on the unblinded side (e.g., pharmacy monitor) without
-      cross-contaminating blinded study teams.
+    help_text: Operating strictly on the unblinded side (e.g., pharmacy monitor) without cross-contaminating blinded study
+      teams.
   - code: subject-recruitment-strategy
     source_ref: 8
     claim_type: activity
@@ -71,8 +67,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: lead
     label: Site Staff Turnover Management
-    help_text: Retraining new Study Coordinators (CRCs) mid-study to prevent data
-      lags.
+    help_text: Retraining new Study Coordinators (CRCs) mid-study to prevent data lags.
 - code: on-site-operations-clinical-logistics
   label: On-Site Operations & Clinical Logistics
   description: On-Site Operations & Clinical Logistics
@@ -88,15 +83,13 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: IP (Investigational Product) Accountability
-    help_text: Tracing every pill, vial, or device from receipt to patient dispensation
-      to destruction.
+    help_text: Tracing every pill, vial, or device from receipt to patient dispensation to destruction.
   - code: temperature-excursion-management
     source_ref: 13
     claim_type: activity
     seniority_hint: lead
     label: Temperature Excursion Management
-    help_text: Quarantining IP and navigating sponsor approval for release after a
-      fridge/freezer failure.
+    help_text: Quarantining IP and navigating sponsor approval for release after a fridge/freezer failure.
   - code: pharmacy-dispensing-oversight
     source_ref: 14
     claim_type: activity
@@ -108,8 +101,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Visit Report Writing
-    help_text: Drafting comprehensive IMV/SIV reports accurately and within strict
-      sponsor timelines.
+    help_text: Drafting comprehensive IMV/SIV reports accurately and within strict sponsor timelines.
   - code: action-item-resolution
     source_ref: 16
     claim_type: activity
@@ -121,29 +113,25 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Protocol Training Delivery
-    help_text: Engaging clinical staff and ensuring deep understanding of complex
-      protocol nuances.
+    help_text: Engaging clinical staff and ensuring deep understanding of complex protocol nuances.
   - code: investigator-meeting-facilitation
     source_ref: 18
     claim_type: activity
     seniority_hint: mid
     label: Investigator Meeting Facilitation
-    help_text: Presenting or assisting at large-scale sponsor meetings for PIs and
-      CRCs.
+    help_text: Presenting or assisting at large-scale sponsor meetings for PIs and CRCs.
   - code: site-action-plans
     source_ref: 19
     claim_type: activity
     seniority_hint: mid
     label: Site Action Plans
-    help_text: Developing step-by-step remediation plans for underperforming or non-compliant
-      sites.
+    help_text: Developing step-by-step remediation plans for underperforming or non-compliant sites.
   - code: visit-preparation
     source_ref: 20
     claim_type: activity
     seniority_hint: mid
     label: Visit Preparation
-    help_text: Efficiently running EDC and CTMS reports to structure an upcoming on-site
-      day.
+    help_text: Efficiently running EDC and CTMS reports to structure an upcoming on-site day.
 - code: core-gcp-informed-consent-protocols
   label: Core GCP & Informed Consent Protocols
   description: Core GCP & Informed Consent Protocols
@@ -159,15 +147,13 @@ competency_areas:
     claim_type: proficiency
     seniority_hint: mid
     label: ICH-GCP E6(R3) Readiness
-    help_text: Understanding the shift toward critical-to-quality factors and proportionate
-      risk approaches.
+    help_text: Understanding the shift toward critical-to-quality factors and proportionate risk approaches.
   - code: fda-21-cfr-parts-11-50-54-56
     source_ref: 23
     claim_type: proficiency
     seniority_hint: mid
     label: FDA 21 CFR Parts 11, 50, 54, 56
-    help_text: Mastery of US regulations covering electronic records, consent, financial
-      disclosure, and IRBs.
+    help_text: Mastery of US regulations covering electronic records, consent, financial disclosure, and IRBs.
   - code: ema-local-country-regulations
     source_ref: 24
     claim_type: proficiency
@@ -203,15 +189,13 @@ competency_areas:
     claim_type: proficiency
     seniority_hint: mid
     label: Form FDA 1572
-    help_text: Ensuring accurate delegation, lab listings, and IRB details match the
-      1572 exactly.
+    help_text: Ensuring accurate delegation, lab listings, and IRB details match the 1572 exactly.
   - code: delegation-of-authority-doa-log
     source_ref: 30
     claim_type: activity
     seniority_hint: mid
     label: Delegation of Authority (DOA) Log
-    help_text: Cross-checking that staff only perform tasks they are delegated and
-      trained for.
+    help_text: Cross-checking that staff only perform tasks they are delegated and trained for.
 - code: essential-documents-irb-management
   label: Essential Documents & IRB Management
   description: Essential Documents & IRB Management
@@ -227,22 +211,19 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: IRB/IEC Submissions
-    help_text: Tracking initial, amended, and safety report approvals from Central
-      or Local IRBs.
+    help_text: Tracking initial, amended, and safety report approvals from Central or Local IRBs.
   - code: annual-irb-iec-renewals
     source_ref: 33
     claim_type: activity
     seniority_hint: mid
     label: Annual IRB/IEC Renewals
-    help_text: Ensuring continuing review approvals do not lapse (preventing site
-      halts).
+    help_text: Ensuring continuing review approvals do not lapse (preventing site halts).
   - code: protocol-amendment-rollouts
     source_ref: 34
     claim_type: activity
     seniority_hint: mid
     label: Protocol Amendment Rollouts
-    help_text: Ensuring old protocols are retired and staff are re-trained before
-      implementing changes.
+    help_text: Ensuring old protocols are retired and staff are re-trained before implementing changes.
   - code: investigator-brochure-ib-acknowledgement
     source_ref: 35
     claim_type: activity
@@ -254,15 +235,13 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Trial Master File (TMF) Reconciliation
-    help_text: Ensuring the site's regulatory binder matches the sponsor's electronic
-      TMF.
+    help_text: Ensuring the site's regulatory binder matches the sponsor's electronic TMF.
   - code: alcoa-principles
     source_ref: 37
     claim_type: activity
     seniority_hint: mid
     label: ALCOA+ Principles
-    help_text: Enforcing that source data is Attributable, Legible, Contemporaneous,
-      Original, and Accurate.
+    help_text: Enforcing that source data is Attributable, Legible, Contemporaneous, Original, and Accurate.
   - code: essential-document-maintenance
     source_ref: 38
     claim_type: activity
@@ -274,8 +253,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Translation Validations
-    help_text: Verifying back-translations and local language approvals for patient-facing
-      materials.
+    help_text: Verifying back-translations and local language approvals for patient-facing materials.
   - code: gcp-violation-whistleblowing
     source_ref: 40
     claim_type: activity
@@ -291,29 +269,25 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: 100% SDV
-    help_text: Experience in traditional, labor-intensive review of every single data
-      point.
+    help_text: Experience in traditional, labor-intensive review of every single data point.
   - code: source-data-review-sdr
     source_ref: 42
     claim_type: activity
     seniority_hint: mid
     label: Source Data Review (SDR)
-    help_text: Reviewing the *quality* and clinical logic of the source chart, not
-      just transcription matching.
+    help_text: Reviewing the *quality* and clinical logic of the source chart, not just transcription matching.
   - code: targeted-sdv-tsdv
     source_ref: 43
     claim_type: activity
     seniority_hint: mid
     label: Targeted SDV (tSDV)
-    help_text: Executing risk-based data verification (e.g., only SDVing primary endpoints
-      and SAEs).
+    help_text: Executing risk-based data verification (e.g., only SDVing primary endpoints and SAEs).
   - code: emr-ehr-navigation
     source_ref: 44
     claim_type: activity
     seniority_hint: mid
     label: EMR/EHR Navigation
-    help_text: Efficiently navigating hospital systems like Epic, Cerner, or Allscripts
-      to find buried data.
+    help_text: Efficiently navigating hospital systems like Epic, Cerner, or Allscripts to find buried data.
   - code: shadow-chart-paper-source-review
     source_ref: 45
     claim_type: activity
@@ -337,15 +311,13 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Data Lock Readiness
-    help_text: Surging SDV and query resolution efforts for interim analyses or final
-      database locks.
+    help_text: Surging SDV and query resolution efforts for interim analyses or final database locks.
   - code: protocol-deviation-pd-identification
     source_ref: 49
     claim_type: activity
     seniority_hint: mid
     label: Protocol Deviation (PD) Identification
-    help_text: Spotting out-of-window visits, missed labs, or prohibited meds in the
-      chart.
+    help_text: Spotting out-of-window visits, missed labs, or prohibited meds in the chart.
   - code: pd-reporting-categorization
     source_ref: 50
     claim_type: activity
@@ -367,8 +339,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: eCOA/ePRO Compliance Monitoring
-    help_text: Checking portal dashboards to ensure patients are filling out daily
-      at-home diaries.
+    help_text: Checking portal dashboards to ensure patients are filling out daily at-home diaries.
   - code: missing-data-investigation
     source_ref: 53
     claim_type: activity
@@ -392,8 +363,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Adverse Event (AE) Identification
-    help_text: Scouring nursing notes, concomitant meds, and lab flags for unreported
-      AEs.
+    help_text: Scouring nursing notes, concomitant meds, and lab flags for unreported AEs.
   - code: sae-reporting-timelines
     source_ref: 57
     claim_type: activity
@@ -405,22 +375,19 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: AE/SAE Grading Criteria (CTCAE)
-    help_text: Verifying the PI graded the severity of AEs correctly using standard
-      criteria.
+    help_text: Verifying the PI graded the severity of AEs correctly using standard criteria.
   - code: susar-handling
     source_ref: 59
     claim_type: activity
     seniority_hint: mid
     label: SUSAR Handling
-    help_text: Managing Suspected Unexpected Serious Adverse Reactions at the site
-      level.
+    help_text: Managing Suspected Unexpected Serious Adverse Reactions at the site level.
   - code: concomitant-medication-conmed-review
     source_ref: 60
     claim_type: activity
     seniority_hint: mid
     label: Concomitant Medication (ConMed) Review
-    help_text: Verifying that newly prescribed drugs do not violate protocol exclusion
-      criteria.
+    help_text: Verifying that newly prescribed drugs do not violate protocol exclusion criteria.
 - code: pharmacovigilance-medical-oversight
   label: Pharmacovigilance & Medical Oversight
   description: Pharmacovigilance & Medical Oversight
@@ -430,8 +397,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Medical History vs. AE Reconciliation
-    help_text: Ensuring a worsening baseline condition is properly captured as a new
-      AE.
+    help_text: Ensuring a worsening baseline condition is properly captured as a new AE.
   - code: pregnancy-reporting-protocols
     source_ref: 62
     claim_type: activity
@@ -443,22 +409,19 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Unblinding Emergency Procedures
-    help_text: Verifying the PI knows how to break the blind via IRT in a medical
-      emergency.
+    help_text: Verifying the PI knows how to break the blind via IRT in a medical emergency.
   - code: dose-modification-interruption
     source_ref: 64
     claim_type: activity
     seniority_hint: mid
     label: Dose Modification/Interruption
-    help_text: Verifying the PI correctly calculated dose reductions based on toxicity
-      rules.
+    help_text: Verifying the PI correctly calculated dose reductions based on toxicity rules.
   - code: endpoint-adjudication-preparation
     source_ref: 65
     claim_type: activity
     seniority_hint: mid
     label: Endpoint Adjudication Preparation
-    help_text: Gathering blinded source documents for external Clinical Event Committees
-      (CEC).
+    help_text: Gathering blinded source documents for external Clinical Event Committees (CEC).
   - code: clinical-lab-significance
     source_ref: 66
     claim_type: activity
@@ -482,8 +445,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Safety Reporting Letters
-    help_text: Ensuring the site submits sponsor safety memos/line listings to their
-      IRB.
+    help_text: Ensuring the site submits sponsor safety memos/line listings to their IRB.
   - code: data-safety-monitoring-board-dsmb-support
     source_ref: 70
     claim_type: activity
@@ -494,134 +456,118 @@ competency_areas:
   label: 'Therapeutic Expertise: Oncology & Systemic Trials'
   description: 'Therapeutic Expertise: Oncology & Systemic Trials'
   activities:
-  - code: solid-tumor-oncology
+  - code: ta-solid-tumor-oncology
     source_ref: 71
     claim_type: activity
     seniority_hint: mid
     label: Solid Tumor Oncology
-    help_text: Verifying RECIST 1.1 tumor measurements, baseline scans, and target
-      lesion sums.
-  - code: hematologic-oncology
+    help_text: Verifying RECIST 1.1 tumor measurements, baseline scans, and target lesion sums.
+  - code: ta-hematologic-oncology
     source_ref: 72
     claim_type: proficiency
     seniority_hint: mid
     label: Hematologic Oncology
-    help_text: Verifying Lugano criteria, bone marrow biopsy path reports, and complex
-      infusion regimens.
-  - code: immuno-oncology
+    help_text: Verifying Lugano criteria, bone marrow biopsy path reports, and complex infusion regimens.
+  - code: ta-immuno-oncology
     source_ref: 73
     claim_type: activity
     seniority_hint: mid
     label: Immuno-Oncology
-    help_text: Understanding irRC/irRECIST and coaching sites through pseudo-progression
-      vs. true progression.
-  - code: vaccines
+    help_text: Understanding irRC/irRECIST and coaching sites through pseudo-progression vs. true progression.
+  - code: ta-vaccines
     source_ref: 74
     claim_type: activity
     seniority_hint: mid
     label: Vaccines
-    help_text: Reconciling reactogenicity diaries, local injection site reactions,
-      and immunogenicity sample logistics.
-  - code: cardiovascular
+    help_text: Reconciling reactogenicity diaries, local injection site reactions, and immunogenicity sample logistics.
+  - code: ta-cardiovascular
     source_ref: 75
     claim_type: activity
     seniority_hint: mid
     label: Cardiovascular
-    help_text: Hunting for adjudicated MACE (Major Adverse Cardiac Events) endpoints
-      in hospitalization records.
-  - code: cns-neurology
+    help_text: Hunting for adjudicated MACE (Major Adverse Cardiac Events) endpoints in hospitalization records.
+  - code: ta-cns-neurology
     source_ref: 76
     claim_type: activity
     seniority_hint: mid
     label: CNS / Neurology
-    help_text: Verifying rater certifications and auditing the proper administration
-      of scales (e.g., ADAS-Cog, MMSE).
-  - code: rare-diseases
+    help_text: Verifying rater certifications and auditing the proper administration of scales (e.g., ADAS-Cog, MMSE).
+  - code: ta-rare-diseases
     source_ref: 77
     claim_type: activity
     seniority_hint: mid
     label: Rare Diseases
-    help_text: Managing ultra-low enrollment sites and coordinating high-touch, VIP-level
-      patient logistics.
-  - code: immunology-rheumatology
+    help_text: Managing ultra-low enrollment sites and coordinating high-touch, VIP-level patient logistics.
+  - code: ta-immunology-rheum
     source_ref: 78
     claim_type: activity
     seniority_hint: mid
     label: Immunology/Rheumatology
     help_text: Verifying ACR joint count diagrams and complex biologic infusion records.
-  - code: infectious-disease
+  - code: ta-infectious-disease
     source_ref: 79
     claim_type: activity
     seniority_hint: mid
     label: Infectious Disease
-    help_text: Overseeing rapid-turnaround viral load swabs and precise PK sample
-      timing during acute infection.
-  - code: pharmacokinetics-pk
+    help_text: Overseeing rapid-turnaround viral load swabs and precise PK sample timing during acute infection.
+  - code: ta-pharmacokinetics
     source_ref: 80
     claim_type: activity
     seniority_hint: mid
     label: Pharmacokinetics (PK)
-    help_text: "Auditing draw times to the exact minute, centrifuge speeds, and -80\xB0\
-      C freezer logs."
+    help_text: "Auditing draw times to the exact minute, centrifuge speeds, and -80\xB0C freezer logs."
 - code: therapeutic-expertise-specialty-devices-atmp
   label: 'Therapeutic Expertise: Specialty, Devices & ATMP'
   description: 'Therapeutic Expertise: Specialty, Devices & ATMP'
   activities:
-  - code: device-trials
+  - code: ta-device-trials
     source_ref: 81
     claim_type: activity
     seniority_hint: mid
     label: Device Trials
-    help_text: Monitoring Unanticipated Adverse Device Effects (UADE) and tracking
-      device serial numbers.
-  - code: advanced-therapy-medicinal-products-atmp
+    help_text: Monitoring Unanticipated Adverse Device Effects (UADE) and tracking device serial numbers.
+  - code: ta-atmp
     source_ref: 82
     claim_type: activity
     seniority_hint: mid
     label: Advanced Therapy Medicinal Products (ATMP)
     help_text: Managing logistics of CAR-T, cell/gene therapies, and apheresis scheduling.
-  - code: pediatrics
+  - code: ta-pediatrics
     source_ref: 83
     claim_type: activity
     seniority_hint: mid
     label: Pediatrics
-    help_text: Differentiating Assent vs. Consent, tracking guardian changes, and
-      auditing age-adjusted lab normals.
-  - code: ophthalmology
+    help_text: Differentiating Assent vs. Consent, tracking guardian changes, and auditing age-adjusted lab normals.
+  - code: ta-ophthalmology
     source_ref: 84
     claim_type: activity
     seniority_hint: mid
     label: Ophthalmology
-    help_text: Verifying BCVA lanes, OCT imaging uploads, and fellow-eye vs. study-eye
-      data.
-  - code: dermatology
+    help_text: Verifying BCVA lanes, OCT imaging uploads, and fellow-eye vs. study-eye data.
+  - code: ta-dermatology
     source_ref: 85
     claim_type: activity
     seniority_hint: mid
     label: Dermatology
-    help_text: Verifying body surface area (BSA) mapping, PASI scores, and clinical
-      photography protocols.
-  - code: women-s-health
+    help_text: Verifying body surface area (BSA) mapping, PASI scores, and clinical photography protocols.
+  - code: ta-women-s-health
     source_ref: 86
     claim_type: activity
     seniority_hint: mid
     label: Women's Health
-    help_text: Tracking complex menstrual cycle timing for dosing, hormonal washouts,
-      and localized imaging.
-  - code: endocrinology
+    help_text: Tracking complex menstrual cycle timing for dosing, hormonal washouts, and localized imaging.
+  - code: ta-endocrinology
     source_ref: 87
     claim_type: activity
     seniority_hint: mid
     label: Endocrinology
-    help_text: Auditing CGM (Continuous Glucose Monitor) downloads, HbA1c shifts,
-      and hypoglycemic event diaries.
-  - code: gastroenterology
+    help_text: Auditing CGM (Continuous Glucose Monitor) downloads, HbA1c shifts, and hypoglycemic event diaries.
+  - code: ta-gastroenterology
     source_ref: 88
     claim_type: activity
     seniority_hint: mid
     label: Gastroenterology
-    help_text: Verifying Mayo scores, biopsy logistics, and central endoscopy/colonoscopy
-      video read submissions.
+    help_text: Verifying Mayo scores, biopsy logistics, and central endoscopy/colonoscopy video read submissions.
 - code: risk-based-quality-management
   label: Risk-Based Quality Management
   description: Risk-Based Quality Management
@@ -643,8 +589,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Quality Tolerance Limits (QTL)
-    help_text: Understanding site-level impacts when systemic trial thresholds are
-      breached.
+    help_text: Understanding site-level impacts when systemic trial thresholds are breached.
   - code: triggered-for-cause-monitoring-visits
     source_ref: 92
     claim_type: activity
@@ -662,8 +607,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Umbrella/Basket Trial Navigation
-    help_text: Navigating master protocols where patients match to sub-studies based
-      on biomarkers.
+    help_text: Navigating master protocols where patients match to sub-studies based on biomarkers.
   - code: decentralized-clinical-trials-dct
     source_ref: 95
     claim_type: activity
@@ -715,8 +659,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Root Cause Analysis (RCA)
-    help_text: Using 5-Whys or Fishbone diagrams to find out why a site keeps missing
-      a specific lab.
+    help_text: Using 5-Whys or Fishbone diagrams to find out why a site keeps missing a specific lab.
   - code: audit-readiness-mock-inspections
     source_ref: 103
     claim_type: activity
@@ -728,8 +671,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: lead
     label: Master Protocol ICF Management
-    help_text: Ensuring patients sign the overarching master consent AND the sub-study
-      consent.
+    help_text: Ensuring patients sign the overarching master consent AND the sub-study consent.
   - code: centralized-monitoring-feedback-loop
     source_ref: 105
     claim_type: activity
@@ -741,8 +683,7 @@ competency_areas:
     claim_type: proficiency
     seniority_hint: mid
     label: CTMS Hygiene
-    help_text: Masterful tracking of visit dates, letters, and site contacts in Veeva
-      Vault CTMS or Siebel.
+    help_text: Masterful tracking of visit dates, letters, and site contacts in Veeva Vault CTMS or Siebel.
   - code: edc-electronic-data-capture
     source_ref: 107
     claim_type: proficiency
@@ -760,15 +701,13 @@ competency_areas:
     claim_type: proficiency
     seniority_hint: mid
     label: IRT/IWRS Systems
-    help_text: Managing randomization, screen failures, and drug inventory in Suvoda
-      or Medidata RTSM.
+    help_text: Managing randomization, screen failures, and drug inventory in Suvoda or Medidata RTSM.
   - code: eisf-electronic-site-file-portals
     source_ref: 110
     claim_type: proficiency
     seniority_hint: mid
     label: eISF (Electronic Site File) Portals
-    help_text: Navigating Florence eBinders or Veeva SiteVault to review regulatory
-      docs.
+    help_text: Navigating Florence eBinders or Veeva SiteVault to review regulatory docs.
   - code: econsent-platforms
     source_ref: 111
     claim_type: activity
@@ -780,8 +719,7 @@ competency_areas:
     claim_type: proficiency
     seniority_hint: mid
     label: Central Lab Portals
-    help_text: Tracking requisition forms, query resolutions, and kit supply via Covance
-      or Eurofins portals.
+    help_text: Tracking requisition forms, query resolutions, and kit supply via Covance or Eurofins portals.
 - code: digital-portals-financial-logistics
   label: Digital Portals & Financial Logistics
   description: Digital Portals & Financial Logistics
@@ -833,15 +771,13 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Data Export/Pivot Skills
-    help_text: Exporting EDC listings to Excel and running pivot tables to prep for
-      an on-site visit.
+    help_text: Exporting EDC listings to Excel and running pivot tables to prep for an on-site visit.
   - code: clinical-trial-agreement-cta-awareness
     source_ref: 121
     claim_type: activity
     seniority_hint: mid
     label: Clinical Trial Agreement (CTA) Awareness
-    help_text: Understanding the legal boundaries of what a sponsor can demand of
-      a site.
+    help_text: Understanding the legal boundaries of what a sponsor can demand of a site.
   - code: site-budget-milestones
     source_ref: 122
     claim_type: activity
@@ -853,8 +789,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Pass-Through Expense Tracking
-    help_text: Reviewing site invoices for screen failures, translations, or ad-hoc
-      travel.
+    help_text: Reviewing site invoices for screen failures, translations, or ad-hoc travel.
   - code: invoice-reconciliation
     source_ref: 124
     claim_type: activity
@@ -866,8 +801,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Travel Logistics & Routing
-    help_text: Efficiently booking flights, rental cars, and hotels for 60-80% travel
-      schedules.
+    help_text: Efficiently booking flights, rental cars, and hotels for 60-80% travel schedules.
 - code: supply-chain-administration-site-relations
   label: Supply Chain, Administration & Site Relations
   description: Supply Chain, Administration & Site Relations
@@ -877,8 +811,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: lead
     label: Corporate Card Management
-    help_text: Staying within sponsor per-diem limits and reconciling receipts on
-      time.
+    help_text: Staying within sponsor per-diem limits and reconciling receipts on time.
   - code: time-utilization-tracking
     source_ref: 127
     claim_type: activity
@@ -890,8 +823,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: lead
     label: Vendor Resupply Management
-    help_text: Proactively ordering lab kits, ECG paper, or IP before the site runs
-      out.
+    help_text: Proactively ordering lab kits, ECG paper, or IP before the site runs out.
   - code: cold-chain-logistics-troubleshooting
     source_ref: 129
     claim_type: activity
@@ -903,15 +835,13 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: IP Destruction/Return Logistics
-    help_text: Managing the complex paperwork of returning hazardous/controlled study
-      drugs.
+    help_text: Managing the complex paperwork of returning hazardous/controlled study drugs.
   - code: stipend-travel-reimbursement
     source_ref: 131
     claim_type: activity
     seniority_hint: mid
     label: Stipend/Travel Reimbursement
-    help_text: Ensuring patients are being paid their stipends accurately and ethically
-      by the site.
+    help_text: Ensuring patients are being paid their stipends accurately and ethically by the site.
   - code: insurance-indemnification-certificates
     source_ref: 132
     claim_type: activity
@@ -953,8 +883,7 @@ competency_areas:
     claim_type: activity
     seniority_hint: mid
     label: Conflict Resolution
-    help_text: De-escalating tensions when site staff are defensive about queries
-      or deviations.
+    help_text: De-escalating tensions when site staff are defensive about queries or deviations.
 - code: clinical-leadership-professional-execution
   label: Clinical Leadership & Professional Execution
   description: Clinical Leadership & Professional Execution
@@ -964,22 +893,19 @@ competency_areas:
     claim_type: trait
     seniority_hint: senior
     label: Persuasion & Negotiation
-    help_text: Convincing sites to prioritize your trial's data entry over competing
-      sponsor trials.
+    help_text: Convincing sites to prioritize your trial's data entry over competing sponsor trials.
   - code: cross-cultural-communication
     source_ref: 140
     claim_type: trait
     seniority_hint: senior
     label: Cross-Cultural Communication
-    help_text: Navigating differing medical practices and communication styles in
-      global trials.
+    help_text: Navigating differing medical practices and communication styles in global trials.
   - code: time-management
     source_ref: 141
     claim_type: trait
     seniority_hint: lead
     label: Time Management
-    help_text: Balancing airport travel, on-site monitoring, and strict reporting
-      deadlines simultaneously.
+    help_text: Balancing airport travel, on-site monitoring, and strict reporting deadlines simultaneously.
   - code: autonomous-working
     source_ref: 142
     claim_type: trait
@@ -991,8 +917,7 @@ competency_areas:
     claim_type: trait
     seniority_hint: lead
     label: Escalation Pathway Management
-    help_text: Knowing exactly when a site issue requires Clinical Trial Manager (CTM)
-      intervention.
+    help_text: Knowing exactly when a site issue requires Clinical Trial Manager (CTM) intervention.
   - code: presentation-skills
     source_ref: 144
     claim_type: trait
@@ -1004,8 +929,7 @@ competency_areas:
     claim_type: trait
     seniority_hint: lead
     label: Peer Mentoring (Lead CRA)
-    help_text: Onboarding junior CRAs, conducting sign-off visits, and reviewing their
-      draft reports.
+    help_text: Onboarding junior CRAs, conducting sign-off visits, and reviewing their draft reports.
   - code: sponsor-cro-communication-etiquette
     source_ref: 146
     claim_type: trait
@@ -1017,8 +941,7 @@ competency_areas:
     claim_type: trait
     seniority_hint: lead
     label: Change Management
-    help_text: Guiding sites smoothly through messy mid-study protocol or database
-      platform changes.
+    help_text: Guiding sites smoothly through messy mid-study protocol or database platform changes.
   - code: resilience-burnout-prevention
     source_ref: 148
     claim_type: trait
@@ -1036,5 +959,4 @@ competency_areas:
     claim_type: trait
     seniority_hint: senior
     label: Ethical Decision-Making
-    help_text: Unwavering commitment to patient safety over study timelines or site
-      convenience.
+    help_text: Unwavering commitment to patient safety over study timelines or site convenience.
