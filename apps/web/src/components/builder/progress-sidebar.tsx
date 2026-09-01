@@ -1,4 +1,6 @@
 import { cn } from '@/lib/utils';
+import { logoutUser } from '@/lib/api/auth';
+
 import type { CompetencyArea } from '@/lib/api/types';
 import { CheckCircle2, Circle, CircleDot, LogOut } from 'lucide-react';
 
@@ -81,7 +83,6 @@ export function ProgressSidebar({
       <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
         <button
           onClick={async () => {
-            const { logoutUser } = await import('@/lib/api/auth');
             await logoutUser();
             window.location.href = '/login';
           }}
