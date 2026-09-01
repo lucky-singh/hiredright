@@ -15,12 +15,9 @@ export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const DEV_TOKEN = "REDACTED";
-  
   let token = localStorage.getItem('access_token');
-  // If local storage has an expired token, or literal strings "null"/"undefined", ignore it
-  if (!token || token === 'null' || token === 'undefined') {
-    token = DEV_TOKEN;
+  if (token === 'null' || token === 'undefined') {
+    token = null;
   }
 
   const res = await fetch(`${API_BASE}${path}`, {
