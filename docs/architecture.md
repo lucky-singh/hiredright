@@ -370,7 +370,7 @@ The Candidate Profile Builder is a pure Single Page Application (SPA) located in
 The resume parsing pipeline delegates heavy lifting to a background queue to prevent blocking user requests.
 *   **Storage Backend**: S3-compatible object storage (MinIO locally, AWS S3 in production) holds the uploaded PDFs.
 *   **Message Broker**: Redis handles message routing for Celery.
-*   **LLM Provider**: The `google-genai` SDK interfaces with Gemini (`gemini-2.5-flash`) for rapid, structured extraction using `response_mime_type: 'application/json'`.
+*   **LLM Provider**: The `google-genai` SDK interfaces with Gemini (`gemini-3.6-flash`) for rapid, structured extraction using `response_mime_type: 'application/json'`.
 *   **Data Flow**:
     1.  User selects a Role on the UI and is presented an interstitial prompt to upload a PDF or skip.
     2.  Client POSTs multipart form data to `/api/v1/profile/resume/` with `functionCode`.
