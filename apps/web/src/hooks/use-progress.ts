@@ -10,7 +10,7 @@ export function useProgress(roleCode: string) {
     async (lastAreaCode: string) => {
       try {
         await saveProgress({
-          function_code: roleCode,
+          role_code: roleCode,
           completed_area_codes: Array.from(completedSteps),
           last_area_code: lastAreaCode,
         });

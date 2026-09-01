@@ -8,7 +8,7 @@ RUN npm ci
 
 COPY . .
 # Build Vite app
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # Serve stage
 FROM nginx:alpine
