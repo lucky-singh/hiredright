@@ -1,57 +1,71 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { registerUser } from '@/lib/api/auth';
 import { Loader2 } from 'lucide-react';
 
+// 1. Define Zod Schema
+const signupSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  phone_number: z.string().optional(),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+type SignupFormValues = z.infer<typeof signupSchema>;
+
 export function SignupPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    first_name: '',
-    last_name: '',
-    phone_number: '',
+  // 2. Initialize useForm
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      email: '',
+      first_name: '',
+      last_name: '',
+      phone_number: '',
+      password: '',
+      confirmPassword: '',
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
+  const onSubmit = async (data: SignupFormValues) => {
+    setApiError(null);
     setLoading(true);
     try {
       await registerUser({
-        email: formData.email,
-        password1: formData.password,
-        password2: formData.confirmPassword,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        phone_number: formData.phone_number,
+        email: data.email,
+        password1: data.password,
+        password2: data.confirmPassword,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        phone_number: data.phone_number,
       });
-      // Redirect to builder
       navigate('/functions');
     } catch (err: any) {
       console.error(err);
       if (err.body) {
         const msg = Object.entries(err.body).map(([k, v]) => `${k}: ${v}`).join(', ');
-        setError(msg);
+        setApiError(msg);
       } else {
-        setError(err.message || 'Registration failed');
+        setApiError(err.message || 'Registration failed');
       }
     } finally {
       setLoading(false);
@@ -73,24 +87,23 @@ export function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {apiError && (
               <div className="p-3 text-sm font-medium text-red-800 bg-red-100 rounded-lg dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-900/50">
-                {error}
+                {apiError}
               </div>
             )}
+            
             <div className="space-y-2">
               <Label htmlFor="email" className="text-zinc-900 dark:text-zinc-300">Email *</Label>
               <Input 
                 id="email" 
-                name="email" 
                 type="email" 
-                required 
                 placeholder="m.scott@dundermifflin.com"
-                value={formData.email}
-                onChange={handleChange}
+                {...register("email")}
                 className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-600"
               />
+              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
             </div>
             
             <div className="grid grid-cols-2 gap-4">
@@ -98,25 +111,23 @@ export function SignupPage() {
                 <Label htmlFor="first_name" className="text-zinc-900 dark:text-zinc-300">First Name</Label>
                 <Input 
                   id="first_name" 
-                  name="first_name" 
                   type="text" 
                   placeholder="Optional"
-                  value={formData.first_name}
-                  onChange={handleChange}
+                  {...register("first_name")}
                   className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-600"
                 />
+                {errors.first_name && <p className="text-sm text-red-500">{errors.first_name.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="last_name" className="text-zinc-900 dark:text-zinc-300">Last Name</Label>
                 <Input 
                   id="last_name" 
-                  name="last_name" 
                   type="text" 
                   placeholder="Optional"
-                  value={formData.last_name}
-                  onChange={handleChange}
+                  {...register("last_name")}
                   className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-600"
                 />
+                {errors.last_name && <p className="text-sm text-red-500">{errors.last_name.message}</p>}
               </div>
             </div>
 
@@ -124,39 +135,36 @@ export function SignupPage() {
               <Label htmlFor="phone_number" className="text-zinc-900 dark:text-zinc-300">Phone Number</Label>
               <Input 
                 id="phone_number" 
-                name="phone_number" 
                 type="tel" 
                 placeholder="Optional (e.g. +14155552671)"
-                value={formData.phone_number}
-                onChange={handleChange}
+                {...register("phone_number")}
                 className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-600"
               />
+              {errors.phone_number && <p className="text-sm text-red-500">{errors.phone_number.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-zinc-900 dark:text-zinc-300">Password *</Label>
               <Input 
                 id="password" 
-                name="password" 
                 type="password" 
-                required 
-                value={formData.password}
-                onChange={handleChange}
+                {...register("password")}
                 className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100"
               />
+              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
             </div>
+            
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-zinc-900 dark:text-zinc-300">Confirm Password *</Label>
               <Input 
                 id="confirmPassword" 
-                name="confirmPassword" 
                 type="password" 
-                required 
-                value={formData.confirmPassword}
-                onChange={handleChange}
+                {...register("confirmPassword")}
                 className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100"
               />
+              {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>}
             </div>
+            
             <button 
               type="submit" 
               disabled={loading}
