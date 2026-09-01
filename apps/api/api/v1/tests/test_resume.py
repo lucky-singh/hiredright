@@ -1,4 +1,6 @@
 import pytest
+from django.test import override_settings
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -6,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from unittest.mock import patch, MagicMock
 from taxonomy.models import Role
 
+@override_settings(STORAGES={'default': {'BACKEND': 'django.core.files.storage.InMemoryStorage'}})
 @pytest.mark.django_db
 def test_resume_upload_view(api_client, candidate):
     url = reverse("resume-upload")
