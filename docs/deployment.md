@@ -33,7 +33,7 @@ The deployment configurations are organized into the following directories:
 
 ### Kubernetes Manifests (`k8s/base/`)
 These manifests are 100% cloud-agnostic.
-*   `api-deployment.yaml` & `api-service.yaml` - Backend API pods and networking.
+*   `api-deployment.yaml` & `api-service.yaml` - Backend API pods and networking. (Includes `/api/v1/health/` readiness probes).
 *   `web-deployment.yaml` & `web-service.yaml` - Frontend SPA pods and networking.
 *   `celery-deployment.yaml` - Background worker pods.
 *   `ingress.yaml` - Domain routing and TLS configuration.
@@ -67,4 +67,4 @@ These manifests are 100% cloud-agnostic.
 *   **Secrets Management:** Never commit `secrets.yaml` to version control. In a true enterprise environment, integrate **External Secrets Operator** (fetching from AWS Secrets Manager) or **Sealed Secrets** to manage sensitive variables.
 *   **Static Files:** Ensure Django's `collectstatic` is run during the CI/CD pipeline or deployment phase. Currently, the API image expects static files to be served either via WhiteNoise or offloaded to an S3 bucket via `django-storages`.
 *   **Database Migrations:** Run migrations automatically during deployment using a Kubernetes `Job` or a release phase in your CI/CD pipeline (`python manage.py migrate`), rather than running them manually.
-*   **Scaling:** The Kubernetes `Deployment` manifests are configured with `replicas`. Implement a **Horizontal Pod Autoscaler (HPA)** to automatically scale the `hiredright-api` pods based on CPU or Memory usage during high-traffic periods.
+*   **Scaling & Resource Limits:** Kubernetes `Deployment` manifests are strictly configured with CPU and Memory `requests` and `limits`. This guarantees predictable performance and protects the cluster from Node-level Out of Memory (OOM) cascading failures. It also fully enables you to deploy a **Horizontal Pod Autoscaler (HPA)** to dynamically scale based on CPU usage during high-traffic periods.
