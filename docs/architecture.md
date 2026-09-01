@@ -133,7 +133,7 @@ sequenceDiagram
 
     Candidate->>UI: Opens Profile Builder
     UI->>API: GET /api/v1/builder/{function_code}/
-    API->>DB: Query Function Tree, Claims & BuilderProgress
+    API->>DB: Query Role Tree, Claims & BuilderProgress
     DB-->>API: Active Taxonomy, Existing Claims, Progress State
     API-->>UI: Dense BuilderPayload (JSON)
     UI-->>Candidate: Render Complete Wizard (Instant UI)
@@ -207,14 +207,14 @@ flowchart TD
 erDiagram
     User ||--|| CandidateProfile : has
 
-    Function ||--o{ CompetencyArea : contains
+    Role ||--o{ CompetencyArea : contains
     CompetencyArea }o--o{ Activity : contains
 
-    CandidateProfile ||--o{ CandidateFunction : specializes_in
-    Function ||--o{ CandidateFunction : references
+    CandidateProfile ||--o{ CandidateRole : specializes_in
+    Role ||--o{ CandidateRole : references
 
     CandidateProfile ||--|| BuilderProgress : tracks
-    Function ||--o{ BuilderProgress : references
+    Role ||--o{ BuilderProgress : references
 
     CandidateProfile ||--o{ ActivityClaim : asserts
     Activity ||--o{ ActivityClaim : referenced_by
@@ -229,7 +229,7 @@ erDiagram
         string last_name
     }
 
-    Function {
+    Role {
         string code PK
         string label
         string description
@@ -264,7 +264,7 @@ erDiagram
         boolean is_searchable
     }
 
-    CandidateFunction {
+    CandidateRole {
         int id PK
         int profile_id FK
         string function_id FK
@@ -318,7 +318,7 @@ erDiagram
   - Prevents breaking external API consumers referencing legacy activity codes.
 
 ### Dense Single-Fetch Payload Design
-- **Decision**: The candidate onboarding builder downloads the full function hierarchy, previous claims, and progress in one JSON response (`BuilderPayloadSerializer`).
+- **Decision**: The candidate onboarding builder downloads the full role hierarchy, previous claims, and progress in one JSON response (`BuilderPayloadSerializer`).
 - **Rationale**:
   - Eliminates network latency between wizard steps.
   - Enables instant offline UI rendering and snappy local interactions.
@@ -372,7 +372,7 @@ The resume parsing pipeline delegates heavy lifting to a background queue to pre
 *   **Message Broker**: Redis handles message routing for Celery.
 *   **LLM Provider**: The `google-genai` SDK interfaces with Gemini (`gemini-2.5-flash`) for rapid, structured extraction using `response_mime_type: 'application/json'`.
 *   **Data Flow**:
-    1.  User selects a Function on the UI and is presented an interstitial prompt to upload a PDF or skip.
+    1.  User selects a Role on the UI and is presented an interstitial prompt to upload a PDF or skip.
     2.  Client POSTs multipart form data to `/api/v1/profile/resume/` with `functionCode`.
     3.  Django saves file to MinIO, enqueues `profile_id` & `functionCode` to Celery, and returns a `task_id`.
     4.  Frontend polls `/api/v1/profile/resume/status/<task_id>` while Celery processes the PDF.

@@ -68,12 +68,12 @@ class TestWhatIsListed:
 
 class TestFiltering:
     def test_function_filter_scopes_results(self, get, taxonomy):
-        in_function = _codes(get(function=taxonomy.function.code))
+        in_function = _codes(get(role=taxonomy.role.code))
         assert taxonomy.sdtm.code in in_function
-        assert _codes(get(function=taxonomy.other_function.code)) == set()
+        assert _codes(get(role=taxonomy.other_role.code)) == set()
 
     def test_unknown_function_returns_empty_not_an_error(self, get, taxonomy):
-        response = get(function="no-such-function")
+        response = get(role="no-such-role")
         assert response.status_code == 200
         assert response.data == {"count": 0, "results": []}
 
@@ -84,7 +84,7 @@ class TestFiltering:
         assert taxonomy.sdtm.code in _codes(get(q="sdtm-implementation"))
 
     def test_q_works_without_a_function(self, get, taxonomy):
-        """Cross-function lookup: "find #sdtm wherever it lives"."""
+        """Cross-role lookup: "find #sdtm wherever it lives"."""
         assert _codes(get(q="implementation guide")) == {
             taxonomy.sdtm.code,
             taxonomy.adam.code,
@@ -92,20 +92,20 @@ class TestFiltering:
 
     def test_q_and_function_combine(self, get, taxonomy):
         assert _codes(
-            get(function=taxonomy.other_function.code, q="ADaM")
+            get(role=taxonomy.other_role.code, q="ADaM")
         ) == set()
 
 
 class TestCrossFunctionalSkills:
     """`Activity.competency_areas` is many-to-many by design — an activity like
-    ICH-GCP Compliance is reused across functions."""
+    ICH-GCP Compliance is reused across roles."""
 
     @pytest.fixture
     def shared(self, taxonomy):
         from taxonomy.models import CompetencyArea
 
         other_area = CompetencyArea.objects.create(
-            function=taxonomy.other_function,
+            role=taxonomy.other_role,
             code="data-standards",
             label="Data Standards",
         )
@@ -114,9 +114,9 @@ class TestCrossFunctionalSkills:
 
     def test_an_unscoped_query_reports_every_area(self, get, taxonomy, shared):
         row = _row(get(), taxonomy.sdtm.code)
-        assert {a["function_code"] for a in row["areas"]} == {
-            taxonomy.function.code,
-            taxonomy.other_function.code,
+        assert {a["role_code"] for a in row["areas"]} == {
+            taxonomy.role.code,
+            taxonomy.other_role.code,
         }
 
     def test_a_scoped_query_reports_only_that_functions_area(
@@ -124,9 +124,9 @@ class TestCrossFunctionalSkills:
     ):
         """Otherwise a chip in the Statistical Programming view carries a heading
         from Data Management, and the grouped list makes no sense."""
-        row = _row(get(function=taxonomy.function.code), taxonomy.sdtm.code)
+        row = _row(get(role=taxonomy.role.code), taxonomy.sdtm.code)
         assert [a["code"] for a in row["areas"]] == [taxonomy.area.code]
-        assert row["areas"][0]["function_label"] == taxonomy.function.label
+        assert row["areas"][0]["role_label"] == taxonomy.role.label
 
     def test_a_shared_activity_is_not_duplicated(self, get, taxonomy, shared):
         """Joining across the m2m without `distinct()` returns one row per area."""
@@ -139,7 +139,7 @@ class TestQueryBudget:
         self, get, taxonomy, django_assert_num_queries
     ):
         """Without the `competency_areas` prefetch this is one query per skill —
-        ~150 for a real function.
+        ~150 for a real role.
         """
         from taxonomy.models import Activity, ClaimType
 
@@ -152,4 +152,4 @@ class TestQueryBudget:
             activity.competency_areas.add(taxonomy.area)
 
         with django_assert_num_queries(2):
-            assert get(function=taxonomy.function.code).status_code == 200
+            assert get(role=taxonomy.role.code).status_code == 200

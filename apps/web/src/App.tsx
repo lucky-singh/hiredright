@@ -7,9 +7,9 @@ import { SearchPage } from './pages/search';
 import { CandidateProfilePage } from './pages/candidate-profile';
 
 function BuilderShellWrapper() {
-  const { functionCode } = useParams<{ functionCode: string }>();
-  if (!functionCode) return <Navigate to="/functions" replace />;
-  return <BuilderShell functionCode={functionCode} />;
+  const { roleCode } = useParams<{ roleCode: string }>();
+  if (!roleCode) return <Navigate to="/functions" replace />;
+  return <BuilderShell roleCode={roleCode} />;
 }
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/functions" element={<FunctionSelectionPage />} />
-        <Route path="/builder/:functionCode" element={<BuilderShellWrapper />} />
+        <Route path="/builder/:roleCode" element={<BuilderShellWrapper />} />
         <Route path="/profile" element={<CandidateProfilePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/" element={<Navigate to="/signup" replace />} />

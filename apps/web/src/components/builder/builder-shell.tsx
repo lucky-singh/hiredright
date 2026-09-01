@@ -13,10 +13,10 @@ import { Loader2 } from 'lucide-react';
 import { UserMenu } from '../user-menu';
 
 interface BuilderShellProps {
-  functionCode: string;
+  roleCode: string;
 }
 
-export function BuilderShell({ functionCode }: BuilderShellProps) {
+export function BuilderShell({ roleCode }: BuilderShellProps) {
 
   const [payload, setPayload] = useState<BuilderPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +30,7 @@ export function BuilderShell({ functionCode }: BuilderShellProps) {
   const currentStep = useBuilderStore((s) => s.currentStep);
   const completedSteps = useBuilderStore((s) => s.completedSteps);
 
-  const { save: saveProgress } = useProgress(functionCode);
+  const { save: saveProgress } = useProgress(roleCode);
   const { flush: flushClaims } = useClaimSync();
 
   // Auto-scroll to top when step changes (must be above conditional returns)
@@ -40,12 +40,12 @@ export function BuilderShell({ functionCode }: BuilderShellProps) {
   }, [currentStep]);
 
   useEffect(() => {
-    fetchBuilderPayload(functionCode)
+    fetchBuilderPayload(roleCode)
       .then((data) => {
         setPayload(data);
         
         // Find which step index to resume on
-        const areas = data.function.competency_areas;
+        const areas = data.role.competency_areas;
         let resumeStep = 0;
         if (data.progress?.last_area_code) {
           const idx = areas.findIndex(a => a.code === data.progress!.last_area_code);
@@ -60,7 +60,7 @@ export function BuilderShell({ functionCode }: BuilderShellProps) {
         );
       })
       .catch((err) => setError(err.message));
-  }, [functionCode, initFromPayload, setTotalSteps]);
+  }, [roleCode, initFromPayload, setTotalSteps]);
 
   if (error) {
     return (
@@ -85,14 +85,14 @@ export function BuilderShell({ functionCode }: BuilderShellProps) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950/50">
         <ProfileSummary 
-          functionTree={payload.function} 
+          roleTree={payload.role} 
           onEdit={() => setViewMode('builder')} 
         />
       </div>
     );
   }
 
-  const areas = payload.function.competency_areas;
+  const areas = payload.role.competency_areas;
   const currentArea = areas[currentStep];
 
   const handleNext = async () => {

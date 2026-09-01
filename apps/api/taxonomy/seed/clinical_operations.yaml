@@ -1,4 +1,4 @@
-function:
+role:
   code: clinical-operations
   label: Clinical Operations
   description: Clinical Research Associate (CRA) monitoring, site execution, and clinical

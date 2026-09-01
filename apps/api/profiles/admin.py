@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import ActivityClaim, BuilderProgress, CandidateFunction, CandidateProfile
+from .models import ActivityClaim, BuilderProgress, CandidateRole, CandidateProfile
 
 
-class CandidateFunctionInline(admin.TabularInline):
-    model = CandidateFunction
+class CandidateRoleInline(admin.TabularInline):
+    model = CandidateRole
     extra = 0
 
 
@@ -19,7 +19,7 @@ class CandidateProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "headline", "location_country", "is_searchable", "open_to_opportunities")
     list_filter = ("is_searchable", "open_to_opportunities")
     search_fields = ("user__email", "headline")
-    inlines = [CandidateFunctionInline, ActivityClaimInline]
+    inlines = [CandidateRoleInline, ActivityClaimInline]
 
 
 @admin.register(ActivityClaim)
@@ -31,5 +31,5 @@ class ActivityClaimAdmin(admin.ModelAdmin):
 
 @admin.register(BuilderProgress)
 class BuilderProgressAdmin(admin.ModelAdmin):
-    list_display = ("profile", "function", "last_area_code", "completed_at")
+    list_display = ("profile", "role", "last_area_code", "completed_at")
     search_fields = ("profile__user__email",)

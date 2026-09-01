@@ -1,10 +1,10 @@
-import type { FunctionTree } from '@/lib/api/types'
+import type { RoleTree } from '@/lib/api/types'
 import '../../styles/function-selector.css'
 
 interface FunctionSelectorProps {
-  functions: FunctionTree[]
-  selectedFunction: FunctionTree | null
-  onSelect: (func: FunctionTree) => void
+  functions: RoleTree[]
+  selectedFunction: RoleTree | null
+  onSelect: (func: RoleTree) => void
 }
 
 export function FunctionSelector({

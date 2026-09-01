@@ -1,16 +1,16 @@
 import pytest
 from django.core.exceptions import ValidationError
-from taxonomy.models import Activity, ClaimType, CompetencyArea, Function
+from taxonomy.models import Activity, ClaimType, CompetencyArea, Role
 
 pytestmark = pytest.mark.django_db
 
 def test_function_str():
-    f = Function(code="sp", label="Stat Prog")
+    f = Role(code="sp", label="Stat Prog")
     assert str(f) == "Stat Prog"
 
 def test_competency_area_str():
-    f = Function(code="sp", label="Stat Prog")
-    a = CompetencyArea(function=f, code="core", label="Core")
+    f = Role(code="sp", label="Stat Prog")
+    a = CompetencyArea(role=f, code="core", label="Core")
     assert str(a) == "sp / Core"
 
 def test_activity_str():

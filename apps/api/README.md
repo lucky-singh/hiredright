@@ -86,7 +86,7 @@ $$\text{Function} \xrightarrow{\text{1:N}} \text{CompetencyArea} \xrightarrow{\t
 Encapsulates candidate identities, verified claims, and wizard progress:
 
 - **`CandidateProfile`**: Extends Django's user model with headline, ISO 3166-1 country code, availability status (`open_to_opportunities`), and recruiter search visibility (`is_searchable`).
-- **`CandidateFunction`**: Links candidate to a primary or secondary function with verified `years_experience`.
+- **`CandidateRole`**: Links candidate to a primary or secondary function with verified `years_experience`.
 - **`ActivityClaim`**: A candidate's assertion of having performed an `Activity`.
   - `proficiency`: 1 (`EXPOSED`), 2 (`WORKING`), 3 (`PROFICIENT`), 4 (`EXPERT`).
   - `years_experience`: Decimal field (0 to 60 years).
@@ -121,7 +121,7 @@ The views (`api/v1/views.py`) expose four endpoints:
 
 | Endpoint | Method | Auth | Purpose |
 | :--- | :--- | :--- | :--- |
-| `/api/v1/builder/{function_code}/` | `GET` | Candidate JWT | Single dense payload powering the builder |
+| `/api/v1/builder/{role_code}/` | `GET` | Candidate JWT | Single dense payload powering the builder |
 | `/api/v1/builder/claims/` | `POST` | Candidate JWT | Debounced batch upsert/delete of claim deltas |
 | `/api/v1/builder/progress/` | `PUT` | Candidate JWT | Server-side resume state |
 | `/api/v1/search/` | `POST` | OAuth2 `candidates:search` | Recruiter matching |
@@ -195,9 +195,9 @@ candidate claim delta batch in PostgreSQL for the authenticated user.
 
 | Model | Table / Constraint | Description |
 | :--- | :--- | :--- |
-| `CompetencyArea` | `uniq_area_code_per_function` | Unique `(function, code)` |
+| `CompetencyArea` | `uniq_area_code_per_function` | Unique `(role, code)` |
 | `Activity` | Unique `code` | Global slug for API stability |
-| `CandidateFunction` | `uniq_function_per_profile` | Unique `(profile, function)` |
+| `CandidateRole` | `uniq_role_per_profile` | Unique `(profile, role)` |
 | `ActivityClaim` | `uniq_claim_per_profile_activity` | Unique `(profile, activity)` preventing race condition duplicates |
 | `ActivityClaim` | Index `(activity, profile)` | Fast reverse lookup for recruiter search queries |
 | `ActivityClaim` | Index `(profile, activity)` | Fast claim fetching during builder initialization |
@@ -211,7 +211,7 @@ candidate claim delta batch in PostgreSQL for the authenticated user.
 Loads or synchronizes domain taxonomies from YAML seed files into the database.
 
 ```bash
-# Basic seed from default path (taxonomy/seed/<function_code>.yaml)
+# Basic seed from default path (taxonomy/seed/<role_code>.yaml)
 python manage.py seed_taxonomy statistical-programming
 
 # Seed from a custom path

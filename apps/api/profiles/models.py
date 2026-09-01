@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
-from taxonomy.models import Activity, Function, TimestampedModel
+from taxonomy.models import Activity, Role, TimestampedModel
 
 
 class Proficiency(models.IntegerChoices):
@@ -35,13 +35,13 @@ class CandidateProfile(TimestampedModel):
         return f"Profile<{self.user_id}>"
 
 
-class CandidateFunction(TimestampedModel):
+class CandidateRole(TimestampedModel):
     """Which functions the candidate works in, and for how long."""
 
     profile = models.ForeignKey(
-        CandidateProfile, on_delete=models.CASCADE, related_name="functions"
+        CandidateProfile, on_delete=models.CASCADE, related_name="roles"
     )
-    function = models.ForeignKey(Function, on_delete=models.PROTECT, related_name="+")
+    role = models.ForeignKey(Role, on_delete=models.PROTECT, related_name="+")
     years_experience = models.DecimalField(
         max_digits=4,
         decimal_places=1,
@@ -52,7 +52,7 @@ class CandidateFunction(TimestampedModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("profile", "function"), name="uniq_function_per_profile"
+                fields=("profile", "role"), name="uniq_role_per_profile"
             )
         ]
 
@@ -140,7 +140,7 @@ class BuilderProgress(TimestampedModel):
     profile = models.OneToOneField(
         CandidateProfile, on_delete=models.CASCADE, related_name="builder_progress"
     )
-    function = models.ForeignKey(Function, on_delete=models.CASCADE, related_name="+")
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="+")
     completed_area_codes = models.JSONField(default=list, blank=True)
     last_area_code = models.CharField(max_length=64, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)

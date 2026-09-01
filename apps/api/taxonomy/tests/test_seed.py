@@ -2,16 +2,16 @@ import pytest
 from io import StringIO
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from taxonomy.models import Function, CompetencyArea, Activity
+from taxonomy.models import Role, CompetencyArea, Activity
 import yaml
 
 pytestmark = pytest.mark.django_db
 
 def test_seed_taxonomy_success(tmp_path):
     yaml_content = {
-        "function": {
+        "role": {
             "code": "test-func",
-            "label": "Test Function"
+            "label": "Test Role"
         },
         "competency_areas": [
             {
@@ -35,7 +35,7 @@ def test_seed_taxonomy_success(tmp_path):
     out = StringIO()
     call_command("seed_taxonomy", "test-func", path=str(file_path), stdout=out)
     
-    assert Function.objects.filter(code="test-func").exists()
+    assert Role.objects.filter(code="test-func").exists()
     assert CompetencyArea.objects.filter(code="area-1").exists()
     assert Activity.objects.filter(code="act-1").exists()
     
@@ -45,7 +45,7 @@ def test_seed_taxonomy_success(tmp_path):
 def test_seed_taxonomy_prune(tmp_path):
     # First seed
     yaml_content1 = {
-        "function": {"code": "prune-func", "label": "Prune Func"},
+        "role": {"code": "prune-func", "label": "Prune Func"},
         "competency_areas": [{"code": "area-1", "label": "Area 1", "activities": [{"code": "act-1", "label": "Act 1"}]}]
     }
     file1 = tmp_path / "prune1.yaml"
@@ -57,7 +57,7 @@ def test_seed_taxonomy_prune(tmp_path):
 
     # Second seed, missing act-1, with prune
     yaml_content2 = {
-        "function": {"code": "prune-func", "label": "Prune Func"},
+        "role": {"code": "prune-func", "label": "Prune Func"},
         "competency_areas": [{"code": "area-1", "label": "Area 1", "activities": []}]
     }
     file2 = tmp_path / "prune2.yaml"
@@ -72,7 +72,7 @@ def test_seed_taxonomy_prune(tmp_path):
 
 def test_seed_taxonomy_dry_run(tmp_path):
     yaml_content = {
-        "function": {"code": "dry-func", "label": "Dry Func"},
+        "role": {"code": "dry-func", "label": "Dry Func"},
         "competency_areas": [{"code": "area-1", "label": "Area 1", "activities": [{"code": "act-dry", "label": "Act Dry"}]}]
     }
     file_path = tmp_path / "dry.yaml"
@@ -80,7 +80,7 @@ def test_seed_taxonomy_dry_run(tmp_path):
         yaml.dump(yaml_content, f)
         
     call_command("seed_taxonomy", "dry-func", path=str(file_path), dry_run=True)
-    assert not Function.objects.filter(code="dry-func").exists()
+    assert not Role.objects.filter(code="dry-func").exists()
 
 def test_seed_taxonomy_validation_errors(tmp_path):
     file_path = tmp_path / "err.yaml"
@@ -89,16 +89,16 @@ def test_seed_taxonomy_validation_errors(tmp_path):
     
     with pytest.raises(CommandError) as e:
         call_command("seed_taxonomy", "err-func", path=str(file_path))
-    assert "expected a top-level 'function' key" in str(e.value)
+    assert "expected a top-level 'role' key." in str(e.value)
 
     with open(file_path, "w") as f:
-        yaml.dump({"function": {}}, f)
+        yaml.dump({"role": {}}, f)
     with pytest.raises(CommandError):
         call_command("seed_taxonomy", "err-func", path=str(file_path))
 
     with open(file_path, "w") as f:
         yaml.dump({
-            "function": {"code": "err", "label": "err"},
+            "role": {"code": "err", "label": "err"},
             "competency_areas": [{"activities": [{}]}]
         }, f)
     with pytest.raises(CommandError) as e:
@@ -107,7 +107,7 @@ def test_seed_taxonomy_validation_errors(tmp_path):
     
     with open(file_path, "w") as f:
         yaml.dump({
-            "function": {"code": "err", "label": "err"},
+            "role": {"code": "err", "label": "err"},
             "competency_areas": [{"activities": [{"code": "a"}, {"code": "a"}]}]
         }, f)
     with pytest.raises(CommandError) as e:
@@ -116,7 +116,7 @@ def test_seed_taxonomy_validation_errors(tmp_path):
 
     with open(file_path, "w") as f:
         yaml.dump({
-            "function": {"code": "err", "label": "err"},
+            "role": {"code": "err", "label": "err"},
             "competency_areas": [{"activities": [{"code": "a", "claim_type": "invalid"}]}]
         }, f)
     with pytest.raises(CommandError) as e:
@@ -125,7 +125,7 @@ def test_seed_taxonomy_validation_errors(tmp_path):
 
     with open(file_path, "w") as f:
         yaml.dump({
-            "function": {"code": "err", "label": "err"},
+            "role": {"code": "err", "label": "err"},
             "competency_areas": [{"activities": [{"code": "a", "seniority_hint": "invalid"}]}]
         }, f)
     with pytest.raises(CommandError) as e:
@@ -134,7 +134,7 @@ def test_seed_taxonomy_validation_errors(tmp_path):
 
     with open(file_path, "w") as f:
         yaml.dump({
-            "function": {"code": "err", "label": "err"},
+            "role": {"code": "err", "label": "err"},
             "competency_areas": [{"activities": [{"code": "a", "variants": "not-a-list"}]}]
         }, f)
     with pytest.raises(CommandError) as e:

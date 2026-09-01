@@ -133,7 +133,7 @@ export function SearchPage() {
                 value={selectedFunction} 
                 onChange={e => setSelectedFunction(e.target.value)}
               >
-                <option value="">All Functions</option>
+                <option value="">All Roles</option>
                 {functions?.map(f => (
                   <option key={f.code} value={f.code}>{f.label}</option>
                 ))}

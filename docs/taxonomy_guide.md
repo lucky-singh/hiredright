@@ -8,7 +8,7 @@
 
 - [Taxonomy Architecture](#taxonomy-architecture)
 - [YAML Seed File Format](#yaml-seed-file-format)
-  - [Function Specification](#function-specification)
+  - [Role Specification](#role-specification)
   - [Competency Area Specification](#competency-area-specification)
   - [Activity Specification](#activity-specification)
 - [Activity Field Semantics](#activity-field-semantics)
@@ -17,7 +17,7 @@
   - [`variants`](#variants)
   - [`source_ref`](#source_ref)
 - [Reference Breakdown: Statistical Programming](#reference-breakdown-statistical-programming)
-- [Adding a New Domain Function](#adding-a-new-domain-function)
+- [Adding a New Domain Role](#adding-a-new-domain-role)
 - [Seeding & Validation Lifecycle](#seeding--validation-lifecycle)
   - [Seeding Command](#seeding-command)
   - [Validation Rules](#validation-rules)
@@ -29,22 +29,22 @@
 
 HireRight structures professional domains into a three-tier hierarchy:
 
-$$\text{Function} \longleftrightarrow \text{CompetencyArea} \longleftrightarrow \text{Activity}$$
+$$\text{Role} \longleftrightarrow \text{CompetencyArea} \longleftrightarrow \text{Activity}$$
 
-1. **Function**: Top-level job specialization (e.g. `statistical-programming`, `clinical-operations`).
+1. **Role**: Top-level job specialization (e.g. `statistical-programming`, `clinical-operations`).
 2. **CompetencyArea**: Thematic step in the candidate builder flow, typically containing 8–15 activities (e.g. `cdisc-sdtm`, `site-visit-execution`).
-3. **Activity**: The atomic, scorable skill, deliverable, or tool proficiency that candidates claim and recruiters query. Activities are connected via a **Many-to-Many** relationship, meaning a single activity (e.g. "ICH-GCP Compliance") can be reused across multiple competency areas and functions without data duplication.
+3. **Activity**: The atomic, scorable skill, deliverable, or tool proficiency that candidates claim and recruiters query. Activities are connected via a **Many-to-Many** relationship, meaning a single activity (e.g. "ICH-GCP Compliance") can be reused across multiple competency areas and roles without data duplication.
 
 ---
 
 ## YAML Seed File Format
 
-Taxonomy definitions are stored in `apps/api/taxonomy/seed/<function_code>.yaml`.
+Taxonomy definitions are stored in `apps/api/taxonomy/seed/<role_code>.yaml`.
 
 ### Complete Example Structure
 
 ```yaml
-function:
+role:
   code: statistical-programming
   label: Statistical Programming
   description: >
@@ -61,7 +61,7 @@ competency_areas:
         claim_type: proficiency
         seniority_hint: junior
         label: "Base SAS"
-        help_text: "DATA step processing, arrays, and core functions."
+        help_text: "DATA step processing, arrays, and core roles."
 
       - code: sdtm-implementation-guide
         source_ref: 15
@@ -125,17 +125,17 @@ The Clinical Operations taxonomy (`clinical_operations.yaml`) contains **150 ite
 
 ---
 
-## Adding a New Domain Function
+## Adding a New Domain Role
 
 Adding a new discipline (e.g. `clinical-data-management.yaml` or `medical-writing.yaml`) requires **zero schema migrations or UI deployments**:
 
 1. Create a new YAML file: `apps/api/taxonomy/seed/clinical_data_management.yaml`.
-2. Define the `function`, `competency_areas`, and `activities`.
+2. Define the `role`, `competency_areas`, and `activities`.
 3. Run the seed command:
    ```bash
    python manage.py seed_taxonomy clinical-data-management
    ```
-4. The new function instantly appears in the `GET /api/v1/functions/` endpoint, and the React frontend's `FunctionSelectionPage` will dynamically render a new card for users to select.
+4. The new role instantly appears in the `GET /api/v1/roles/` endpoint, and the React frontend's `RoleSelectionPage` will dynamically render a new card for users to select.
 
 ---
 
@@ -145,14 +145,14 @@ Adding a new discipline (e.g. `clinical-data-management.yaml` or `medical-writin
 
 ```bash
 # Seed or update
-python manage.py seed_taxonomy <function_code> [--path <path>] [--prune] [--dry-run]
+python manage.py seed_taxonomy <role_code> [--path <path>] [--prune] [--dry-run]
 ```
 
 ### Validation Rules
 
 The `seed_taxonomy` command executes strict validation before opening a transaction:
-1. Validates top-level keys `function` and `competency_areas`.
-2. Asserts uniqueness of all activity `code` slugs across the entire function.
+1. Validates top-level keys `role` and `competency_areas`.
+2. Asserts uniqueness of all activity `code` slugs across the entire role.
 3. Enforces valid `claim_type` (`activity`, `proficiency`, `trait`).
 4. Enforces valid `seniority_hint` (`junior`, `mid`, `senior`, `lead`, or omitted).
 5. Asserts `variants` is a valid list of non-empty strings.
@@ -174,7 +174,7 @@ python manage.py seed_taxonomy statistical-programming --prune
 The HireRight Django backend is equipped with a rich admin panel (`/admin/`) customized for managing both the taxonomy and candidate claims.
 
 ### Taxonomy Admin (`taxonomy.models`)
-- **Functions, Competency Areas, and Activities**: Fully exposed with relational lookups.
+- **Roles, Competency Areas, and Activities**: Fully exposed with relational lookups.
 - **Read-Only Fields**: Key structural fields like `code`, `claim_type`, and `variants` should generally be managed via the YAML seed files rather than manual database edits to prevent drift between the source-of-truth seed file and the DB.
 - **Deactivation/Visibility**: You can manually toggle `is_active` in the admin to immediately pull an activity from the builder without needing to deploy a new seed file.
 

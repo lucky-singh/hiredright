@@ -15,7 +15,7 @@
 # seniority_hint drives the "Suggested — confirm" prompts in the builder.
 # It never auto-claims on the candidate's behalf.
 
-function:
+role:
   code: statistical-programming
   label: Statistical Programming
   description: >

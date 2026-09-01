@@ -1,10 +1,10 @@
-import type { FunctionTree } from '@/lib/api/types';
+import type { RoleTree } from '@/lib/api/types';
 import { useBuilderStore } from '@/stores/builder-store';
 import { Badge } from '@/components/ui/badge';
 import { Pencil } from 'lucide-react';
 
 interface ProfileSummaryProps {
-  functionTree: FunctionTree;
+  roleTree: RoleTree;
   onEdit: () => void;
 }
 
@@ -15,11 +15,11 @@ const PROFICIENCY_LABELS: Record<number, string> = {
   4: 'Expert',
 };
 
-export function ProfileSummary({ functionTree, onEdit }: ProfileSummaryProps) {
+export function ProfileSummary({ roleTree, onEdit }: ProfileSummaryProps) {
   const claims = useBuilderStore((s) => s.claims);
 
   // Group claimed activities by competency area
-  const summaryData = functionTree.competency_areas
+  const summaryData = roleTree.competency_areas
     .map((area) => {
       const claimedActivities = area.activities.filter(
         (activity) => claims[activity.code]?.claimed,
@@ -39,7 +39,7 @@ export function ProfileSummary({ functionTree, onEdit }: ProfileSummaryProps) {
             Profile Summary
           </h1>
           <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-400">
-            Review your {functionTree.label} experience before submitting.
+            Review your {roleTree.label} experience before submitting.
           </p>
         </div>
         <button

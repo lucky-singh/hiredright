@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Activity, CompetencyArea, Function
+from .models import Activity, CompetencyArea, Role
 
 
 class ActivityInline(admin.TabularInline):
@@ -8,16 +8,16 @@ class ActivityInline(admin.TabularInline):
     extra = 0
 
 
-@admin.register(Function)
-class FunctionAdmin(admin.ModelAdmin):
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
     list_display = ("code", "label", "sort_order", "is_active")
     search_fields = ("code", "label")
 
 
 @admin.register(CompetencyArea)
 class CompetencyAreaAdmin(admin.ModelAdmin):
-    list_display = ("code", "label", "function", "sort_order")
-    list_filter = ("function",)
+    list_display = ("code", "label", "role", "sort_order")
+    list_filter = ("role",)
     search_fields = ("code", "label")
     inlines = [ActivityInline]
 

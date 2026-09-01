@@ -4,7 +4,7 @@ import os
 from celery import shared_task
 from django.core.files.storage import default_storage
 from profiles.models import CandidateProfile, ActivityClaim, Proficiency
-from taxonomy.models import Activity, Function
+from taxonomy.models import Activity, Role
 from pypdf import PdfReader
 from google import genai
 
@@ -20,7 +20,7 @@ def extract_text_from_pdf(file_obj) -> str:
     return text
 
 @shared_task
-def parse_resume_task(profile_id: int, function_code: str = None):
+def parse_resume_task(profile_id: int, role_code: str = None):
     try:
         profile = CandidateProfile.objects.get(pk=profile_id)
         if not profile.resume:
@@ -35,14 +35,14 @@ def parse_resume_task(profile_id: int, function_code: str = None):
 
         # 2. Get scorable activities (filter by function if provided)
         qs = Activity.objects.filter(is_active=True)
-        if function_code:
-            qs = qs.filter(competency_areas__function__code=function_code)
+        if role_code:
+            qs = qs.filter(competency_areas__role__code=role_code)
             
         activities = qs.values("code", "label")
         activities_list = [{"code": a["code"], "label": a["label"]} for a in activities]
         
         if not activities_list:
-            logger.warning(f"No activities found to match against (function_code: {function_code}).")
+            logger.warning(f"No activities found to match against (role_code: {role_code}).")
             return
         
         # 3. Call LLM
@@ -98,7 +98,7 @@ def parse_resume_task(profile_id: int, function_code: str = None):
             if created:
                 created_count += 1
                 
-        logger.info(f"Successfully processed resume for profile {profile_id} (function: {function_code}). Created {created_count} claims.")
+        logger.info(f"Successfully processed resume for profile {profile_id} (function: {role_code}). Created {created_count} claims.")
         
     except Exception as e:
         logger.error(f"Failed to process resume for profile {profile_id}: {e}")

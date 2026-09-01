@@ -18,7 +18,7 @@ import yaml
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from taxonomy.models import Activity, ClaimType, CompetencyArea, Function, SeniorityHint
+from taxonomy.models import Activity, ClaimType, CompetencyArea, Role, SeniorityHint
 
 DEFAULT_SEED_DIR = Path(__file__).resolve().parents[2] / "seed"
 
@@ -31,8 +31,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "function_code",
-            help="Function code, e.g. statistical-programming. Also the default filename.",
+            "role_code",
+            help="Role code, e.g. statistical-programming. Also the default filename.",
         )
         parser.add_argument(
             "--path",
@@ -51,7 +51,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        code = options["function_code"]
+        code = options["role_code"]
         path = Path(options["path"]) if options["path"] else (
             DEFAULT_SEED_DIR / f"{code.replace('-', '_')}.yaml"
         )
@@ -62,11 +62,11 @@ class Command(BaseCommand):
         self._validate(data, path)
 
         with transaction.atomic():
-            function = self._upsert_function(data["function"])
+            role = self._upsert_role(data["role"])
             seen_activity_codes: set[str] = set()
 
             for area_order, area_data in enumerate(data["competency_areas"]):
-                area = self._upsert_area(function, area_data, area_order)
+                area = self._upsert_area(role, area_data, area_order)
                 for act_order, act_data in enumerate(area_data.get("activities") or []):
                     activity = self._upsert_activity(area, act_data, act_order)
                     seen_activity_codes.add(activity.code)
@@ -75,12 +75,12 @@ class Command(BaseCommand):
             if options["prune"]:
                 # Find activities that were historically in this function but are missing from the current seed
                 missing_activities = Activity.objects.filter(
-                    competency_areas__function=function, is_active=True
+                    competency_areas__role=role, is_active=True
                 ).exclude(code__in=seen_activity_codes)
                 
                 for act in missing_activities:
                     # Remove from this function's areas
-                    act.competency_areas.remove(*list(function.competency_areas.all()))
+                    act.competency_areas.remove(*list(role.competency_areas.all()))
                     # If it now belongs to no areas at all, deactivate it globally
                     if not act.competency_areas.exists():
                         act.is_active = False
@@ -93,7 +93,7 @@ class Command(BaseCommand):
         verb = "Would seed" if options["dry_run"] else "Seeded"
         self.stdout.write(
             self.style.SUCCESS(
-                f"{verb} {function.label}: "
+                f"{verb} {role.label}: "
                 f"{len(data['competency_areas'])} areas, "
                 f"{len(seen_activity_codes)} activities"
                 + (f", {pruned} deactivated" if pruned else "")
@@ -106,8 +106,8 @@ class Command(BaseCommand):
         """Fail loudly and specifically. A typo'd claim_type would otherwise
         silently drop an item out of match scoring, which is very hard to notice
         later from the UI alone."""
-        if not isinstance(data, dict) or "function" not in data:
-            raise CommandError(f"{path}: expected a top-level 'function' key.")
+        if not isinstance(data, dict) or "role" not in data:
+            raise CommandError(f"{path}: expected a top-level 'role' key.")
         if "competency_areas" not in data:
             raise CommandError(f"{path}: expected a top-level 'competency_areas' key.")
 
@@ -143,8 +143,8 @@ class Command(BaseCommand):
 
     # -- upserts --------------------------------------------------------------
 
-    def _upsert_function(self, fn_data: dict) -> Function:
-        function, _ = Function.objects.update_or_create(
+    def _upsert_role(self, fn_data: dict) -> Role:
+        role, _ = Role.objects.update_or_create(
             code=fn_data["code"],
             defaults={
                 "label": fn_data["label"],
@@ -152,11 +152,11 @@ class Command(BaseCommand):
                 "is_active": True,
             },
         )
-        return function
+        return role
 
-    def _upsert_area(self, function: Function, area_data: dict, order: int) -> CompetencyArea:
+    def _upsert_area(self, role: Role, area_data: dict, order: int) -> CompetencyArea:
         area, _ = CompetencyArea.objects.update_or_create(
-            function=function,
+            role=role,
             code=area_data["code"],
             defaults={
                 "label": area_data["label"],
@@ -181,7 +181,7 @@ class Command(BaseCommand):
             },
         )
         # Clear out any areas from this specific function so it only belongs to the area specified in the YAML
-        areas_in_function = list(area.function.competency_areas.all())
+        areas_in_function = list(area.role.competency_areas.all())
         activity.competency_areas.remove(*areas_in_function)
         activity.competency_areas.add(area)
         return activity

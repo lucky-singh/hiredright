@@ -20,7 +20,7 @@ from rest_framework.views import APIView
 from matching.scoring import Query
 from matching.search import search_candidates
 from profiles.models import ActivityClaim, BuilderProgress, CandidateProfile
-from taxonomy.models import Activity, ClaimType, CompetencyArea, Function
+from taxonomy.models import Activity, ClaimType, CompetencyArea, Role
 
 from .permissions import HasRecruiterSearchScope, IsRecruiterUser
 from .serializers import (
@@ -28,7 +28,7 @@ from .serializers import (
     BuilderProgressSerializer,
     CandidateSearchSerializer,
     ClaimBatchSerializer,
-    FunctionListSerializer,
+    RoleListSerializer,
     SkillSerializer,
 )
 
@@ -36,15 +36,15 @@ from .serializers import (
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
-class FunctionListView(APIView):
-    """GET /api/v1/functions/ — list all active functions to select from."""
+class RoleListView(APIView):
+    """GET /api/v1/roles/ — list all active functions to select from."""
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(responses=FunctionListSerializer(many=True))
+    @extend_schema(responses=RoleListSerializer(many=True))
     @method_decorator(cache_page(60 * 60 * 24)) # cache for 24 hours
     def get(self, request):
-        functions = Function.objects.filter(is_active=True).order_by("sort_order", "label")
-        serializer = FunctionListSerializer(functions, many=True)
+        roles = Role.objects.filter(is_active=True).order_by("sort_order", "label")
+        serializer = RoleListSerializer(roles, many=True)
         return Response(serializer.data)
 
 
@@ -63,7 +63,7 @@ class SkillListView(APIView):
     that want the full vocabulary to display rather than to search on.
 
     Query params:
-        function        Function code. Scopes both the results and the `areas`
+        function        Role code. Scopes both the results and the `areas`
                         reported on each skill.
         q               Free-text match on label, code or help text. Works
                         without `function`, for cross-function lookup.
@@ -76,7 +76,7 @@ class SkillListView(APIView):
 
     @extend_schema(
         parameters=[
-            OpenApiParameter("function", OpenApiTypes.STR, description="Function code to filter by"),
+            OpenApiParameter("role", OpenApiTypes.STR, description="Role code to filter by"),
             OpenApiParameter("q", OpenApiTypes.STR, description="Search query for labels or codes"),
             OpenApiParameter("include_traits", OpenApiTypes.BOOL, description="Include TRAIT items"),
         ],
@@ -84,7 +84,7 @@ class SkillListView(APIView):
     )
     @method_decorator(cache_page(60 * 60 * 24)) # cache for 24 hours
     def get(self, request):
-        function_code = request.query_params.get("function") or ""
+        role_code = request.query_params.get("role") or ""
         query = (request.query_params.get("q") or "").strip()
         include_traits = (
             request.query_params.get("include_traits", "").lower() in self.TRUTHY
@@ -94,8 +94,8 @@ class SkillListView(APIView):
         if not include_traits:
             skills = skills.filter(claim_type__in=ClaimType.scorable())
 
-        if function_code:
-            skills = skills.filter(competency_areas__function__code=function_code)
+        if role_code:
+            skills = skills.filter(competency_areas__role__code=role_code)
 
         if query:
             skills = skills.filter(
@@ -109,9 +109,9 @@ class SkillListView(APIView):
         # function also keeps each chip labelled with the area the recruiter is
         # actually browsing, rather than an area from some other function that
         # happens to reuse the same activity.
-        areas = CompetencyArea.objects.select_related("function")
-        if function_code:
-            areas = areas.filter(function__code=function_code)
+        areas = CompetencyArea.objects.select_related("role")
+        if role_code:
+            areas = areas.filter(role__code=role_code)
 
         skills = (
             skills.prefetch_related(Prefetch("competency_areas", queryset=areas))
@@ -124,36 +124,36 @@ class SkillListView(APIView):
 
 
 class BuilderView(APIView):
-    """GET /api/v1/builder/{function_code}/ — the single fetch powering the builder."""
+    """GET /api/v1/builder/{role_code}/ — the single fetch powering the builder."""
 
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, function_code: str):
-        function = get_object_or_404(Function, code=function_code, is_active=True)
+    def get(self, request, role_code: str):
+        role = get_object_or_404(Role, code=role_code, is_active=True)
         profile = CandidateProfile.objects.get_or_create(user=request.user)[0]
 
         claims = ActivityClaim.objects.filter(
             profile=profile,
-            activity__competency_areas__function=function,
+            activity__competency_areas__role=role,
         ).select_related("activity")
 
         progress = BuilderProgress.objects.filter(
-            profile=profile, function=function
+            profile=profile, role=role
         ).first()
 
         payload = BuilderPayloadSerializer(
             {
-                "function": function,
+                "role": role,
                 "claims": claims,
                 "progress": progress,
-                "years_experience": self._primary_years(profile, function),
+                "years_experience": self._primary_years(profile, role),
             }
         )
         return Response(payload.data)
 
     @staticmethod
-    def _primary_years(profile: CandidateProfile, function: Function):
-        cf = profile.functions.filter(function=function).first()
+    def _primary_years(profile: CandidateProfile, role: Role):
+        cf = profile.roles.filter(role=role).first()
         return cf.years_experience if cf else None
 
 
@@ -274,7 +274,7 @@ class BuilderProgressView(APIView):
         progress, _ = BuilderProgress.objects.update_or_create(
             profile=profile,
             defaults={
-                "function": data["function"],
+                "role": data["role"],
                 "completed_area_codes": data.get("completed_area_codes", []),
                 "last_area_code": data.get("last_area_code", ""),
             },
@@ -325,7 +325,7 @@ class CandidateSearchView(APIView):
         all_codes = set(query.required_activity_codes) | set(query.optional_activity_codes)
         for r in ranked:
             all_codes.update(r.result.other_skills)
-        activities = Activity.objects.filter(code__in=all_codes).prefetch_related("competency_areas__function")
+        activities = Activity.objects.filter(code__in=all_codes).prefetch_related("competency_areas__role")
         skills_by_code = {
             act["code"]: act
             for act in SkillSerializer(activities, many=True).data
@@ -373,14 +373,14 @@ class ResumeUploadView(APIView):
 
         profile = CandidateProfile.objects.get_or_create(user=request.user)[0]
         resume_file = request.FILES["resume"]
-        function_code = request.data.get("functionCode")
+        role_code = request.data.get("roleCode")
         
         # Save to MinIO via django-storages
         profile.resume.save(resume_file.name, resume_file)
         profile.save()
 
         # Trigger Celery background task
-        task = parse_resume_task.delay(profile.pk, function_code)
+        task = parse_resume_task.delay(profile.pk, role_code)
 
         return Response({"detail": "Resume uploaded successfully, processing started.", "task_id": task.id}, status=status.HTTP_202_ACCEPTED)
 

@@ -13,7 +13,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from profiles.models import ActivityClaim, BuilderProgress, Proficiency
-from taxonomy.models import Activity, CompetencyArea, Function
+from taxonomy.models import Activity, CompetencyArea, Role
 
 
 class ActivitySerializer(serializers.ModelSerializer):
@@ -37,25 +37,25 @@ class CompetencyAreaSerializer(serializers.ModelSerializer):
         fields = ("code", "label", "description", "activities")
 
 
-class FunctionListSerializer(serializers.ModelSerializer):
+class RoleListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Function
+        model = Role
         fields = ("code", "label", "description")
 
 
 class SkillAreaSerializer(serializers.ModelSerializer):
     """Where a skill lives — carried on the skill itself, not the other way round.
 
-    The search UI needs a heading for each chip group and, for a cross-function
-    query, a label saying which function a hit came from.
+    The search UI needs a heading for each chip group and, for a cross-role
+    query, a label saying which role a hit came from.
     """
 
-    function_code = serializers.CharField(source="function.code", read_only=True)
-    function_label = serializers.CharField(source="function.label", read_only=True)
+    role_code = serializers.CharField(source="role.code", read_only=True)
+    role_label = serializers.CharField(source="role.label", read_only=True)
 
     class Meta:
         model = CompetencyArea
-        fields = ("code", "label", "sort_order", "function_code", "function_label")
+        fields = ("code", "label", "sort_order", "role_code", "role_label")
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -63,7 +63,7 @@ class SkillSerializer(serializers.ModelSerializer):
 
     `areas` is a list because `Activity.competency_areas` is many-to-many by
     design — an activity like ICH-GCP Compliance is deliberately reused across
-    functions. Filtering by `function` narrows it to one entry; an unscoped `q`
+    roles. Filtering by `role` narrows it to one entry; an unscoped `q`
     search relies on the full list to say where each hit came from.
     """
 
@@ -82,11 +82,11 @@ class SkillSerializer(serializers.ModelSerializer):
         )
 
 
-class FunctionTreeSerializer(serializers.ModelSerializer):
+class RoleTreeSerializer(serializers.ModelSerializer):
     competency_areas = CompetencyAreaSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Function
+        model = Role
         fields = ("code", "label", "description", "competency_areas")
 
 
@@ -168,19 +168,19 @@ class ClaimBatchSerializer(serializers.Serializer):
 class BuilderProgressSerializer(serializers.ModelSerializer):
     """Both directions of the resume state.
 
-    `function_code` is writable and validated against the taxonomy: the view
+    `role_code` is writable and validated against the taxonomy: the view
     previously read it straight off `request.data`, so a missing or unknown code
     surfaced as a bare 404 with no indication of which field was at fault.
     """
 
-    function_code = serializers.SlugRelatedField(
-        source="function", slug_field="code", queryset=Function.objects.all()
+    role_code = serializers.SlugRelatedField(
+        source="role", slug_field="code", queryset=Role.objects.all()
     )
 
     class Meta:
         model = BuilderProgress
         fields = (
-            "function_code",
+            "role_code",
             "completed_area_codes",
             "last_area_code",
             "completed_at",
@@ -196,21 +196,21 @@ class BuilderProgressSerializer(serializers.ModelSerializer):
 class BuilderPayloadSerializer(serializers.Serializer):
     """The single fetch that powers the whole builder flow."""
 
-    function = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
     claims = ClaimSerializer(many=True)
     progress = BuilderProgressSerializer(allow_null=True)
     years_experience = serializers.DecimalField(
         max_digits=4, decimal_places=1, allow_null=True
     )
 
-    def get_function(self, obj):
+    def get_role(self, obj):
         from django.core.cache import cache
-        function_obj = obj["function"]
-        cache_key = f"taxonomy:function_tree:{function_obj.code}"
+        role_obj = obj["role"]
+        cache_key = f"taxonomy:role_tree:{role_obj.code}"
         
         data = cache.get(cache_key)
         if data is None:
-            data = FunctionTreeSerializer(function_obj).data
+            data = RoleTreeSerializer(role_obj).data
             # Cache the heavily nested taxonomy for 24 hours
             cache.set(cache_key, data, timeout=60 * 60 * 24)
         return data

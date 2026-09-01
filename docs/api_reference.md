@@ -77,10 +77,10 @@ A token without that scope receives `403`, not `401`.
 
 
 
-### GET `/api/v1/functions/`
+### GET `/api/v1/roles/`
 **Authentication**: Required
 
-Fetches all active job functions available for candidate onboarding.
+Fetches all active job roles available for candidate onboarding.
 
 #### Response
 
@@ -101,19 +101,19 @@ Fetches all active job functions available for candidate onboarding.
 
 ### 1. Fetch Builder Working Set
 
-Retrieves the entire function taxonomy tree, current candidate claims, and builder progress in a single dense payload.
+Retrieves the entire role taxonomy tree, current candidate claims, and builder progress in a single dense payload.
 
 ```http
-GET /api/v1/builder/{function_code}/
+GET /api/v1/builder/{role_code}/
 ```
 
 #### Path Parameters
-- `function_code` (string, required): Slug of the function (e.g. `statistical-programming`).
+- `role_code` (string, required): Slug of the role (e.g. `statistical-programming`).
 
 #### Response: `200 OK`
 ```json
 {
-  "function": {
+  "role": {
     "code": "statistical-programming",
     "label": "Statistical Programming",
     "description": "Clinical statistical programming across CDISC standards...",
@@ -154,7 +154,7 @@ GET /api/v1/builder/{function_code}/
     }
   ],
   "progress": {
-    "function_code": "statistical-programming",
+    "role_code": "statistical-programming",
     "completed_area_codes": ["core-programming"],
     "last_area_code": "cdisc-sdtm",
     "completed_at": null
@@ -226,13 +226,13 @@ PUT /api/v1/builder/progress/
 ```
 
 #### Request Payload (`BuilderProgressSerializer`)
-- `function_code` (string, required): Which function's builder this progress belongs to.
+- `role_code` (string, required): Which role's builder this progress belongs to.
 - `completed_area_codes` (array of strings, optional).
 - `last_area_code` (string, optional).
 
 ```json
 {
-  "function_code": "statistical-programming",
+  "role_code": "statistical-programming",
   "completed_area_codes": ["core-programming", "cdisc-sdtm"],
   "last_area_code": "cdisc-adam"
 }
@@ -241,14 +241,14 @@ PUT /api/v1/builder/progress/
 #### Response: `200 OK`
 ```json
 {
-  "function_code": "statistical-programming",
+  "role_code": "statistical-programming",
   "completed_area_codes": ["core-programming", "cdisc-sdtm"],
   "last_area_code": "cdisc-adam",
   "completed_at": null
 }
 ```
 
-A candidate has one progress row, so switching `function_code` moves the row
+A candidate has one progress row, so switching `role_code` moves the row
 rather than creating a second one.
 
 ---
@@ -268,7 +268,7 @@ POST /api/v1/profile/resume/
 
 #### Request Payload (Multipart Form Data)
 - `resume` (file, required): The PDF resume.
-- `functionCode` (string, required): The function taxonomy slug to guide the LLM context.
+- `roleCode` (string, required): The role taxonomy slug to guide the LLM context.
 
 #### Response: `202 Accepted`
 ```json
@@ -429,4 +429,4 @@ scored at zero.
 | `400 Bad Request` | Validation Error | Duplicate `activity_code` in batch, unknown activity code, variant not offered by the activity, `last_used_year` outside `1980..current_year`, or a search with no activity codes. |
 | `401 Unauthorized` | Authentication Missing | Missing or expired JWT / OAuth2 token. |
 | `403 Forbidden` | Permission Denied | Token lacks the `candidates:search` scope. |
-| `404 Not Found` | Resource Missing | Invalid `function_code` on the builder path. |
+| `404 Not Found` | Resource Missing | Invalid `role_code` on the builder path. |

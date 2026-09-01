@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useBuilderStore } from '@/stores/builder-store';
 import { saveProgress } from '@/lib/api/builder';
 
-export function useProgress(functionCode: string) {
+export function useProgress(roleCode: string) {
   const completedSteps = useBuilderStore((s) => s.completedSteps);
   const currentStep = useBuilderStore((s) => s.currentStep);
 
@@ -10,7 +10,7 @@ export function useProgress(functionCode: string) {
     async (lastAreaCode: string) => {
       try {
         await saveProgress({
-          function_code: functionCode,
+          function_code: roleCode,
           completed_area_codes: Array.from(completedSteps),
           last_area_code: lastAreaCode,
         });
@@ -18,7 +18,7 @@ export function useProgress(functionCode: string) {
         console.error('Progress save failed:', err);
       }
     },
-    [functionCode, completedSteps],
+    [roleCode, completedSteps],
   );
 
   return { save, completedSteps, currentStep };

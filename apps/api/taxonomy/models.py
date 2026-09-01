@@ -1,4 +1,4 @@
-"""Taxonomy: Function → CompetencyArea → Activity.
+"""Taxonomy: Role → CompetencyArea → Activity.
 
 Deliberately generic. Adding Data Management, Medical Writing or CRA later is a
 seed-file change, not a migration, and Milestone 3 assessment items will attach
@@ -44,7 +44,7 @@ class TimestampedModel(models.Model):
         abstract = True
 
 
-class Function(TimestampedModel):
+class Role(TimestampedModel):
     """A pharma job function, e.g. Statistical Programming."""
 
     code = models.SlugField(max_length=64, unique=True)
@@ -66,8 +66,8 @@ class Function(TimestampedModel):
 class CompetencyArea(TimestampedModel):
     """One step of the profile builder. Roughly a dozen activities each."""
 
-    function = models.ForeignKey(
-        Function, on_delete=models.CASCADE, related_name="competency_areas"
+    role = models.ForeignKey(
+        Role, on_delete=models.CASCADE, related_name="competency_areas"
     )
     code = models.SlugField(max_length=64)
     label = models.CharField(max_length=200)
@@ -78,12 +78,12 @@ class CompetencyArea(TimestampedModel):
         ordering = ("sort_order", "label")
         constraints = [
             models.UniqueConstraint(
-                fields=("function", "code"), name="uniq_area_code_per_function"
+                fields=("role", "code"), name="uniq_area_code_per_role"
             )
         ]
 
     def __str__(self) -> str:
-        return f"{self.function.code} / {self.label}"
+        return f"{self.role.code} / {self.label}"
 
 
 class Activity(TimestampedModel):
@@ -151,23 +151,23 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
 
-def clear_taxonomy_cache(function_code):
-    cache.delete(f"taxonomy:function_tree:{function_code}")
+def clear_taxonomy_cache(role_code):
+    cache.delete(f"taxonomy:role_tree:{role_code}")
     # Also clear the function list cache which is managed by @cache_page
     cache.clear()
 
-@receiver([post_save, post_delete], sender=Function)
-def invalidate_function_cache(sender, instance, **kwargs):
+@receiver([post_save, post_delete], sender=Role)
+def invalidate_role_cache(sender, instance, **kwargs):
     clear_taxonomy_cache(instance.code)
 
 @receiver([post_save, post_delete], sender=CompetencyArea)
 def invalidate_area_cache(sender, instance, **kwargs):
-    if instance.function:
-        clear_taxonomy_cache(instance.function.code)
+    if instance.role:
+        clear_taxonomy_cache(instance.role.code)
 
 @receiver([post_save, post_delete], sender=Activity)
 def invalidate_activity_cache(sender, instance, **kwargs):
     # An activity can belong to multiple areas across functions
     for area in instance.competency_areas.all():
-        if area.function:
-            clear_taxonomy_cache(area.function.code)
+        if area.role:
+            clear_taxonomy_cache(area.role.code)

@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchFunctions } from '@/lib/api/builder';
-import type { JobFunction } from '@/lib/api/types';
+import type { JobRole } from '@/lib/api/types';
 import { Loader2, Upload, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 import { UserMenu } from '@/components/user-menu';
 
 type Step = 'select' | 'prompt' | 'uploading' | 'processing' | 'summary' | 'error';
 
 export function FunctionSelectionPage() {
-  const [functions, setFunctions] = useState<JobFunction[]>([]);
+  const [functions, setFunctions] = useState<JobRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>('select');
-  const [selectedFunction, setSelectedFunction] = useState<JobFunction | null>(null);
+  const [selectedFunction, setSelectedFunction] = useState<JobRole | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -52,7 +52,7 @@ export function FunctionSelectionPage() {
     return () => clearInterval(interval);
   }, [step, taskId]);
 
-  const handleSelect = (func: JobFunction) => {
+  const handleSelect = (func: JobRole) => {
     setSelectedFunction(func);
     setStep('prompt');
   };
@@ -69,7 +69,7 @@ export function FunctionSelectionPage() {
     setStep('uploading');
     const formData = new FormData();
     formData.append('resume', e.target.files[0]);
-    formData.append('functionCode', selectedFunction.code);
+    formData.append('roleCode', selectedFunction.code);
 
     try {
       const token = localStorage.getItem('access_token');
@@ -117,7 +117,7 @@ export function FunctionSelectionPage() {
                 Select Your Role
               </h2>
               <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400 mb-8">
-                Choose the function you want to build your profile for.
+                Choose the role you want to build your profile for.
               </p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -151,7 +151,7 @@ export function FunctionSelectionPage() {
               Auto-fill your {selectedFunction.label} profile
             </h3>
             <p className="text-zinc-600 dark:text-zinc-400 mb-8 max-w-lg mx-auto leading-relaxed">
-              Upload your PDF resume and our Gemini AI will analyze your background and instantly map it to the precise skills required for this function.
+              Upload your PDF resume and our Gemini AI will analyze your background and instantly map it to the precise skills required for this role.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

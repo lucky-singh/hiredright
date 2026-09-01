@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from django.core.files.uploadedfile import SimpleUploadedFile
 from unittest.mock import patch, MagicMock
-from taxonomy.models import Function
+from taxonomy.models import Role
 
 @pytest.mark.django_db
 def test_resume_upload_view(api_client, candidate):

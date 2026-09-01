@@ -57,16 +57,16 @@ def taxonomy(db):
     cases where the SQL pre-filter and the pure scorer have to agree about what
     counts, and where a disagreement is invisible in the happy path.
     """
-    from taxonomy.models import Activity, ClaimType, CompetencyArea, Function
+    from taxonomy.models import Activity, ClaimType, CompetencyArea, Role
 
-    function = Function.objects.create(
+    role = Role.objects.create(
         code="statistical-programming", label="Statistical Programming"
     )
-    other_function = Function.objects.create(
+    other_role = Role.objects.create(
         code="data-management", label="Data Management"
     )
     area = CompetencyArea.objects.create(
-        function=function, code="cdisc-sdtm", label="CDISC SDTM"
+        role=role, code="cdisc-sdtm", label="CDISC SDTM"
     )
     sdtm = Activity.objects.create(
         code="sdtm-implementation-guide",
@@ -99,8 +99,8 @@ def taxonomy(db):
     retired.competency_areas.add(area)
 
     return SimpleNamespace(
-        function=function,
-        other_function=other_function,
+        role=role,
+        other_role=other_role,
         area=area,
         sdtm=sdtm,
         adam=adam,

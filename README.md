@@ -2,7 +2,7 @@
 
 > Specialized talent intelligence and matching engine for clinical trials and pharmaceutical development.
 
-HireRight replaces noisy keyword-based resume searches with a structured, verified domain taxonomy and a deterministic, pure-function candidate matching engine.
+HireRight replaces noisy keyword-based resume searches with a structured, verified domain taxonomy and a deterministic, pure-role candidate matching engine.
 
 ---
 
@@ -25,7 +25,7 @@ HireRight replaces noisy keyword-based resume searches with a structured, verifi
 Traditional recruitment platforms fail in clinical research and life sciences because generic keyword matching cannot differentiate between candidate exposure, active production, and version-specific regulatory requirements (e.g. CDISC SDTM IG 3.3 vs 3.2, Define-XML 2.1, Pinnacle 21 issue resolution, or ISS/ISE data pooling).
 
 HireRight solves this through:
-- **A 107-parameter Clinical Statistical Programming Taxonomy** structured hierarchically into Functions, Competency Areas, and Activities.
+- **A 107-parameter Clinical Statistical Programming Taxonomy** structured hierarchically into Roles, Competency Areas, and Activities.
 - **Granular Activity Claims** with proficiency levels (1–4), years of experience, recency tracking, and version multi-select variants.
 - **A Deterministic Matching Engine** that pre-filters candidate pools in SQL and scores matches using a pure, table-tested mathematical algorithm factoring in proficiency, recency decay, and variant overlap.
 - **A Zero-Latency Profile Builder** with debounced server-side autosave and cross-device resume capabilities.
@@ -55,14 +55,14 @@ hiredright/
 │       │       ├── permissions.py   # OAuth2 scope gate for recruiter search
 │       │       └── serializers.py   # Dense builder & batch sync serializers
 │       ├── matching/                # Matching engine & pure scoring
-│       │   ├── scoring.py           # Pure scoring function & dataclasses
+│       │   ├── scoring.py           # Pure scoring role & dataclasses
 │       │   ├── search.py            # SQL pre-filter & candidate search pipeline
 │       │   └── tests/
 │       │       └── test_scoring.py  # Table-driven test suite
 │       ├── profiles/                # Candidate profiles, claims & progress
 │       │   └── models.py            # CandidateProfile, ActivityClaim, BuilderProgress
 │       ├── taxonomy/                # Taxonomy domain engine
-│       │   ├── models.py            # Function, CompetencyArea, Activity
+│       │   ├── models.py            # Role, CompetencyArea, Activity
 │       │   ├── management/
 │       │   │   └── commands/
 │       │   │       └── seed_taxonomy.py # Idempotent YAML seed runner
@@ -87,9 +87,9 @@ hiredright/
 
 ### 1. Domain Taxonomy
 The taxonomy is structured into three levels:
-$$\text{Function} \longrightarrow \text{CompetencyArea} \longrightarrow \text{Activity}$$
+$$\text{Role} \longrightarrow \text{CompetencyArea} \longrightarrow \text{Activity}$$
 
-- **Function** (e.g. `statistical-programming`): Top-level pharma discipline.
+- **Role** (e.g. `statistical-programming`): Top-level pharma discipline.
 - **CompetencyArea** (e.g. `core-programming`, `cdisc-sdtm`, `cdisc-adam`, `tlf-biostatistics`, `regulatory-submissions`, `therapeutic-areas`, `integrated-summaries`, `tools-systems-automation`, `leadership-oversight`): Steps within the candidate builder.
 - **Activity** (e.g. `sdtm-implementation-guide`, `base-sas`, `sap-interpretation`): Atomic items that candidates claim and recruiters search against.
 
@@ -102,14 +102,14 @@ To prevent score inflation and preserve data integrity, activities are classifie
 ### 3. Pure Scoring & Matching Algorithm
 The matching engine is split into two layers:
 1. **SQL Pre-filter (`search.py`)**: Uses database-level aggregations (`Count(..., distinct=True)`) to eliminate non-matching or private profiles before Python execution.
-2. **Pure Function Scorer (`scoring.py`)**: Consumes immutable dataclasses (`Claim`, `Query`) and computes normalized scores ($[0.0, 1.0]$) accounting for:
+2. **Pure Role Scorer (`scoring.py`)**: Consumes immutable dataclasses (`Claim`, `Query`) and computes normalized scores ($[0.0, 1.0]$) accounting for:
    - **Proficiency Multipliers**: Exposed (0.6), Working (0.85), Proficient (1.0), Expert (1.15).
    - **Recency Decay**: Full credit for work within 2 years; 5% linear decay per year beyond, with a hard floor of 0.55 (old experience retains value).
    - **Variant Overlaps**: Version matching for multi-select standards (e.g. SDTM IG 3.3).
    - **Near-Miss Surfacing**: Candidates missing a variant or requirement are still scored and returned with diagnostic difference tuples (`missing_required`, `matched_required`).
 
 ### 4. Single-Payload Candidate Builder
-The candidate profile builder loads all necessary data (function taxonomy tree, existing claims, builder progress state) in a single request (`BuilderPayloadSerializer`). Writes are debounced on the client and sent in batches up to 200 items (`ClaimBatchSerializer`), with server-side progress persistence (`BuilderProgress`) ensuring candidates never lose work across devices.
+The candidate profile builder loads all necessary data (role taxonomy tree, existing claims, builder progress state) in a single request (`BuilderPayloadSerializer`). Writes are debounced on the client and sent in batches up to 200 items (`ClaimBatchSerializer`), with server-side progress persistence (`BuilderProgress`) ensuring candidates never lose work across devices.
 
 ---
 
@@ -136,7 +136,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for full instructions on:
 The system includes a dedicated Recruiter Search interface (`http://localhost:3000/search`) allowing authenticated recruiters to search candidate profiles. 
 - You must create a user with the `is_recruiter=True` flag in the Django admin to access the underlying API endpoints (`/api/v1/search/`).
 - The login page automatically detects the `is_recruiter` role on login and redirects recruiters to the Search Dashboard, while standard candidates are routed to the Profile Builder.
-- The dashboard allows configuring multiple skill requirements (Required vs. Optional) per function and instantly calculates a candidate % match score via the internal `scoring.py` engine based on skill recency and proficiency.
+- The dashboard allows configuring multiple skill requirements (Required vs. Optional) per role and instantly calculates a candidate % match score via the internal `scoring.py` engine based on skill recency and proficiency.
 - A global User Menu is available in the top right corner across all authenticated pages to display the active profile's role and allow quick navigation.
 
 ## Smart Resume Parsing (AI)
@@ -145,7 +145,7 @@ HireRight features an intelligent resume parsing engine powered by Google Gemini
 2. **Storage**: The document is securely pushed to MinIO via `django-storages`.
 3. **Queue**: A Celery task (`parse_resume_task`) is dispatched into the Redis queue.
 4. **Extraction**: The worker extracts raw text via `pypdf`.
-5. **Contextual Matching**: The text, along with the *context-specific* taxonomy for the active job function, is sent to Gemini.
+5. **Contextual Matching**: The text, along with the *context-specific* taxonomy for the active job role, is sent to Gemini.
 6. **Auto-Fill**: Gemini returns a JSON object of validated Activity codes which are automatically inserted as `ActivityClaim` rows in Postgres.
 
 ---
