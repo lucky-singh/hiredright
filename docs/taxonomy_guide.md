@@ -172,6 +172,57 @@ python manage.py seed_taxonomy statistical-programming --prune
 - Inactive activities are excluded from new builder sessions and search queries.
 - Existing candidate `ActivityClaim` records remain intact, preserving historical data integrity.
 
+
+### Refactoring Codes & Migrating Existing User Data
+
+If you need to rename a code (e.g., standardizing `solid-tumor-oncology` to `ta-solid-tumor-oncology` across multiple roles) or merge duplicates, **you must migrate existing user data before pruning**. If you prune the old code first, users will lose their claims.
+
+**Step-by-Step Example:**
+
+1. **Update the YAML Files:**
+   Change the `code` in your YAML files to the new standard (e.g., `ta-solid-tumor-oncology`).
+   
+2. **Seed the New Codes (Without Pruning):**
+   Run the seed command normally so the new codes exist in the database.
+   ```bash
+   python manage.py seed_taxonomy clinical-operations
+   ```
+
+3. **Migrate Existing User Data:**
+   Use the Django shell to safely move existing `ActivityClaim` records from the old code to the new code.
+   ```bash
+   python manage.py shell
+   ```
+   ```python
+   from profiles.models import ActivityClaim
+   from taxonomy.models import Activity
+
+   old_code = "solid-tumor-oncology"
+   new_code = "ta-solid-tumor-oncology"
+
+   # 1. Fetch the new activity
+   new_act = Activity.objects.get(code=new_code)
+   
+   # 2. Get all claims pointing to the old code
+   old_claims = ActivityClaim.objects.filter(activity__code=old_code)
+   
+   # 3. Safely migrate them (handling potential duplicates)
+   for claim in old_claims:
+       if ActivityClaim.objects.filter(profile=claim.profile, activity=new_act).exists():
+           # The user somehow already has the new code, so safely delete the duplicate
+           claim.delete()
+       else:
+           # Move the old claim to the new code
+           claim.activity = new_act
+           claim.save()
+   ```
+
+4. **Prune the Old Codes:**
+   Now that no users are attached to the old code, you can safely prune it. This will soft-deactivate the old code and remove it from the UI.
+   ```bash
+   python manage.py seed_taxonomy clinical-operations --prune
+   ```
+
 ## Django Admin Interface
 
 The HireRight Django backend is equipped with a rich admin panel (`/admin/`) customized for managing both the taxonomy and candidate claims.
