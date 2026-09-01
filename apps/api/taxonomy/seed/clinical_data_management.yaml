@@ -1,0 +1,798 @@
+role:
+  code: clinical-data-management
+  label: Clinical Data Management
+  description: Database architecture, edit check logic, medical coding, vendor reconciliation, and overall data governance.
+competency_areas:
+- code: study-start-up-database-build
+  label: Study Start-up & Database Build
+  activities:
+  - code: data-management-plan-dmp
+    source_ref: 1
+    claim_type: activity
+    label: Data Management Plan (DMP)
+    help_text: Authoring and maintaining the core strategic document for data collection and cleaning.
+  - code: ecrf-specifications-formulation
+    source_ref: 2
+    claim_type: activity
+    label: eCRF Specifications Formulation
+    help_text: Translating the clinical protocol into actionable eCRF design specs.
+  - code: protocol-review-for-data-collection
+    source_ref: 3
+    claim_type: activity
+    label: Protocol Review for Data Collection
+    help_text: Identifying ambiguities in visit schedules or endpoints before database build.
+  - code: database-design-architecture
+    source_ref: 4
+    claim_type: activity
+    label: Database Design (Architecture)
+    help_text: Structuring folders, visits, and forms sequentially in the EDC.
+  - code: data-flow-mapping
+    source_ref: 5
+    claim_type: activity
+    label: Data Flow Mapping
+    help_text: Designing the pipeline of how data moves from site to EDC to external vendors to final extraction.
+  - code: crf-completion-guidelines-ccgs
+    source_ref: 6
+    claim_type: activity
+    label: CRF Completion Guidelines (CCGs)
+    help_text: Writing clear instructions for site staff on how to enter data.
+  - code: startup-timeline-management
+    source_ref: 7
+    claim_type: activity
+    label: Startup Timeline Management
+    help_text: Driving EDC go-live to meet the First-Patient-In (FPI) milestone.
+  - code: sponsorcro-kickoff-facilitation
+    source_ref: 8
+    claim_type: activity
+    label: Sponsor/CRO Kickoff Facilitation
+    help_text: Leading the data management portion of study initiation meetings.
+  - code: master-library-implementation
+    source_ref: 9
+    claim_type: activity
+    label: Master Library Implementation
+    help_text: Utilizing global sponsor libraries for standardized eCRF build.
+  - code: study-build-migrations
+    source_ref: 10
+    claim_type: activity
+    label: Study Build Migrations
+    help_text: Managing the deployment of database structures from Development to QA to Production.
+  - code: randomization-interface-irtiwrs-setup
+    source_ref: 11
+    claim_type: activity
+    label: Randomization Interface (IRT/IWRS) Setup
+    help_text: Aligning EDC subject creation with IRT randomization triggers.
+- code: ecrf-design-cdash-standards
+  label: eCRF Design & CDASH Standards
+  activities:
+  - code: cdash-mastery
+    source_ref: 12
+    claim_type: proficiency
+    label: CDASH Mastery
+    help_text: Strict application of CDISC CDASH standards for variable naming and form layout.
+  - code: standard-form-design
+    source_ref: 13
+    claim_type: activity
+    label: Standard Form Design
+    help_text: Building robust Demographics, Medical History, AE, and ConMed forms.
+  - code: log-line-forms
+    source_ref: 14
+    claim_type: activity
+    label: Log Line Forms
+    help_text: Structuring repeating datasets (e.g., dosing logs, ongoing adverse events).
+  - code: targeted-sdv-tsdv-setup
+    source_ref: 15
+    claim_type: activity
+    label: Targeted SDV (tSDV) Setup
+    help_text: Configuring the EDC to flag specific fields for CRA review based on risk.
+  - code: dynamic-ecrf-logic
+    source_ref: 16
+    claim_type: activity
+    label: Dynamic eCRF Logic
+    help_text: Building skip logic (e.g., if Sex=Male, hide pregnancy form).
+  - code: global-vs-study-specific-naming-conventions
+    source_ref: 17
+    claim_type: activity
+    label: Global vs. Study-Specific Naming Conventions
+    help_text: Balancing sponsor standards with unique protocol requirements.
+  - code: visual-ecrf-layout
+    source_ref: 18
+    claim_type: activity
+    label: Visual eCRF Layout
+    help_text: Optimizing the user interface (UI) of forms to reduce site entry fatigue.
+  - code: unit-standardization
+    source_ref: 19
+    claim_type: activity
+    label: Unit Standardization
+    help_text: Configuring drop-downs vs. free-text fields to ensure clean lab/vital data.
+  - code: eproecoa-design-alignment
+    source_ref: 20
+    claim_type: activity
+    label: ePRO/eCOA Design Alignment
+    help_text: Ensuring diary data structure maps seamlessly back to the main EDC database.
+  - code: legacy-form-upgrades
+    source_ref: 21
+    claim_type: activity
+    label: Legacy Form Upgrades
+    help_text: Modernizing old paper CRF structures into efficient electronic formats.
+  - code: cross-form-data-piping
+    source_ref: 22
+    claim_type: activity
+    label: Cross-Form Data Piping
+    help_text: Configuring the EDC to auto-populate fields across visits to reduce redundant entry.
+- code: edit-check-programming-uat
+  label: Edit Check Programming & UAT
+  activities:
+  - code: data-validation-plan-dvp-creation
+    source_ref: 23
+    claim_type: activity
+    label: Data Validation Plan (DVP) Creation
+    help_text: Authoring the comprehensive list of automated edit checks and manual review steps.
+  - code: edit-check-logic-writing
+    source_ref: 24
+    claim_type: activity
+    label: Edit Check Logic Writing
+    help_text: Translating clinical rules into Boolean logic (e.g., If AE Start Date < Informed Consent Date).
+  - code: cross-form-edit-checks
+    source_ref: 25
+    claim_type: activity
+    label: Cross-Form Edit Checks
+    help_text: Building rules that check data across different forms (e.g., AE severity vs. ConMed indication).
+  - code: custom-function-requirements
+    source_ref: 26
+    claim_type: activity
+    label: Custom Function Requirements
+    help_text: Specifying complex derivations that standard edit checks cannot handle.
+  - code: user-acceptance-testing-uat-execution
+    source_ref: 27
+    claim_type: activity
+    label: User Acceptance Testing (UAT) Execution
+    help_text: Rigorously breaking the database in QA before it goes live.
+  - code: uat-script-writing
+    source_ref: 28
+    claim_type: activity
+    label: UAT Script Writing
+    help_text: Creating step-by-step test cases for dummy patients covering all edit checks.
+  - code: uat-defect-tracking
+    source_ref: 29
+    claim_type: activity
+    label: UAT Defect Tracking
+    help_text: Logging and resolving EDC build bugs with the programming team.
+  - code: sponsor-uat-management
+    source_ref: 30
+    claim_type: trait
+    label: Sponsor UAT Management
+    help_text: Facilitating the client's testing phase and resolving their feedback.
+  - code: post-production-change-ppc-management
+    source_ref: 31
+    claim_type: trait
+    label: Post-Production Change (PPC) Management
+    help_text: Safely testing and deploying mid-study database amendments.
+  - code: automated-query-message-design
+    source_ref: 32
+    claim_type: activity
+    label: Automated Query Message Design
+    help_text: Writing clear, non-leading query text for automated edit check firings.
+  - code: derivation-programming
+    source_ref: 33
+    claim_type: activity
+    label: Derivation Programming
+    help_text: Configuring calculated fields (e.g., BMI, Age at Consent) to calculate automatically.
+- code: data-cleaning-query-management
+  label: Data Cleaning & Query Management
+  activities:
+  - code: routine-data-review
+    source_ref: 34
+    claim_type: activity
+    label: Routine Data Review
+    help_text: Systematically reviewing incoming data across all active sites.
+  - code: manual-query-generation
+    source_ref: 35
+    claim_type: activity
+    label: Manual Query Generation
+    help_text: Issuing targeted, non-leading queries for discrepancies not caught by automated checks.
+  - code: query-aging-management
+    source_ref: 36
+    claim_type: trait
+    label: Query Aging Management
+    help_text: Chasing sites/CRAs to resolve queries older than 14 or 30 days.
+  - code: self-evident-corrections-sec
+    source_ref: 37
+    claim_type: activity
+    label: Self-Evident Corrections (SEC)
+    help_text: Applying allowable database corrections without querying the site (per DMP).
+  - code: protocol-deviation-data-cleaning
+    source_ref: 38
+    claim_type: activity
+    label: Protocol Deviation Data Cleaning
+    help_text: Ensuring major/minor deviations in CTMS align with EDC tracking forms.
+  - code: subject-status-reconciliation
+    source_ref: 39
+    claim_type: activity
+    label: Subject Status Reconciliation
+    help_text: Reconciling screen failures, randomizations, and discontinuations.
+  - code: listing-review
+    source_ref: 40
+    claim_type: activity
+    label: Listing Review
+    help_text: Generating and reviewing patient profiles and raw data listings for clinical logic.
+  - code: outlier-detection
+    source_ref: 41
+    claim_type: activity
+    label: Outlier Detection
+    help_text: Identifying biologically implausible values in vitals or labs.
+  - code: duplicate-detection
+    source_ref: 42
+    claim_type: activity
+    label: Duplicate Detection
+    help_text: Hunting down accidental duplicate patient entries or duplicated AE logs.
+  - code: query-trend-analysis
+    source_ref: 43
+    claim_type: activity
+    label: Query Trend Analysis
+    help_text: Identifying sites that repeatedly make the same data entry errors.
+  - code: data-blind-maintenance
+    source_ref: 44
+    claim_type: activity
+    label: Data Blind Maintenance
+    help_text: Ensuring blinded staff never see unblinded randomization codes or specific IP data.
+- code: external-data-integration-reconciliation
+  label: External Data Integration & Reconciliation
+  activities:
+  - code: data-transfer-agreements-dta
+    source_ref: 45
+    claim_type: activity
+    label: Data Transfer Agreements (DTA)
+    help_text: Authoring specifications with external vendors (labs, ECG) for flat file transfers.
+  - code: external-data-reconciliation
+    source_ref: 46
+    claim_type: activity
+    label: External Data Reconciliation
+    help_text: Cross-checking vendor data against EDC (e.g., matching requisition dates to visit dates).
+  - code: eproecoa-reconciliation
+    source_ref: 47
+    claim_type: activity
+    label: ePRO/eCOA Reconciliation
+    help_text: Ensuring diary completion dates match patient visit structures.
+  - code: irtrtsm-reconciliation
+    source_ref: 48
+    claim_type: activity
+    label: IRT/RTSM Reconciliation
+    help_text: Ensuring EDC subject status and drug dispensation precisely match the interactive response system.
+  - code: pkpd-data-integration
+    source_ref: 49
+    claim_type: activity
+    label: PK/PD Data Integration
+    help_text: Managing the ingestion and reconciliation of high-frequency pharmacokinetic data.
+  - code: central-lab-reference-ranges
+    source_ref: 50
+    claim_type: activity
+    label: Central Lab Reference Ranges
+    help_text: Uploading and maintaining complex age/sex-adjusted normal ranges in the database.
+  - code: local-lab-management
+    source_ref: 51
+    claim_type: trait
+    label: Local Lab Management
+    help_text: Managing the collection and standard unit conversion of local lab values.
+  - code: data-file-ingestion
+    source_ref: 52
+    claim_type: activity
+    label: Data File Ingestion
+    help_text: Troubleshooting SAS transport (XPT), CSV, or XML data load failures from vendors.
+  - code: mismatch-resolution
+    source_ref: 53
+    claim_type: activity
+    label: Mismatch Resolution
+    help_text: Querying vendors vs. sites to resolve missing samples or mismatched subject IDs.
+  - code: api-web-services-troubleshooting
+    source_ref: 54
+    claim_type: activity
+    label: API / Web Services Troubleshooting
+    help_text: Managing direct electronic data streams (e.g., EHR to EDC mapping).
+  - code: wearablessensor-data-handling
+    source_ref: 55
+    claim_type: activity
+    label: Wearables/Sensor Data Handling
+    help_text: Managing high-volume continuous data streams (Actigraphy, CGM).
+- code: medical-coding-dictionary-management
+  label: Medical Coding & Dictionary Management
+  activities:
+  - code: meddra-coding
+    source_ref: 56
+    claim_type: proficiency
+    label: MedDRA Coding
+    help_text: Classifying verbatim Adverse Events and Medical History terms to the correct System Organ Class (SOC) and Preferred
+      Term (PT).
+  - code: whodrug-coding
+    source_ref: 57
+    claim_type: proficiency
+    label: WHODrug Coding
+    help_text: Classifying concomitant medications to the correct ATC classes.
+  - code: dictionary-up-versioning
+    source_ref: 58
+    claim_type: activity
+    label: Dictionary Up-versioning
+    help_text: Managing the impact assessment when moving to a new dictionary version mid-study.
+  - code: synonym-list-maintenance
+    source_ref: 59
+    claim_type: activity
+    label: Synonym List Maintenance
+    help_text: Building study-specific auto-encoding lists for frequent verbatim terms.
+  - code: coding-conventions-sponsor-specific
+    source_ref: 60
+    claim_type: proficiency
+    label: Coding Conventions (Sponsor Specific)
+    help_text: Adapting to client-specific coding guidelines (e.g., splitting combination drugs).
+  - code: manual-dictionary-searches
+    source_ref: 61
+    claim_type: activity
+    label: Manual Dictionary Searches
+    help_text: Investigating misspelled or highly complex multi-symptom verbatim terms.
+  - code: coding-consistency-review
+    source_ref: 62
+    claim_type: proficiency
+    label: Coding Consistency Review
+    help_text: Running frequency listings to ensure the same verbatim term wasn't coded differently across sites.
+  - code: surgical-procedure-coding
+    source_ref: 63
+    claim_type: proficiency
+    label: Surgical Procedure Coding
+    help_text: Using MedDRA to accurately capture complex surgical interventions.
+  - code: medical-monitor-collaboration
+    source_ref: 64
+    claim_type: activity
+    label: Medical Monitor Collaboration
+    help_text: Routing difficult-to-code terms to the safety physician for final adjudication.
+  - code: coding-upset-resolution
+    source_ref: 65
+    claim_type: proficiency
+    label: Coding Upset Resolution
+    help_text: Re-coding terms based on updated site query responses.
+- code: database-lock
+  label: Database Lock
+  activities:
+  - code: soft-lock-interim-freeze
+    source_ref: 66
+    claim_type: activity
+    label: Soft Lock / Interim Freeze
+    help_text: Freezing specific sites, cohorts, or visits for interim statistical analysis (IA).
+  - code: hard-database-lock-preparation
+    source_ref: 67
+    claim_type: activity
+    label: Hard Database Lock Preparation
+    help_text: Orchestrating the final push for zero open queries and 100% SDV/SDR.
+  - code: pre-lock-checklist-execution
+    source_ref: 68
+    claim_type: activity
+    label: Pre-Lock Checklist Execution
+    help_text: Running comprehensive checks (coding complete, SAEs reconciled, DTA loads final).
+  - code: database-lock-unblinding
+    source_ref: 69
+    claim_type: activity
+    label: Database Lock Unblinding
+    help_text: Coordinating the formal transfer of unblinded data to the statistical programming team.
+  - code: post-lock-unlock-management
+    source_ref: 70
+    claim_type: trait
+    label: Post-Lock Unlock Management
+    help_text: Navigating the severe regulatory/SOP requirements to unlock a database for a critical error.
+  - code: archival-sitesponsor
+    source_ref: 71
+    claim_type: activity
+    label: Archival (Site/Sponsor)
+    help_text: Generating PDF archives of all eCRFs and audit trails for site distribution.
+  - code: tmf-finalization
+    source_ref: 72
+    claim_type: activity
+    label: TMF Finalization
+    help_text: Ensuring all Data Management documents (DMP, DVP, DTAs) are filed in the eTMF.
+  - code: clinical-study-report-csr-support
+    source_ref: 73
+    claim_type: activity
+    label: Clinical Study Report (CSR) Support
+    help_text: Assisting medical writers with data flow descriptions for the final CSR.
+  - code: legacy-data-archiving
+    source_ref: 74
+    claim_type: activity
+    label: Legacy Data Archiving
+    help_text: Ensuring proper long-term storage of final datasets per 21 CFR Part 11.
+  - code: lessons-learned-facilitation
+    source_ref: 75
+    claim_type: activity
+    label: Lessons Learned Facilitation
+    help_text: Leading the post-mortem meeting to improve DM processes for the next trial.
+- code: therapeutic-expertise-oncology-systemic-trials
+  label: 'Therapeutic Expertise: Oncology & Systemic Trials'
+  activities:
+  - code: solid-tumor-oncology
+    source_ref: 76
+    claim_type: activity
+    label: Solid Tumor Oncology
+    help_text: Structuring RECIST 1.1 tumor evaluation forms, target lesion tracking, and overall response derivations.
+  - code: hematologic-oncology
+    source_ref: 77
+    claim_type: activity
+    label: Hematologic Oncology
+    help_text: Designing eCRFs for Lugano criteria, bone marrow labs, and complex cycle-based chemotherapy logs.
+  - code: ta-immuno-oncology
+    source_ref: 78
+    claim_type: activity
+    label: Immuno-Oncology
+    help_text: Managing forms for irRC/irRECIST and capturing complex immune-related adverse events (irAEs).
+  - code: ta-vaccines
+    source_ref: 79
+    claim_type: activity
+    label: Vaccines
+    help_text: Structuring rapid-entry reactogenicity eDiaries (local/systemic symptoms) and immunogenicity titer tracking.
+  - code: ta-cardiovascular
+    source_ref: 80
+    claim_type: activity
+    label: Cardiovascular
+    help_text: Designing detailed forms for adjudicated MACE (Major Adverse Cardiac Events) and complex hospitalizations.
+  - code: ta-cns-neurology
+    source_ref: 81
+    claim_type: activity
+    label: CNS / Neurology
+    help_text: Building eCRFs for complex rater scales (ADAS-Cog, MMSE) and mapping scoring algorithms.
+  - code: ta-rare-diseases
+    source_ref: 82
+    claim_type: activity
+    label: Rare Diseases
+    help_text: Accommodating flexible visit schedules and non-traditional endpoints in the database build.
+  - code: ta-immunology-rheum
+    source_ref: 83
+    claim_type: activity
+    label: Immunology/Rheumatology
+    help_text: Structuring ACR joint count maps and complex biologic infusion tracking forms.
+  - code: ta-infectious-disease
+    source_ref: 84
+    claim_type: activity
+    label: Infectious Disease
+    help_text: Managing rapid-turnaround viral load data integration and strict PK sample timing logs.
+  - code: pharmacokinetics
+    source_ref: 85
+    claim_type: activity
+    label: Pharmacokinetics (PK)
+    help_text: Designing high-granularity datetime forms for PK draws and reconciling with bioanalytical lab data.
+- code: therapeutic-expertise-specialty-devices-atmp
+  label: 'Therapeutic Expertise: Specialty, Devices & ATMP'
+  activities:
+  - code: ta-device-trials
+    source_ref: 86
+    claim_type: activity
+    label: Device Trials
+    help_text: Building eCRFs for Unanticipated Adverse Device Effects (UADE) and device serial number tracking.
+  - code: atmp-advanced-therapy
+    source_ref: 87
+    claim_type: activity
+    label: Advanced Therapy Medicinal Products (ATMP)
+    help_text: Structuring eCRFs for CAR-T cell processing, apheresis logistics, and long-term follow-up.
+  - code: pediatrics
+    source_ref: 88
+    claim_type: activity
+    label: Pediatrics
+    help_text: Building logic to accommodate Assent vs. Consent dates, guardian changes, and age-adjusted lab normals.
+  - code: ophthalmology
+    source_ref: 89
+    claim_type: activity
+    label: Ophthalmology
+    help_text: Designing eCRFs explicitly separated by Study Eye vs. Fellow Eye, BCVA scores, and OCT integration.
+  - code: dermatology
+    source_ref: 90
+    claim_type: activity
+    label: Dermatology
+    help_text: Structuring Body Surface Area (BSA) mapping forms, PASI score calculators, and clinical photography logs.
+  - code: women-s-health
+    source_ref: 91
+    claim_type: activity
+    label: Women's Health
+    help_text: Managing continuous menstrual cycle diaries, hormonal washout tracking, and pregnancy test logic.
+  - code: endocrinology
+    source_ref: 92
+    claim_type: activity
+    label: Endocrinology
+    help_text: Integrating continuous glucose monitor (CGM) flat files and mapping hypoglycemic event diaries.
+  - code: gastroenterology
+    source_ref: 93
+    claim_type: activity
+    label: Gastroenterology
+    help_text: Structuring Mayo scoring logic, biopsy chain of custody logs, and central endoscopy video read data.
+- code: clinical-systems-edc-mastery
+  label: Clinical Systems & EDC Mastery
+  activities:
+  - code: medidata-rave-mastery
+    source_ref: 94
+    claim_type: proficiency
+    label: Medidata Rave Mastery
+    help_text: Building, managing, and navigating Rave EDC, Rave Architect, and Coder.
+  - code: oracle-inform-proficiency
+    source_ref: 95
+    claim_type: proficiency
+    label: Oracle InForm Proficiency
+    help_text: Managing Central Designer, InForm EDC, and standard automated checks.
+  - code: veeva-vault-cdms-edc
+    source_ref: 96
+    claim_type: activity
+    label: Veeva Vault CDMS / EDC
+    help_text: Navigating modern Veeva structures, rapid study builds, and agile design principles.
+  - code: data-visualization-tools-spotfiretableau
+    source_ref: 97
+    claim_type: activity
+    label: Data Visualization Tools (Spotfire/Tableau)
+    help_text: Using BI tools to create data cleaning dashboards and visualizations.
+  - code: sas-sql-for-data-review
+    source_ref: 98
+    claim_type: activity
+    label: SAS / SQL for Data Review
+    help_text: Writing ad-hoc SQL or SAS queries to pull custom raw data listings.
+  - code: centralized-issue-management-systems
+    source_ref: 99
+    claim_type: activity
+    label: Centralized Issue Management Systems
+    help_text: Tracking data queries and workflow tickets in Jira or specialized CTMS trackers.
+  - code: etmf-platforms-veevaphlexglobal
+    source_ref: 100
+    claim_type: activity
+    label: eTMF Platforms (Veeva/Phlexglobal)
+    help_text: Structuring and uploading DM regulatory documentation correctly.
+  - code: ecoa-epro-back-end-portals
+    source_ref: 101
+    claim_type: activity
+    label: eCOA / ePRO Back-End Portals
+    help_text: Managing Subject Provisioning and Data Extracts from ERT, YPrime, or Medidata.
+  - code: metadata-repositories
+    source_ref: 102
+    claim_type: activity
+    label: Metadata Repositories (MDR)
+    help_text: Utilizing platforms like Formedix to drive standardization across a program.
+  - code: clinical-data-repositories-cdr
+    source_ref: 103
+    claim_type: activity
+    label: Clinical Data Repositories (CDR)
+    help_text: Managing data flow into centralized data lakes (e.g., elluminate, CluePoints).
+  - code: audit-trail-review-tools
+    source_ref: 104
+    claim_type: proficiency
+    label: Audit Trail Review Tools
+    help_text: Querying system backends to investigate data changes for Part 11 compliance.
+  - code: rpa-automation-tools
+    source_ref: 105
+    claim_type: proficiency
+    label: RPA / Automation Tools
+    help_text: Utilizing scripting to automate routine data review listings.
+- code: regulatory-compliance-gcp
+  label: Regulatory Compliance & GCP
+  activities:
+  - code: ich-gcp-e6r2r3-data-implications
+    source_ref: 106
+    claim_type: activity
+    label: ICH-GCP E6(R2/R3) Data Implications
+    help_text: Ensuring ALCOA+ principles are hard-coded into database workflows.
+  - code: 21-cfr-part-11-compliance
+    source_ref: 107
+    claim_type: activity
+    label: 21 CFR Part 11 Compliance
+    help_text: Ensuring passwords, audit trails, and e-signatures meet FDA criteria.
+  - code: gdpr-hipaa-data-privacy
+    source_ref: 108
+    claim_type: activity
+    label: GDPR / HIPAA Data Privacy
+    help_text: Ensuring PII/PHI (like patient names) never enters the EDC or is properly masked.
+  - code: audit-readiness-bimo
+    source_ref: 109
+    claim_type: activity
+    label: Audit Readiness (BIMO)
+    help_text: Preparing datasets, audit trails, and logs for an impending FDA inspection.
+  - code: capa-management-for-dm
+    source_ref: 110
+    claim_type: activity
+    label: CAPA Management for DM
+    help_text: Authoring Corrective and Preventive Actions for systemic database errors.
+  - code: sop-authorship
+    source_ref: 111
+    claim_type: activity
+    label: SOP Authorship
+    help_text: Writing Standard Operating Procedures for data handling, UAT, and dictionary coding.
+  - code: informed-consent-icf-to-edc-alignment
+    source_ref: 112
+    claim_type: activity
+    label: Informed Consent (ICF) to EDC Alignment
+    help_text: Ensuring the EDC only collects data that the patient actually consented to.
+  - code: data-anonymization
+    source_ref: 113
+    claim_type: activity
+    label: Data Anonymization
+    help_text: Supporting the removal of identifiers for public data sharing or secondary research.
+  - code: system-validation-csv
+    source_ref: 114
+    claim_type: activity
+    label: System Validation (CSV)
+    help_text: Documenting Computer Systems Validation to prove the EDC behaves exactly as specified.
+  - code: blinding-integrity-violations
+    source_ref: 115
+    claim_type: activity
+    label: Blinding Integrity Violations
+    help_text: Investigating and documenting breaches where the study blind was accidentally revealed via data.
+  - code: ethical-data-handling
+    source_ref: 116
+    claim_type: activity
+    label: Ethical Data Handling
+    help_text: Resisting pressure to clean/lock data in a way that violates clinical reality to meet timelines.
+- code: risk-based-data-management-centralized-monitoring
+  label: Risk-Based Data Management & Centralized Monitoring
+  activities:
+  - code: risk-based-quality-management-rbqm
+    source_ref: 117
+    claim_type: activity
+    label: Risk-Based Quality Management (RBQM)
+    help_text: Designing data collection strategies focused purely on critical-to-quality variables.
+  - code: key-risk-indicator-kri-tracking
+    source_ref: 118
+    claim_type: activity
+    label: Key Risk Indicator (KRI) Tracking
+    help_text: Monitoring dashboards for high query rates, overdue entry, or missing SDV.
+  - code: centralized-statistical-monitoring-csm
+    source_ref: 119
+    claim_type: activity
+    label: Centralized Statistical Monitoring (CSM)
+    help_text: Identifying data anomalies (e.g., lack of variability) using software like CluePoints.
+  - code: quality-tolerance-limits-qtl
+    source_ref: 120
+    claim_type: activity
+    label: Quality Tolerance Limits (QTL)
+    help_text: Monitoring systemic data issues (e.g., systemic protocol deviations exceeding thresholds).
+  - code: targeted-sdvsdr-triggers
+    source_ref: 121
+    claim_type: activity
+    label: Targeted SDV/SDR Triggers
+    help_text: Dynamically triggering source verification in the EDC based on site performance metrics.
+  - code: cross-functional-data-review-meetings
+    source_ref: 122
+    claim_type: activity
+    label: Cross-Functional Data Review Meetings
+    help_text: Leading regular data review sessions with Medical Monitors, Stats, and CRAs.
+  - code: fraud-detection-algorithms
+    source_ref: 123
+    claim_type: activity
+    label: Fraud Detection Algorithms
+    help_text: Using data patterns to identify potentially fabricated site data.
+  - code: adaptive-trial-data-handling
+    source_ref: 124
+    claim_type: activity
+    label: Adaptive Trial Data Handling
+    help_text: Managing mid-study drops/adds of treatment arms without breaking existing data structures.
+  - code: decentralized-trial-dct-data-aggregation
+    source_ref: 125
+    claim_type: activity
+    label: Decentralized Trial (DCT) Data Aggregation
+    help_text: Merging home health, wearable, and standard site data into a cohesive dataset.
+  - code: holistic-patient-profiling
+    source_ref: 126
+    claim_type: activity
+    label: Holistic Patient Profiling
+    help_text: Creating comprehensive patient timelines to review the clinical narrative.
+  - code: site-risk-profiling
+    source_ref: 127
+    claim_type: activity
+    label: Site Risk Profiling
+    help_text: Altering data cleaning intensity based on a site's historical error rates.
+- code: vendor-management-logistics
+  label: Vendor Management & Logistics
+  activities:
+  - code: cro-oversight-sponsors
+    source_ref: 128
+    claim_type: activity
+    label: CRO Oversight (for Sponsors)
+    help_text: Managing outsourced Data Management vendors, tracking KPIs, and reviewing invoices.
+  - code: vendor-due-diligence
+    source_ref: 129
+    claim_type: activity
+    label: Vendor Due Diligence
+    help_text: Auditing eCOA or EDC vendors for Part 11 and data security compliance prior to award.
+  - code: data-transfer-milestone-tracking
+    source_ref: 130
+    claim_type: activity
+    label: Data Transfer Milestone Tracking
+    help_text: Ensuring central labs hit their weekly/monthly data transfer SLA targets.
+  - code: change-order-scoping
+    source_ref: 131
+    claim_type: activity
+    label: Change Order Scoping
+    help_text: Estimating hours/costs when a protocol amendment requires a massive database update.
+  - code: third-party-vendor-kickoffs
+    source_ref: 132
+    claim_type: activity
+    label: Third-Party Vendor Kickoffs
+    help_text: Aligning data expectations between the sponsor, CRO, and imaging/lab vendors.
+  - code: contract-sow-adherence
+    source_ref: 133
+    claim_type: activity
+    label: Contract / SOW Adherence
+    help_text: Ensuring DM tasks do not experience "scope creep" without appropriate budget adjustments.
+  - code: software-license-management
+    source_ref: 134
+    claim_type: trait
+    label: Software License Management
+    help_text: Tracking and assigning EDC user licenses across sites and study teams.
+  - code: helpdesk-escalation-management
+    source_ref: 135
+    claim_type: trait
+    label: Helpdesk Escalation Management
+    help_text: Routing severe site user-access or technical EDC issues to IT support.
+  - code: vendor-data-reconciliation-plans
+    source_ref: 136
+    claim_type: activity
+    label: Vendor Data Reconciliation Plans
+    help_text: Establishing who is responsible for fixing mismatches (Site vs. Vendor).
+  - code: global-time-zone-coordination
+    source_ref: 137
+    claim_type: activity
+    label: Global Time Zone Coordination
+    help_text: Managing data reviews with vendors spread across US, EU, and APAC.
+  - code: translation-coordination
+    source_ref: 138
+    claim_type: activity
+    label: Translation Coordination
+    help_text: Managing the translation of eCOA screens or database queries into local site languages.
+- code: project-management-leadership-soft-skills
+  label: Project Management, Leadership & Soft Skills
+  activities:
+  - code: lead-data-manager-ldm-execution
+    source_ref: 139
+    claim_type: activity
+    label: Lead Data Manager (LDM) Execution
+    help_text: End-to-end accountability for a trial's data quality and lock timeline.
+  - code: cross-functional-communication
+    source_ref: 140
+    claim_type: activity
+    label: Cross-Functional Communication
+    help_text: Translating technical database limitations to non-technical Clinicians or Biostatisticians.
+  - code: timelinecritical-path-management
+    source_ref: 141
+    claim_type: activity
+    label: Timeline/Critical Path Management
+    help_text: Reverse-engineering timelines from the target DBL date to ensure all interim steps hit.
+  - code: resource-allocationfte-forecasting
+    source_ref: 142
+    claim_type: activity
+    label: Resource Allocation/FTE Forecasting
+    help_text: Predicting how many data managers are needed during the startup vs. maintenance vs. lock phases.
+  - code: mentorship-junior-dms
+    source_ref: 143
+    claim_type: activity
+    label: Mentorship (Junior DMs)
+    help_text: Training entry-level staff on MedDRA coding or edit check logic.
+  - code: prioritization-under-pressure
+    source_ref: 144
+    claim_type: activity
+    label: Prioritization Under Pressure
+    help_text: Deciding which queries to drop and which to chase during a 48-hour data lock scramble.
+  - code: conflict-resolution
+    source_ref: 145
+    claim_type: activity
+    label: Conflict Resolution
+    help_text: De-escalating situations when sites or CRAs are frustrated by high query volumes.
+  - code: agile-methodologies
+    source_ref: 146
+    claim_type: activity
+    label: Agile Methodology
+    help_text: Applying sprints and rapid iteration to database builds rather than traditional waterfall.
+  - code: presentation-skills
+    source_ref: 147
+    claim_type: trait
+    label: Presentation Skills
+    help_text: Confidently running the DM portion of an Investigator Meeting in front of 100+ site staff.
+  - code: strategic-problem-solving
+    source_ref: 148
+    claim_type: activity
+    label: Strategic Problem Solving
+    help_text: Finding creative EDC workarounds when a complex protocol requirement breaks standard software logic.
+  - code: metric-reporting
+    source_ref: 149
+    claim_type: activity
+    label: Metric Reporting
+    help_text: Presenting accurate data entry, query aging, and SDV metrics to executive leadership.
+  - code: zero-defect-mindset
+    source_ref: 150
+    claim_type: trait
+    label: Zero-Defect Mindset
+    help_text: Maintaining rigorous attention to detail to ensure output is never compromised by dirty data.

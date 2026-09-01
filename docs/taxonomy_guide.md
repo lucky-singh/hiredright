@@ -123,6 +123,9 @@ The Statistical Programming taxonomy (`statistical_programming.yaml`) contains *
 ### Clinical Operations (CRA)
 The Clinical Operations taxonomy (`clinical_operations.yaml`) contains **150 items** across 14 competency areas, covering site visit execution, risk-based quality management (RBQM), audit readiness, core GCP compliance, and therapeutic expertise.
 
+### Clinical Data Management (CDM)
+The Clinical Data Management taxonomy (`clinical_data_management.yaml`) contains **150 items** across 14 competency areas, focusing on database architecture, edit check logic, medical coding, vendor reconciliation, and overall data governance. This taxonomy natively shares 20 activities with Statistical Programming and Clinical Operations.
+
 ---
 
 ## Adding a New Domain Role
