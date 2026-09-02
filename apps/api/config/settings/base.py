@@ -304,3 +304,10 @@ AWS_S3_SIGNATURE_VERSION = "s3v4"
 # Allow presigned URLs (no public read)
 AWS_DEFAULT_ACL = "private"
 AWS_S3_FILE_OVERWRITE = False
+
+# Add custom tunnel headers to CORS
+from corsheaders.defaults import default_headers
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "bypass-tunnel-reminder",
+    "ngrok-skip-browser-warning",
+]
