@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchFunctions } from '@/lib/api/builder';
 import type { JobRole } from '@/lib/api/types';
 import { Loader2, Upload, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
@@ -16,18 +16,29 @@ export function FunctionSelectionPage() {
   const [taskId, setTaskId] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     fetchFunctions()
       .then((data) => {
         setFunctions(data);
+        
+        const roleParam = searchParams.get('role');
+        if (roleParam) {
+          const role = data.find(f => f.code === roleParam);
+          if (role) {
+            setSelectedFunction(role);
+            setStep('prompt');
+          }
+        }
+        
         setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -60,7 +71,7 @@ export function FunctionSelectionPage() {
 
   const handleSkip = () => {
     if (selectedFunction) {
-      navigate(`/builder/${selectedFunction.code}`);
+      navigate(`/builder/${selectedFunction.code}?reset=true`);
     }
   };
 

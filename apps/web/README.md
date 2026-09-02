@@ -1,32 +1,32 @@
-# React + TypeScript + Vite
+# HiredRight Frontend (`apps/web`)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> React SPA built with Vite, TypeScript, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Architecture
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Routing:** React Router v6
+- **State Management:** Zustand (`stores/builder-store.ts`) for complex builder state. TanStack Query for general API fetching (soon).
+- **Styling:** Tailwind CSS with a consistent `zinc` base for light/dark mode.
+- **UI Components:** Minimal, accessible components (Base UI primitives / Radix inspired).
 
-## React Compiler
+## Key Routes & URL Parameters
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Route | Purpose | Parameters |
+| :--- | :--- | :--- |
+| `/login` | Authentication | N/A |
+| `/profile` | Candidate dashboard | N/A |
+| `/functions` | Role discovery & Resume upload | `?role={code}` skips role selection and jumps directly to the upload prompt for that role. |
+| `/builder/:roleCode` | The interactive claim builder | `?reset=true` forces the builder to start at Step 1 instead of resuming from `BuilderProgress.last_area_code`. |
+| `/search` | Recruiter matching dashboard | N/A |
 
-## Expanding the Oxlint configuration
+## Local Development
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+To run tests:
+```bash
+npm run test
+```

@@ -100,4 +100,26 @@ describe('FunctionSelectionPage', () => {
       expect(screen.getByTestId('builder-mock')).toBeInTheDocument();
     });
   });
+
+  it('jumps directly to prompt step when role parameter is present', async () => {
+    const mockFunctions = [
+      { code: 'f1', label: 'Function 1', description: 'Desc 1' },
+      { code: 'f2', label: 'Function 2', description: 'Desc 2' },
+    ];
+    vi.mocked(api.fetchFunctions).mockResolvedValue(mockFunctions);
+    
+    render(
+      <MemoryRouter initialEntries={['/functions?role=f2']}>
+        <Routes>
+          <Route path="/functions" element={<FunctionSelectionPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    
+    // It should immediately render the prompt step for Function 2, completely skipping the list
+    await waitFor(() => {
+      expect(screen.getByText('Auto-fill your Function 2 profile')).toBeInTheDocument();
+      expect(screen.queryByText('Select Your Role')).not.toBeInTheDocument();
+    });
+  });
 });

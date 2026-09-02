@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { fetchBuilderPayload } from '@/lib/api/builder';
 import { useBuilderStore } from '@/stores/builder-store';
 import { useProgress } from '@/hooks/use-progress';
@@ -21,6 +22,7 @@ export function BuilderShell({ roleCode }: BuilderShellProps) {
   const [payload, setPayload] = useState<BuilderPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'builder' | 'summary'>('builder');
+  const [searchParams] = useSearchParams();
 
   const initFromPayload = useBuilderStore((s) => s.initFromPayload);
   const setCurrentStep = useBuilderStore((s) => s.setCurrentStep);
@@ -47,7 +49,10 @@ export function BuilderShell({ roleCode }: BuilderShellProps) {
         // Find which step index to resume on
         const areas = data.role.competency_areas;
         let resumeStep = 0;
-        if (data.progress?.last_area_code) {
+        
+        if (searchParams.get('reset') === 'true') {
+          resumeStep = 0;
+        } else if (data.progress?.last_area_code) {
           const idx = areas.findIndex(a => a.code === data.progress!.last_area_code);
           if (idx !== -1) resumeStep = idx;
         }
@@ -60,7 +65,7 @@ export function BuilderShell({ roleCode }: BuilderShellProps) {
         );
       })
       .catch((err) => setError(err.message));
-  }, [roleCode, initFromPayload, setTotalSteps]);
+  }, [roleCode, initFromPayload, setTotalSteps, searchParams]);
 
   if (error) {
     return (

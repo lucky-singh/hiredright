@@ -199,21 +199,40 @@ export function CandidateProfilePage() {
           </div>
           
           <div className="flex flex-col gap-3 w-full sm:w-auto">
-            <button
-              onClick={() => navigate(activeRoleCode ? `/builder/${activeRoleCode}` : '/functions')}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              {activeRoleCode ? 'Edit Skills / Upload Resume' : 'Add Skills'}
-            </button>
+            {activeRoleCode ? (
+              <>
+                <button
+                  onClick={() => navigate(`/functions?role=${activeRoleCode}`)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  Upload Resume (AI)
+                </button>
+                <button
+                  onClick={() => navigate(`/builder/${activeRoleCode}?reset=true`)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shadow-sm"
+                >
+                  Edit Skills Manually
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => navigate('/functions')}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                Add Skills
+              </button>
+            )}
+            
             {profile.resume && (
               <a 
                 href={profile.resume} 
                 target="_blank" 
                 rel="noreferrer"
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 mt-2"
               >
-                <FileText className="w-4 h-4" />
-                View Resume
+                <FileText className="w-4 h-4 text-zinc-400" />
+                View Current Resume
               </a>
             )}
           </div>
@@ -250,7 +269,7 @@ export function CandidateProfilePage() {
             <div className="text-center py-16 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl">
               <p className="text-zinc-500 dark:text-zinc-400">You haven't added any skills yet for this role.</p>
               <button
-                onClick={() => navigate(activeRoleCode ? `/builder/${activeRoleCode}` : '/functions')}
+                onClick={() => navigate(activeRoleCode ? `/builder/${activeRoleCode}?reset=true` : '/functions')}
                 className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-500"
               >
                 Go to Builder &rarr;
