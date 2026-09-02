@@ -455,17 +455,29 @@ class CandidateProfileView(APIView):
             for p in progresses:
                 user_roles[p.role.code] = p.role.label
                 
-            # Also include any roles from claims just in case they have claims but no progress
-            for claim in claims:
-                for area in claim.activity.competency_areas.all():
-                    if area.role and area.role.code not in user_roles:
-                        user_roles[area.role.code] = area.role.label
-            
             # Also include any roles from CandidateResume
             resumes = CandidateResume.objects.filter(profile=profile).select_related('role')
             for r in resumes:
                 if r.role.code not in user_roles:
                     user_roles[r.role.code] = r.role.label
+                    
+            # Fallback: if they have claims that aren't covered by ANY role in user_roles
+            # (e.g. they abandoned the builder before clicking Next so no BuilderProgress was saved),
+            # we must add at least one role so the claim isn't orphaned.
+            # We ONLY add a role if the claim is completely uncovered, which prevents shared
+            # skills (like "Python") from spawning phantom roles when they are already covered
+            # by a role the user is actively building.
+            for claim in claims:
+                areas = list(claim.activity.competency_areas.all())
+                if not areas:
+                    continue
+                # Check if this claim is already covered by a role in user_roles
+                covered = any(area.role and area.role.code in user_roles for area in areas)
+                if not covered:
+                    # Not covered! Add the role of its first area so it has somewhere to live.
+                    primary = areas[0]
+                    if primary.role:
+                        user_roles[primary.role.code] = primary.role.label
                         
             data["roles"] = [{"code": code, "label": label, "resume": role_resumes.get(code)} for code, label in user_roles.items()]
             
@@ -473,20 +485,36 @@ class CandidateProfileView(APIView):
             claims_data = []
             for claim in claims:
                 areas = list(claim.activity.competency_areas.all())
-                category_label = areas[0].label if areas else "General"
-                category_sort = areas[0].sort_order if areas else 999
-                role_code = areas[0].role.code if areas and areas[0].role else None
-                claims_data.append({
-                    "activity_code": claim.activity.code,
-                    "activity_label": claim.activity.label,
-                    "proficiency": claim.proficiency,
-                    "category": category_label,
-                    "category_sort_order": category_sort,
-                    "role_code": role_code,
-                    "is_ai_inferred": claim.is_ai_inferred,
-                    "years_experience": str(claim.years_experience) if claim.years_experience else None,
-                    "last_used_year": claim.last_used_year
-                })
+                if not areas:
+                    claims_data.append({
+                        "activity_code": claim.activity.code,
+                        "activity_label": claim.activity.label,
+                        "proficiency": claim.proficiency,
+                        "category": "General",
+                        "category_sort_order": 999,
+                        "role_code": None,
+                        "is_ai_inferred": claim.is_ai_inferred,
+                        "years_experience": str(claim.years_experience) if claim.years_experience else None,
+                        "last_used_year": claim.last_used_year
+                    })
+                    continue
+                
+                for area in areas:
+                    # If this claim belongs to a role the user is actively building, include it.
+                    # This prevents roles from showing up just because they share common skills,
+                    # but ensures shared skills appear under all active roles they belong to.
+                    if area.role and area.role.code in user_roles:
+                        claims_data.append({
+                            "activity_code": claim.activity.code,
+                            "activity_label": claim.activity.label,
+                            "proficiency": claim.proficiency,
+                            "category": area.label,
+                            "category_sort_order": area.sort_order,
+                            "role_code": area.role.code,
+                            "is_ai_inferred": claim.is_ai_inferred,
+                            "years_experience": str(claim.years_experience) if claim.years_experience else None,
+                            "last_used_year": claim.last_used_year
+                        })
             data["claims"] = claims_data
                 
         except CandidateProfile.DoesNotExist:

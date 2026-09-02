@@ -14,7 +14,7 @@
 | Route | Purpose | Parameters |
 | :--- | :--- | :--- |
 | `/login` | Authentication | N/A |
-| `/profile` | Candidate dashboard | N/A |
+| `/profile` | Candidate dashboard | Hides horizontal role tabs if the user only has 1 active role. Includes "+ Add Role" in the header if a role is active. |
 | `/functions` | Role discovery & Resume upload | `?role={code}` skips role selection and jumps directly to the upload prompt for that role. |
 | `/builder/:roleCode` | The interactive claim builder | `?reset=true` forces the builder to start at Step 1 instead of resuming from `BuilderProgress.last_area_code`. |
 | `/search` | Recruiter matching dashboard | N/A |

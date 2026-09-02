@@ -200,7 +200,7 @@ export function CandidateProfilePage() {
           
           <div className="flex flex-col gap-3 w-full sm:w-auto">
             {activeRoleCode ? (
-              <>
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
                 <button
                   onClick={() => navigate(`/functions?role=${activeRoleCode}`)}
                   className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2"
@@ -212,9 +212,15 @@ export function CandidateProfilePage() {
                   onClick={() => navigate(`/builder/${activeRoleCode}?reset=true`)}
                   className="px-4 py-2 rounded-lg text-sm font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shadow-sm"
                 >
-                  Edit Skills Manually
+                  Edit Skills
                 </button>
-              </>
+                <button
+                  onClick={() => navigate('/functions')}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shadow-sm"
+                >
+                  + Add Role
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => navigate('/functions')}
@@ -251,7 +257,7 @@ export function CandidateProfilePage() {
             <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
               Verified Skills Summary
             </h2>
-            {profile.roles && profile.roles.length > 0 && (
+            {profile.roles && profile.roles.length > 1 && (
               <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
                 {profile.roles.map(role => (
                   <button
@@ -262,12 +268,6 @@ export function CandidateProfilePage() {
                     {role.label}
                   </button>
                 ))}
-                <button
-                  onClick={() => navigate('/functions')}
-                  className="px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
-                >
-                  <span>+</span> Add Role
-                </button>
               </div>
             )}
           </div>

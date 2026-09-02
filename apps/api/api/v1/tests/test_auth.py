@@ -123,6 +123,77 @@ class TestCandidateProfileView:
         assert data["roles"][0]["code"] == "resume-only-role"
         assert data["roles"][0]["resume"] is not None
 
+    def test_candidate_profile_view_no_phantom_roles_for_shared_skills(self, api_client):
+        from profiles.models import CandidateProfile, BuilderProgress, ActivityClaim
+        from taxonomy.models import Role, CompetencyArea, Activity
+
+        user = User.objects.create_user(email="nophantom@example.com", password="pwd")
+        profile = CandidateProfile.objects.create(user=user)
+        
+        # Create Role A and Role B
+        role_a = Role.objects.create(code="role-a", label="Role A")
+        role_b = Role.objects.create(code="role-b", label="Role B")
+        
+        # Create Area A (Role A) and Area B (Role B)
+        area_a = CompetencyArea.objects.create(role=role_a, code="area-a", label="Area A", sort_order=1)
+        area_b = CompetencyArea.objects.create(role=role_b, code="area-b", label="Area B", sort_order=2)
+        
+        # Create a shared activity that belongs to both areas
+        shared_activity = Activity.objects.create(code="shared-skill", label="Shared Skill", is_active=True)
+        shared_activity.competency_areas.set([area_a, area_b])
+        
+        # The user has ONLY built Role A
+        BuilderProgress.objects.create(profile=profile, role=role_a, last_area_code="area-a")
+        
+        # The user claims the shared skill
+        ActivityClaim.objects.create(profile=profile, activity=shared_activity, proficiency=3)
+
+        api_client.force_authenticate(user=user)
+        url = reverse("candidate-profile")
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
+        
+        # Role B should NOT be included in roles, because the shared skill is covered by Role A
+        role_codes = [r["code"] for r in data["roles"]]
+        assert "role-a" in role_codes
+        assert "role-b" not in role_codes
+        
+        # The skill should still be returned
+        assert len(data["claims"]) == 1
+        assert data["claims"][0]["role_code"] == "role-a"
+
+    def test_candidate_profile_view_recovers_orphaned_claims(self, api_client):
+        from profiles.models import CandidateProfile, ActivityClaim
+        from taxonomy.models import Role, CompetencyArea, Activity
+
+        user = User.objects.create_user(email="orphaned@example.com", password="pwd")
+        profile = CandidateProfile.objects.create(user=user)
+        
+        # Create Role and Area
+        role = Role.objects.create(code="abandoned-role", label="Abandoned Role")
+        area = CompetencyArea.objects.create(role=role, code="abandoned-area", label="Area", sort_order=1)
+        activity = Activity.objects.create(code="abandoned-skill", label="Abandoned Skill", is_active=True)
+        activity.competency_areas.set([area])
+        
+        # The user has NO BuilderProgress and NO CandidateResume for this role!
+        # But they have a claim (e.g. they abandoned the builder before clicking Next)
+        ActivityClaim.objects.create(profile=profile, activity=activity, proficiency=3)
+
+        api_client.force_authenticate(user=user)
+        url = reverse("candidate-profile")
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
+        
+        # The role MUST be dynamically recovered so the claim isn't orphaned
+        assert len(data["roles"]) == 1
+        assert data["roles"][0]["code"] == "abandoned-role"
+        assert len(data["claims"]) == 1
+        assert data["claims"][0]["role_code"] == "abandoned-role"
+
 @pytest.mark.django_db
 class TestAuthPasswordReset:
     def test_password_reset_confirm_redirect(self, api_client):
