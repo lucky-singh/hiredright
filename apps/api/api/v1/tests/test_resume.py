@@ -26,14 +26,22 @@ def test_resume_upload_view(api_client, candidate):
     # 3. Test POST with file
     pdf_content = b"%PDF-1.4 dummy content"
     resume_file = SimpleUploadedFile("test.pdf", pdf_content, content_type="application/pdf")
+    role = Role.objects.create(code="test-func", label="Test Func")
     
     with patch('profiles.tasks.parse_resume_task.delay') as mock_task:
         mock_task.return_value = MagicMock(id="test-task-123")
-        res = api_client.post(url, {"resume": resume_file, "functionCode": "test-func"}, format="multipart")
+        res = api_client.post(url, {"resume": resume_file, "roleCode": "test-func"}, format="multipart")
         assert res.status_code == status.HTTP_202_ACCEPTED
         assert "processing started" in res.data["detail"]
         assert res.data["task_id"] == "test-task-123"
         mock_task.assert_called_once()
+        
+        # Verify CandidateResume was created with correct name pattern
+        from profiles.models import CandidateResume
+        resumes = CandidateResume.objects.filter(profile__user=candidate, role=role)
+        assert resumes.exists()
+        resume_obj = resumes.first()
+        assert "test-func_Resume.pdf" in resume_obj.file.name
 
 @pytest.mark.django_db
 def test_resume_task_status_view(api_client, candidate):

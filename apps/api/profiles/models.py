@@ -57,6 +57,26 @@ class CandidateRole(TimestampedModel):
         ]
 
 
+class CandidateResume(TimestampedModel):
+    """Role-specific resumes uploaded by the candidate."""
+
+    profile = models.ForeignKey(
+        CandidateProfile, on_delete=models.CASCADE, related_name="role_resumes"
+    )
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="+")
+    file = models.FileField(upload_to="resumes/")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("profile", "role"), name="uniq_resume_per_profile_role"
+            )
+        ]
+
+    def __str__(self):
+        return f"Resume for {self.profile} in {self.role.code}"
+
+
 class ActivityClaim(TimestampedModel):
     """A candidate asserting they have done a specific thing.
 

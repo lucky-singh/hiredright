@@ -87,6 +87,7 @@ Encapsulates candidate identities, verified claims, and wizard progress:
 
 - **`CandidateProfile`**: Extends Django's user model with headline, ISO 3166-1 country code, availability status (`open_to_opportunities`), and recruiter search visibility (`is_searchable`).
 - **`CandidateRole`**: Links candidate to a primary or secondary function with verified `years_experience`.
+- **`CandidateResume`**: Stores role-specific uploaded resumes for a candidate. Eliminates cross-role contamination so a user can maintain separate PDFs for different functions.
 - **`ActivityClaim`**: A candidate's assertion of having performed an `Activity`.
   - `proficiency`: 1 (`EXPOSED`), 2 (`WORKING`), 3 (`PROFICIENT`), 4 (`EXPERT`).
   - `years_experience`: Decimal field (0 to 60 years).
@@ -199,6 +200,7 @@ candidate claim delta batch in PostgreSQL for the authenticated user.
 | `CompetencyArea` | `uniq_area_code_per_function` | Unique `(role, code)` |
 | `Activity` | Unique `code` | Global slug for API stability |
 | `CandidateRole` | `uniq_role_per_profile` | Unique `(profile, role)` |
+| `CandidateResume` | `uniq_resume_per_profile_role` | Unique `(profile, role)` |
 | `ActivityClaim` | `uniq_claim_per_profile_activity` | Unique `(profile, activity)` preventing race condition duplicates |
 | `ActivityClaim` | Index `(activity, profile)` | Fast reverse lookup for recruiter search queries |
 | `ActivityClaim` | Index `(profile, activity)` | Fast claim fetching during builder initialization |

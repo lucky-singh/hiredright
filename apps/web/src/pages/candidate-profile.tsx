@@ -11,7 +11,7 @@ interface ProfileData {
   phone_number?: string;
   is_recruiter: boolean;
   resume?: string;
-  roles?: { code: string; label: string }[];
+  roles?: { code: string; label: string; resume?: string }[];
   claims: {
     activity_code: string;
     activity_label: string;
@@ -224,17 +224,24 @@ export function CandidateProfilePage() {
               </button>
             )}
             
-            {profile.resume && (
-              <a 
-                href={profile.resume} 
-                target="_blank" 
-                rel="noreferrer"
-                className="px-4 py-2 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 mt-2"
-              >
-                <FileText className="w-4 h-4 text-zinc-400" />
-                View Current Resume
-              </a>
-            )}
+            {(() => {
+              const activeRole = profile.roles?.find(r => r.code === activeRoleCode);
+              const currentResume = activeRole?.resume || profile.resume;
+              
+              if (!currentResume) return null;
+              
+              return (
+                <a 
+                  href={currentResume} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="px-4 py-2 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 mt-2"
+                >
+                  <FileText className="w-4 h-4 text-zinc-400" />
+                  View Current Resume
+                </a>
+              );
+            })()}
           </div>
         </div>
 

@@ -374,9 +374,27 @@ class ResumeUploadView(APIView):
         profile = CandidateProfile.objects.get_or_create(user=request.user)[0]
         resume_file = request.FILES["resume"]
         role_code = request.data.get("roleCode")
+        role = get_object_or_404(Role, code=role_code, is_active=True)
         
-        # Save to MinIO via django-storages
-        profile.resume.save(resume_file.name, resume_file)
+        # Build meaningful filename
+        from profiles.models import CandidateResume
+        from django.core.files.base import ContentFile
+        import re
+        
+        name_parts = filter(None, [request.user.first_name, request.user.last_name])
+        full_name = "_".join(name_parts) if any([request.user.first_name, request.user.last_name]) else "Candidate"
+        clean_name = re.sub(r'[^A-Za-z0-9_-]', '', full_name)
+        new_filename = f"{clean_name}_{role.code}_Resume.pdf"
+        
+        resume_obj, created = CandidateResume.objects.update_or_create(
+            profile=profile, role=role,
+            defaults={"file": None} # We will set file next to trigger storage
+        )
+        # Save file directly which handles overwriting or appending hashes across users
+        resume_obj.file.save(new_filename, resume_file)
+        
+        # Also store to profile for backward compatibility with old references if needed
+        profile.resume.save(new_filename, resume_file)
         profile.save()
 
         # Trigger Celery background task
@@ -425,12 +443,12 @@ class CandidateProfileView(APIView):
             if profile.resume:
                 data["resume"] = profile.resume.url
                 
-            # Fetch all claims
+            # Fetch all claims and role-specific resumes
             claims = ActivityClaim.objects.filter(profile=profile).select_related('activity').prefetch_related('activity__competency_areas__role')
             
-            # Identify roles the candidate has interacted with (via BuilderProgress)
-            from profiles.models import BuilderProgress
+            from profiles.models import BuilderProgress, CandidateResume
             progresses = BuilderProgress.objects.filter(profile=profile).select_related('role')
+            role_resumes = {cr.role.code: cr.file.url for cr in CandidateResume.objects.filter(profile=profile) if cr.file}
             
             # Use dictionary to maintain uniqueness while preserving order
             user_roles = {}
@@ -443,7 +461,7 @@ class CandidateProfileView(APIView):
                     if area.role and area.role.code not in user_roles:
                         user_roles[area.role.code] = area.role.label
                         
-            data["roles"] = [{"code": code, "label": label} for code, label in user_roles.items()]
+            data["roles"] = [{"code": code, "label": label, "resume": role_resumes.get(code)} for code, label in user_roles.items()]
             
             # Format claims
             claims_data = []
