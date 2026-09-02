@@ -55,7 +55,7 @@ export function CandidateProfilePage() {
           return;
         }
         const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/profile/', {
-          headers: { 'ngrok-skip-browser-warning': 'true', 'Authorization': `Bearer ${token}` }
+          headers: { 'bypass-tunnel-reminder': 'true', 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Failed to load profile');
         const data = await res.json();
@@ -87,7 +87,7 @@ export function CandidateProfilePage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true', 'Authorization': `Bearer ${token}`
+          'bypass-tunnel-reminder': 'true', 'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(editForm)
       });

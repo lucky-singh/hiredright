@@ -62,7 +62,7 @@ export async function logoutUser(): Promise<void> {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true', 'Authorization': `Bearer ${token}`
+          'bypass-tunnel-reminder': 'true', 'Authorization': `Bearer ${token}`
         },
       });
     }
