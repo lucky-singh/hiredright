@@ -54,7 +54,7 @@ export function CandidateProfilePage() {
           navigate('/login');
           return;
         }
-        const res = await fetch('/api/v1/profile/', {
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/profile/', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Failed to load profile');
@@ -83,7 +83,7 @@ export function CandidateProfilePage() {
     setSaveError(null);
     try {
       const token = localStorage.getItem('access_token');
-      const res = await fetch('/api/v1/auth/user/', {
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/auth/user/', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

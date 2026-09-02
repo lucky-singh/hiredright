@@ -46,7 +46,7 @@ export function FunctionSelectionPage() {
       interval = setInterval(async () => {
         try {
           const token = localStorage.getItem('access_token');
-          const res = await fetch(`/api/v1/profile/resume/status/${taskId}/`, {
+          const res = await fetch((import.meta.env.VITE_API_URL || '') + `/api/v1/profile/resume/status/${taskId}/`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           const data = await res.json();
@@ -92,7 +92,7 @@ export function FunctionSelectionPage() {
 
     try {
       const token = localStorage.getItem('access_token');
-      const res = await fetch('/api/v1/profile/resume/', {
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/profile/resume/', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
