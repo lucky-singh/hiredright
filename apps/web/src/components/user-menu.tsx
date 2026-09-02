@@ -36,13 +36,16 @@ export function UserMenu() {
     <div className="fixed top-4 right-4 z-50" ref={menuRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 border-2 border-white dark:border-zinc-800 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold shadow-sm hover:ring-2 hover:ring-blue-400 focus:outline-none transition-all"
+        aria-label="Open account menu"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 border-2 border-white dark:border-zinc-800 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold shadow-sm hover:ring-2 hover:ring-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-all"
       >
         {initials}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-zinc-900 ring-1 ring-black ring-opacity-5 border border-zinc-200 dark:border-zinc-800 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div role="menu" className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-zinc-900 ring-1 ring-black ring-opacity-5 border border-zinc-200 dark:border-zinc-800 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="py-3 px-4 border-b border-zinc-100 dark:border-zinc-800">
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
               {user.first_name ? `${user.first_name} ${user.last_name}` : 'User Profile'}

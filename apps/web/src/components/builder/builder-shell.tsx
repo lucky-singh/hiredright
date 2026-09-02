@@ -131,6 +131,12 @@ export function BuilderShell({ roleCode }: BuilderShellProps) {
       />
       
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto relative bg-zinc-50/50 dark:bg-zinc-950">
+        <div className="lg:hidden sticky top-0 z-10 border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 p-3">
+          <label htmlFor="mobile-builder-step" className="sr-only">Choose profile section</label>
+          <select id="mobile-builder-step" value={currentStep} onChange={(e) => setCurrentStep(Number(e.target.value))} className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+            {areas.map((area, index) => <option key={area.code} value={index}>{index + 1}. {area.label}</option>)}
+          </select>
+        </div>
         <div className="flex-1 pb-24">
           <CompetencyAreaStep area={currentArea} />
         </div>

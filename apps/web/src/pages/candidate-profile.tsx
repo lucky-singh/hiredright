@@ -39,6 +39,7 @@ export function CandidateProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ first_name: '', last_name: '', phone_number: '' });
   const [savingProfile, setSavingProfile] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -72,6 +73,7 @@ export function CandidateProfilePage() {
 
   const handleSaveProfile = async () => {
     setSavingProfile(true);
+    setSaveError(null);
     try {
       const token = localStorage.getItem('access_token');
       const res = await fetch('/api/v1/auth/user/', {
@@ -92,8 +94,8 @@ export function CandidateProfilePage() {
         const user = JSON.parse(userStr);
         localStorage.setItem('user', JSON.stringify({ ...user, ...data }));
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setSaveError(err.message || 'Unable to save your profile. Please try again.');
     } finally {
       setSavingProfile(false);
     }
@@ -166,6 +168,7 @@ export function CandidateProfilePage() {
                       Cancel
                     </button>
                   </div>
+                  {saveError && <p role="alert" className="text-sm text-red-600">{saveError}</p>}
                 </div>
               ) : (
                 <>

@@ -4,12 +4,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { loginUser } from '@/lib/api/auth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -67,7 +68,7 @@ export function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 text-sm font-medium text-red-800 bg-red-100 rounded-lg dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-900/50">
+              <div role="alert" className="p-3 text-sm font-medium text-red-800 bg-red-100 rounded-lg dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-900/50">
                 {error}
               </div>
             )}
@@ -89,12 +90,16 @@ export function LoginPage() {
               <Input 
                 id="password" 
                 name="password" 
-                type="password" 
+                type={showPassword ? 'text' : 'password'} 
                 required 
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="current-password"
                 className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100"
               />
+              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(v => !v)} className="mt-1 inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
+                {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />} {showPassword ? 'Hide password' : 'Show password'}
+              </button>
             </div>
             <button 
               type="submit" 
@@ -105,6 +110,7 @@ export function LoginPage() {
               {loading ? "Logging in..." : "Log in"}
             </button>
           </form>
+          <p className="mt-4 text-center text-sm"><button type="button" className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">Forgot password?</button></p>
         </CardContent>
         <CardFooter className="flex justify-center border-t border-zinc-100 dark:border-zinc-800 pt-6">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">

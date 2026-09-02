@@ -14,6 +14,7 @@ export function FunctionSelectionPage() {
   const [step, setStep] = useState<Step>('select');
   const [selectedFunction, setSelectedFunction] = useState<JobRole | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,9 +67,16 @@ export function FunctionSelectionPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0 || !selectedFunction) return;
     
+    const file = e.target.files[0];
+    if (file.type !== 'application/pdf' || file.size > 10 * 1024 * 1024) {
+      setUploadError('Please choose a PDF resume smaller than 10 MB.');
+      setStep('prompt');
+      return;
+    }
+    setUploadError(null);
     setStep('uploading');
     const formData = new FormData();
-    formData.append('resume', e.target.files[0]);
+    formData.append('resume', file);
     formData.append('roleCode', selectedFunction.code);
 
     try {
@@ -143,12 +151,12 @@ export function FunctionSelectionPage() {
         )}
 
         {step === 'prompt' && selectedFunction && (
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 max-w-2xl mx-auto shadow-sm text-center">
+          <div role="region" aria-labelledby="resume-heading" className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 max-w-2xl mx-auto shadow-sm text-center">
             <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 dark:text-blue-400">
               <FileText className="w-8 h-8" />
             </div>
             <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">
-              Auto-fill your {selectedFunction.label} profile
+              <span id="resume-heading">Auto-fill your {selectedFunction.label} profile</span>
             </h3>
             <p className="text-zinc-600 dark:text-zinc-400 mb-8 max-w-lg mx-auto leading-relaxed">
               Upload your PDF resume and our Gemini AI will analyze your background and instantly map it to the precise skills required for this role.
@@ -167,11 +175,12 @@ export function FunctionSelectionPage() {
                 <input type="file" className="sr-only" accept=".pdf" onChange={handleFileUpload} />
               </label>
             </div>
+            {uploadError && <p role="alert" className="mt-4 text-sm text-red-600">{uploadError}</p>}
           </div>
         )}
 
         {(step === 'uploading' || step === 'processing') && (
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-12 max-w-lg mx-auto shadow-sm text-center">
+          <div role="status" aria-live="polite" className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-12 max-w-lg mx-auto shadow-sm text-center">
             <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-6" />
             <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
               {step === 'uploading' ? 'Uploading PDF...' : 'AI is analyzing your resume...'}
@@ -183,7 +192,7 @@ export function FunctionSelectionPage() {
         )}
 
         {step === 'summary' && (
-          <div className="bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-12 max-w-2xl mx-auto shadow-sm text-center">
+          <div role="status" aria-live="polite" className="bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-12 max-w-2xl mx-auto shadow-sm text-center">
             <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="w-8 h-8" />
             </div>
@@ -203,7 +212,7 @@ export function FunctionSelectionPage() {
         )}
 
         {step === 'error' && (
-          <div className="bg-white dark:bg-zinc-900 border border-red-200 dark:border-red-900/50 rounded-xl p-12 max-w-2xl mx-auto shadow-sm text-center">
+          <div role="alert" className="bg-white dark:bg-zinc-900 border border-red-200 dark:border-red-900/50 rounded-xl p-12 max-w-2xl mx-auto shadow-sm text-center">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-600 dark:text-red-400">
               <AlertCircle className="w-8 h-8" />
             </div>

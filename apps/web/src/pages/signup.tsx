@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { registerUser } from '@/lib/api/auth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 // 1. Define Zod Schema
 const signupSchema = z.object({
@@ -28,6 +28,8 @@ export function SignupPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   
   // 2. Initialize useForm
   const {
@@ -89,7 +91,7 @@ export function SignupPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {apiError && (
-              <div className="p-3 text-sm font-medium text-red-800 bg-red-100 rounded-lg dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-900/50">
+              <div role="alert" className="p-3 text-sm font-medium text-red-800 bg-red-100 rounded-lg dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-900/50">
                 {apiError}
               </div>
             )}
@@ -147,10 +149,12 @@ export function SignupPage() {
               <Label htmlFor="password" className="text-zinc-900 dark:text-zinc-300">Password *</Label>
               <Input 
                 id="password" 
-                type="password" 
+                type={showPassword ? 'text' : 'password'} 
                 {...register("password")}
                 className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100"
               />
+              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(v => !v)} className="inline-flex items-center gap-1 text-xs text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">{showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />} {showPassword ? 'Hide' : 'Show'}</button>
+              <p className="text-xs text-zinc-500">Use at least 8 characters.</p>
               {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
             </div>
             
@@ -158,10 +162,11 @@ export function SignupPage() {
               <Label htmlFor="confirmPassword" className="text-zinc-900 dark:text-zinc-300">Confirm Password *</Label>
               <Input 
                 id="confirmPassword" 
-                type="password" 
+                type={showConfirm ? 'text' : 'password'} 
                 {...register("confirmPassword")}
                 className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-100"
               />
+              <button type="button" aria-label={showConfirm ? 'Hide confirmation password' : 'Show confirmation password'} onClick={() => setShowConfirm(v => !v)} className="inline-flex items-center gap-1 text-xs text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">{showConfirm ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />} {showConfirm ? 'Hide' : 'Show'}</button>
               {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>}
             </div>
             

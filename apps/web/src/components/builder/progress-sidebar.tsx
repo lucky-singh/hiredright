@@ -40,7 +40,7 @@ export function ProgressSidebar({
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-4">
+      <nav aria-label="Profile builder steps" className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-1.5">
           {areas.map((area, idx) => {
             const isCompleted = completedSteps.has(area.code);
