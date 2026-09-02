@@ -14,6 +14,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    allowedHosts: ['whoever-clubhouse-uptight.ngrok-free.dev', 'localhost'],
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
