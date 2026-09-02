@@ -460,6 +460,12 @@ class CandidateProfileView(APIView):
                 for area in claim.activity.competency_areas.all():
                     if area.role and area.role.code not in user_roles:
                         user_roles[area.role.code] = area.role.label
+            
+            # Also include any roles from CandidateResume
+            resumes = CandidateResume.objects.filter(profile=profile).select_related('role')
+            for r in resumes:
+                if r.role.code not in user_roles:
+                    user_roles[r.role.code] = r.role.label
                         
             data["roles"] = [{"code": code, "label": label, "resume": role_resumes.get(code)} for code, label in user_roles.items()]
             

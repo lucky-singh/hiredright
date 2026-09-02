@@ -99,6 +99,30 @@ class TestCandidateProfileView:
         assert data["claims"][0]["role_code"] == "test-role"
         assert data["claims"][0]["activity_code"] == "test-activity"
 
+    def test_candidate_profile_view_returns_roles_from_resumes(self, api_client):
+        from profiles.models import CandidateProfile, CandidateResume
+        from taxonomy.models import Role
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        user = User.objects.create_user(email="testresumes@example.com", password="pwd")
+        profile = CandidateProfile.objects.create(user=user)
+        role = Role.objects.create(code="resume-only-role", label="Resume Only Role")
+        
+        # User uploaded a resume for a role but has NO claims or progress
+        resume_file = SimpleUploadedFile("dummy.pdf", b"content", content_type="application/pdf")
+        CandidateResume.objects.create(profile=profile, role=role, file=resume_file)
+
+        api_client.force_authenticate(user=user)
+        url = reverse("candidate-profile")
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
+        assert "roles" in data
+        assert len(data["roles"]) == 1
+        assert data["roles"][0]["code"] == "resume-only-role"
+        assert data["roles"][0]["resume"] is not None
+
 @pytest.mark.django_db
 class TestAuthPasswordReset:
     def test_password_reset_confirm_redirect(self, api_client):
