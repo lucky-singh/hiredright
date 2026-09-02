@@ -159,3 +159,11 @@ To publish the static demo to GitHub Pages:
 2. Prepare routing for GH Pages: `cp dist/index.html dist/404.html`
 3. Push the `dist/` folder to your `gh-pages` branch. (Remember to configure `base` in `vite.config.ts` if deploying to a subdirectory).
 
+
+### GitHub Pages & Ngrok Testing Setup
+To allow the GitHub Pages frontend to securely communicate with a local backend exposed via Ngrok, the following configurations have been implemented:
+1. **Frontend**: API requests are dynamic via the `VITE_API_URL` environment variable, ensuring the frontend knows the Ngrok backend address.
+2. **CORS & Headers**: Django `ALLOWED_HOSTS` includes the `.ngrok-free.dev` domain, and `CORS_ALLOWED_ORIGINS` includes `https://lucky-singh.github.io`.
+3. **Ngrok Warnings**: API calls include the `ngrok-skip-browser-warning: true` header to bypass Ngrok's anti-abuse interstitial page, preventing 405 Method Not Allowed errors on POST and preflight requests.
+
+*Note for future AWS Deployment: When deploying the API to AWS (e.g., EC2, ECS, or AppRunner), you will need to update `VITE_API_URL` to your production API URL, update Django's `ALLOWED_HOSTS` to your AWS domain, and ensure `CORS_ALLOWED_ORIGINS` matches the frontend's final production domain.*

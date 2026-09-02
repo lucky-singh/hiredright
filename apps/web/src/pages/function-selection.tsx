@@ -47,7 +47,7 @@ export function FunctionSelectionPage() {
         try {
           const token = localStorage.getItem('access_token');
           const res = await fetch((import.meta.env.VITE_API_URL || '') + `/api/v1/profile/resume/status/${taskId}/`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 'ngrok-skip-browser-warning': 'true', 'Authorization': `Bearer ${token}` }
           });
           const data = await res.json();
           if (data.status === 'SUCCESS') {
@@ -94,7 +94,7 @@ export function FunctionSelectionPage() {
       const token = localStorage.getItem('access_token');
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/profile/resume/', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: { 'ngrok-skip-browser-warning': 'true', 'Authorization': `Bearer ${token}` },
         body: formData,
       });
       if (!res.ok) throw new Error('Upload failed');
