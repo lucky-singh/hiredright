@@ -18,6 +18,7 @@
 | `/functions` | Role discovery & Resume upload | `?role={code}` skips role selection and jumps directly to the upload prompt for that role. |
 | `/builder/:roleCode` | The interactive claim builder | `?reset=true` forces the builder to start at Step 1 instead of resuming from `BuilderProgress.last_area_code`. |
 | `/search` | Recruiter matching dashboard | N/A |
+| `/demo` | Interactive static product demo | N/A |
 
 ## Local Development
 
@@ -30,3 +31,8 @@ To run tests:
 ```bash
 npm run test
 ```
+
+## Environment Variables
+
+Create a `.env.local` or `.env.production` file to override defaults:
+- `VITE_API_URL`: Override the backend API base URL (e.g. `https://hiredright-api.loca.lt`). If left blank, requests will default to `/api/v1` (which Vite proxies to `localhost:8000` in dev).

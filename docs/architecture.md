@@ -132,7 +132,7 @@ sequenceDiagram
     participant DB as PostgreSQL Database
 
     Candidate->>UI: Opens Profile Builder
-    UI->>API: GET /api/v1/builder/{function_code}/
+    UI->>API: GET /api/v1/builder/{role_code}/
     API->>DB: Query Role Tree, Claims & BuilderProgress
     DB-->>API: Active Taxonomy, Existing Claims, Progress State
     API-->>UI: Dense BuilderPayload (JSON)
@@ -213,6 +213,9 @@ erDiagram
     CandidateProfile ||--o{ CandidateRole : specializes_in
     Role ||--o{ CandidateRole : references
 
+    CandidateProfile ||--o{ CandidateResume : owns
+    Role ||--o{ CandidateResume : categorizes
+
     CandidateProfile ||--|| BuilderProgress : tracks
     Role ||--o{ BuilderProgress : references
 
@@ -239,7 +242,7 @@ erDiagram
 
     CompetencyArea {
         string code
-        string function_id FK
+        string role_id FK
         string label
         string description
         int sort_order
@@ -260,6 +263,7 @@ erDiagram
         int user_id FK
         string headline
         string location_country
+        string resume
         boolean open_to_opportunities
         boolean is_searchable
     }
@@ -267,9 +271,16 @@ erDiagram
     CandidateRole {
         int id PK
         int profile_id FK
-        string function_id FK
+        string role_id FK
         decimal years_experience
         boolean is_primary
+    }
+
+    CandidateResume {
+        int id PK
+        int profile_id FK
+        string role_id FK
+        string file
     }
 
     ActivityClaim {
@@ -279,13 +290,14 @@ erDiagram
         int proficiency
         decimal years_experience
         int last_used_year
+        boolean is_ai_inferred
         json variants
     }
 
     BuilderProgress {
         int id PK
         int profile_id FK
-        string function_id FK
+        string role_id FK
         json completed_area_codes
         string last_area_code
         datetime completed_at
@@ -373,8 +385,8 @@ The resume parsing pipeline delegates heavy lifting to a background queue to pre
 *   **LLM Provider**: The `google-genai` SDK interfaces with Gemini (`gemini-3.6-flash`) for rapid, structured extraction using `response_mime_type: 'application/json'`.
 *   **Data Flow**:
     1.  User selects a Role on the UI and is presented an interstitial prompt to upload a PDF or skip.
-    2.  Client POSTs multipart form data to `/api/v1/profile/resume/` with `functionCode`.
-    3.  Django saves file to MinIO, enqueues `profile_id` & `functionCode` to Celery, and returns a `task_id`.
+    2.  Client POSTs multipart form data to `/api/v1/profile/resume/` with `roleCode`.
+    3.  Django saves file to MinIO, enqueues `profile_id` & `roleCode` to Celery, and returns a `task_id`.
     4.  Frontend polls `/api/v1/profile/resume/status/<task_id>` while Celery processes the PDF.
     5.  Celery downloads PDF, extracts text, queries Gemini.
     6.  Gemini returns JSON `{"codes": [...]}`.
@@ -387,7 +399,7 @@ The resume parsing pipeline delegates heavy lifting to a background queue to pre
 To trace the exact flow of data:
 1. **MinIO**: `Jane_Doe_CV.pdf` is uploaded and saved to `s3://hiredright/resumes/Jane_Doe_CV_x8f9a2.pdf`.
 2. **Postgres**: The `CandidateProfile.resume` column stores the relative path string `resumes/Jane_Doe_CV_x8f9a2.pdf`.
-3. **Redis**: The `parse_resume_task` job is pushed to the queue with args `[profile_id=42, functionCode="clinical-research-associate"]`.
+3. **Redis**: The `parse_resume_task` job is pushed to the queue with args `[profile_id=42, roleCode="clinical-research-associate"]`.
 4. **Celery**: The worker pulls the file directly from MinIO, parses it with `pypdf`, and queries Gemini.
 5. **LLM**: Gemini replies with `{"codes": ["clin_ops_trial_master_file", "clin_ops_edc_entry"]}`.
 6. **Postgres**: Celery loops and provisions `ActivityClaim` rows for those specific codes.

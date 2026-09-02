@@ -20,9 +20,10 @@
 
 ## Overview & Base URLs
 
-- **Base URL**: `/api/v1`
+- **Base URL**: `/api/v1` (or `https://<tunnel-subdomain>.loca.lt/api/v1` in testing setups)
 - **Content-Type**: `application/json`
 - **Specification Standard**: OpenAPI 3.1 (via `drf-spectacular`)
+- **Testing Header**: When querying the API via Localtunnel, requests must include `bypass-tunnel-reminder: true` to prevent HTML warning intercepts.
 
 ---
 
@@ -378,7 +379,43 @@ GET /api/v1/profile/
 
 ## Recruiter Search & Matching Endpoints
 
-### 1. Search & Rank Candidates
+### 1. Fetch Skill Vocabulary
+
+Fetches the full searchable skill vocabulary, scoped to scorable claim types.
+
+```http
+GET /api/v1/skills/
+```
+
+#### Query Parameters
+- `role` (string, optional): Role code to filter skills by.
+- `q` (string, optional): Free-text match on label, code or help text.
+- `include_traits` (boolean, optional): Include TRAIT items. Default is `false`.
+
+#### Response: `200 OK`
+```json
+{
+  "count": 1,
+  "results": [
+    {
+      "code": "sdtm-implementation-guide",
+      "label": "SDTM Implementation Guide",
+      "help_text": "Select every version you have worked to.",
+      "claim_type": "proficiency",
+      "seniority_hint": "mid",
+      "variants": ["3.1.2", "3.2", "3.3", "3.4"],
+      "areas": [
+        {
+          "code": "cdisc-sdtm",
+          "label": "CDISC SDTM"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 2. Search & Rank Candidates
 
 Scores, ranks, and returns matching candidates against a structured query.
 

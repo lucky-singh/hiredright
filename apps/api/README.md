@@ -48,7 +48,7 @@ apps/api/
 ├── profiles/
 │   └── models.py                    # CandidateProfile, ActivityClaim, BuilderProgress
 ├── taxonomy/
-│   ├── models.py                    # Function, CompetencyArea, Activity
+│   ├── models.py                    # Role, CompetencyArea, Activity
 │   ├── management/
 │   │   └── commands/
 │   │       └── seed_taxonomy.py     # Seed loader management command
@@ -63,9 +63,9 @@ apps/api/
 ### `taxonomy`
 
 Defines the domain taxonomy model hierarchy:
-$$\text{Function} \xrightarrow{\text{1:N}} \text{CompetencyArea} \xrightarrow{\text{1:N}} \text{Activity}$$
+$$\text{Role} \xrightarrow{\text{1:N}} \text{CompetencyArea} \xrightarrow{\text{1:N}} \text{Activity}$$
 
-- **`Function`**: A major life sciences discipline (e.g. `statistical-programming`).
+- **`Role`**: A major life sciences discipline (e.g. `statistical-programming`).
 - **`CompetencyArea`**: Groupings representing stages in the profile builder (e.g. `cdisc-sdtm`, `cdisc-adam`, `tlf-biostatistics`, `regulatory-submissions`).
 - **`Activity`**: The fundamental, tickable item claimed by candidates and queried by recruiters.
 
@@ -86,8 +86,8 @@ $$\text{Function} \xrightarrow{\text{1:N}} \text{CompetencyArea} \xrightarrow{\t
 Encapsulates candidate identities, verified claims, and wizard progress:
 
 - **`CandidateProfile`**: Extends Django's user model with headline, ISO 3166-1 country code, availability status (`open_to_opportunities`), and recruiter search visibility (`is_searchable`).
-- **`CandidateRole`**: Links candidate to a primary or secondary function with verified `years_experience`.
-- **`CandidateResume`**: Stores role-specific uploaded resumes for a candidate. Eliminates cross-role contamination so a user can maintain separate PDFs for different functions.
+- **`CandidateRole`**: Links candidate to a primary or secondary role with verified `years_experience`.
+- **`CandidateResume`**: Stores role-specific uploaded resumes for a candidate. Eliminates cross-role contamination so a user can maintain separate PDFs for different roles.
 - **`ActivityClaim`**: A candidate's assertion of having performed an `Activity`.
   - `proficiency`: 1 (`EXPOSED`), 2 (`WORKING`), 3 (`PROFICIENT`), 4 (`EXPERT`).
   - `years_experience`: Decimal field (0 to 60 years).
@@ -115,7 +115,7 @@ The matching module is architecturally decoupled into two layers:
 
 Optimized for high responsiveness and zero-latency user flows:
 
-- **`BuilderPayloadSerializer`**: Consolidates the complete function tree, existing user claims, and builder progress into a single JSON payload. Eliminates interactive loading spinners during candidate onboarding.
+- **`BuilderPayloadSerializer`**: Consolidates the complete role tree, existing user claims, and builder progress into a single JSON payload. Eliminates interactive loading spinners during candidate onboarding.
 - **`ClaimBatchSerializer`**: Ingests debounced batches of up to 200 claim updates. Supports upserts and deletions (`claimed: false`). Validates against duplicate activity codes in a single batch.
 
 The views (`api/v1/views.py`) expose four endpoints:
@@ -197,7 +197,7 @@ candidate claim delta batch in PostgreSQL for the authenticated user.
 
 | Model | Table / Constraint | Description |
 | :--- | :--- | :--- |
-| `CompetencyArea` | `uniq_area_code_per_function` | Unique `(role, code)` |
+| `CompetencyArea` | `uniq_area_code_per_role` | Unique `(role, code)` |
 | `Activity` | Unique `code` | Global slug for API stability |
 | `CandidateRole` | `uniq_role_per_profile` | Unique `(profile, role)` |
 | `CandidateResume` | `uniq_resume_per_profile_role` | Unique `(profile, role)` |
