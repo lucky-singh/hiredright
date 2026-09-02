@@ -16,7 +16,7 @@ export interface RegisterResponse {
 export async function registerUser(data: any): Promise<RegisterResponse> {
   const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/auth/registration/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true' },
     body: JSON.stringify(data),
   });
   
@@ -36,7 +36,7 @@ export async function registerUser(data: any): Promise<RegisterResponse> {
 export async function loginUser(data: any): Promise<RegisterResponse> {
   const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/auth/login/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true' },
     body: JSON.stringify(data),
   });
   
@@ -62,7 +62,8 @@ export async function logoutUser(): Promise<void> {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'bypass-tunnel-reminder': 'true', 'Authorization': `Bearer ${token}`
+          'bypass-tunnel-reminder': 'true',
+          'Authorization': `Bearer ${token}`
         },
       });
     }
@@ -76,7 +77,7 @@ export async function logoutUser(): Promise<void> {
 
 export async function requestPasswordReset(email: string): Promise<void> {
   const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/auth/password/reset/', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true' },
     body: JSON.stringify({ email }),
   });
   if (!res.ok) throw new ApiError(res.status, await res.json().catch(() => null));
@@ -84,7 +85,7 @@ export async function requestPasswordReset(email: string): Promise<void> {
 
 export async function confirmPasswordReset(data: { uid: string; token: string; new_password1: string; new_password2: string }): Promise<void> {
   const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/auth/password/reset/confirm/', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true' }, body: JSON.stringify(data),
   });
   if (!res.ok) throw new ApiError(res.status, await res.json().catch(() => null));
 }
