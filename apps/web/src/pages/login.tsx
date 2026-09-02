@@ -110,7 +110,7 @@ export function LoginPage() {
               {loading ? "Logging in..." : "Log in"}
             </button>
           </form>
-          <p className="mt-4 text-center text-sm"><button type="button" className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">Forgot password?</button></p>
+          <p className="mt-4 text-center text-sm"><Link to="/forgot-password" className="text-blue-600 hover:underline">Forgot password?</Link></p>
         </CardContent>
         <CardFooter className="flex justify-center border-t border-zinc-100 dark:border-zinc-800 pt-6">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">

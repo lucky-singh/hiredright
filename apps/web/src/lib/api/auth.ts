@@ -73,3 +73,18 @@ export async function logoutUser(): Promise<void> {
   localStorage.removeItem('access_token');
   localStorage.removeItem('user');
 }
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  const res = await fetch('/api/v1/auth/password/reset/', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) throw new ApiError(res.status, await res.json().catch(() => null));
+}
+
+export async function confirmPasswordReset(data: { uid: string; token: string; new_password1: string; new_password2: string }): Promise<void> {
+  const res = await fetch('/api/v1/auth/password/reset/confirm/', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new ApiError(res.status, await res.json().catch(() => null));
+}

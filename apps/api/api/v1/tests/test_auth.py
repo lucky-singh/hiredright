@@ -68,3 +68,14 @@ class TestCandidateProfileView:
         assert response.status_code == status.HTTP_200_OK
         assert response.data["phone_number"] == "+15705555555"
 
+@pytest.mark.django_db
+class TestAuthPasswordReset:
+    def test_password_reset_confirm_redirect(self, api_client):
+        from django.conf import settings
+        uidb64 = "MTA"
+        token = "test-token-123"
+        url = reverse("password_reset_confirm", kwargs={"uidb64": uidb64, "token": token})
+        response = api_client.get(url)
+        assert response.status_code == 302
+        expected_url = f"{settings.FRONTEND_URL}/reset-password?uid={uidb64}&token={token}"
+        assert response.url == expected_url

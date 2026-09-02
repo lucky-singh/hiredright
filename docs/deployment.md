@@ -60,9 +60,14 @@ These manifests are 100% cloud-agnostic.
 4. **Cluster Update:**
    Apply the Kubernetes manifests using `kubectl apply -k k8s/base/`. Kubernetes will perform a rolling update, pulling the new images and gracefully swapping out the old pods with zero downtime.
 
+## 4. Environment Configuration
+Crucial environment variables for deployment include:
+- `FRONTEND_URL`: The URL of the React SPA (e.g. `https://app.hiredright.com`). This is required for building email templates (like the password reset email) to point correctly to the frontend.
+- `CORS_ALLOWED_ORIGINS`: Comma-separated list of allowed origins.
+
 ---
 
-## 4. Production Considerations & Best Practices
+## 5. Production Considerations & Best Practices
 
 *   **Secrets Management:** Never commit `secrets.yaml` to version control. In a true enterprise environment, integrate **External Secrets Operator** (fetching from AWS Secrets Manager) or **Sealed Secrets** to manage sensitive variables.
 *   **Static Files:** Ensure Django's `collectstatic` is run during the CI/CD pipeline or deployment phase. Currently, the API image expects static files to be served either via WhiteNoise or offloaded to an S3 bucket via `django-storages`.

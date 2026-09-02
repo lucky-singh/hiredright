@@ -5,6 +5,8 @@ import { LoginPage } from './pages/login';
 import { FunctionSelectionPage } from './pages/function-selection';
 import { SearchPage } from './pages/search';
 import { CandidateProfilePage } from './pages/candidate-profile';
+import { ForgotPasswordPage } from './pages/forgot-password';
+import { ResetPasswordPage } from './pages/reset-password';
 
 function BuilderShellWrapper() {
   const { roleCode } = useParams<{ roleCode: string }>();
@@ -18,6 +20,8 @@ function App() {
       <Routes>
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/functions" element={<FunctionSelectionPage />} />
         <Route path="/builder/:roleCode" element={<BuilderShellWrapper />} />
         <Route path="/profile" element={<CandidateProfilePage />} />

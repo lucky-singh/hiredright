@@ -1,6 +1,8 @@
 """API v1 URL routing."""
 
 from django.urls import path, include
+from django.views.generic import RedirectView
+from django.conf import settings
 
 from .views import (
     BuilderProgressView,
@@ -20,6 +22,13 @@ urlpatterns = [
     # Auth endpoints via dj-rest-auth
     path("auth/", include("dj_rest_auth.urls")),
     path("auth/registration/", include("dj_rest_auth.registration.urls")),
+    
+    # Required for dj-rest-auth to build the password reset email link
+    path(
+        "auth/password/reset/confirm/<str:uidb64>/<str:token>/",
+        RedirectView.as_view(url=f"{settings.FRONTEND_URL}/reset-password?uid=%(uidb64)s&token=%(token)s"),
+        name="password_reset_confirm",
+    ),
     
     # Builder APIs
     path("roles/", RoleListView.as_view(), name="role-list"),
