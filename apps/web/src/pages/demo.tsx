@@ -1,64 +1,71 @@
 import { useState, useEffect } from 'react';
-import { Bot, CheckCircle2, FileText, Search, User, ArrowRight, Upload, Loader2, PlayCircle, Briefcase, Filter } from 'lucide-react';
+import { Bot, CheckCircle2, Search, User, ArrowRight, Upload, Loader2, PlayCircle, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 
-const MOCK_PROFILE = {
-  email: 'luckysingh223@gmail.com',
-  first_name: 'Lucky',
-  last_name: 'Singh',
-  phone_number: '+1 234 567 8900',
-  is_recruiter: false,
-  roles: [
-    { code: 'statistical-programmer', label: 'Statistical Programmer' },
-  ],
-  claims: [
-    {
-      activity_code: 'sas-prog',
-      activity_label: 'SAS Programming',
-      proficiency: 4,
-      category: 'Programming Languages',
-      category_sort_order: 1,
-      role_code: 'statistical-programmer',
-      is_ai_inferred: true,
-      years_experience: '5',
-      last_used_year: 2024,
-    },
-    {
-      activity_code: 'r-prog',
-      activity_label: 'R',
-      proficiency: 3,
-      category: 'Programming Languages',
-      category_sort_order: 1,
-      role_code: 'statistical-programmer',
-      is_ai_inferred: true,
-      years_experience: '3',
-      last_used_year: 2024,
-    },
-    {
-      activity_code: 'cdisc-sdtm',
-      activity_label: 'CDISC SDTM/ADaM',
-      proficiency: 4,
-      category: 'Data Standards',
-      category_sort_order: 2,
-      role_code: 'statistical-programmer',
-      is_ai_inferred: true,
-      years_experience: '4',
-      last_used_year: 2024,
-    },
-    {
-      activity_code: 'clin-data',
-      activity_label: 'Clinical Trial Data Management',
-      proficiency: 3,
-      category: 'Data Management',
-      category_sort_order: 3,
-      role_code: 'statistical-programmer',
-      is_ai_inferred: false,
-      years_experience: '4',
-      last_used_year: 2023,
-    }
-  ]
-};
+const MOCK_PROFILES = [
+  {
+    id: 'prof_1',
+    email: 'luckysingh223@gmail.com',
+    first_name: 'Lucky',
+    last_name: 'Singh',
+    phone_number: '+1 234 567 8900',
+    is_recruiter: false,
+    roles: [
+      { code: 'statistical-programmer', label: 'Statistical Programmer' },
+    ],
+    claims: [
+      { activity_code: 'sas-prog', activity_label: 'SAS Programming', proficiency: 4, category: 'Programming Languages', category_sort_order: 1, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '5', last_used_year: 2024 },
+      { activity_code: 'r-prog', activity_label: 'R', proficiency: 3, category: 'Programming Languages', category_sort_order: 1, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '3', last_used_year: 2024 },
+      { activity_code: 'python', activity_label: 'Python', proficiency: 2, category: 'Programming Languages', category_sort_order: 1, role_code: 'statistical-programmer', is_ai_inferred: false, years_experience: '2', last_used_year: 2023 },
+      { activity_code: 'cdisc-sdtm', activity_label: 'CDISC SDTM', proficiency: 4, category: 'Data Standards', category_sort_order: 2, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '4', last_used_year: 2024 },
+      { activity_code: 'cdisc-adam', activity_label: 'CDISC ADaM', proficiency: 4, category: 'Data Standards', category_sort_order: 2, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '4', last_used_year: 2024 },
+      { activity_code: 'clin-data', activity_label: 'Clinical Trial Data Management', proficiency: 3, category: 'Data Management', category_sort_order: 3, role_code: 'statistical-programmer', is_ai_inferred: false, years_experience: '4', last_used_year: 2023 },
+      { activity_code: 'tlf-gen', activity_label: 'TLF Generation', proficiency: 4, category: 'Clinical Reporting', category_sort_order: 4, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '5', last_used_year: 2024 },
+      { activity_code: 'macro-dev', activity_label: 'Macro Development', proficiency: 3, category: 'Programming Languages', category_sort_order: 1, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '4', last_used_year: 2024 },
+      { activity_code: 'e-sub', activity_label: 'eSubmission (FDA/EMA)', proficiency: 2, category: 'Regulatory', category_sort_order: 5, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '1', last_used_year: 2022 },
+      { activity_code: 'sql', activity_label: 'SQL', proficiency: 3, category: 'Database', category_sort_order: 6, role_code: 'statistical-programmer', is_ai_inferred: false, years_experience: '3', last_used_year: 2023 },
+      { activity_code: 'git', activity_label: 'Git', proficiency: 0, category: 'Tools', category_sort_order: 7, role_code: 'statistical-programmer', is_ai_inferred: false, years_experience: '3', last_used_year: 2024 },
+      { activity_code: 'jira', activity_label: 'Jira', proficiency: 0, category: 'Tools', category_sort_order: 7, role_code: 'statistical-programmer', is_ai_inferred: false, years_experience: '2', last_used_year: 2024 },
+    ]
+  },
+  {
+    id: 'prof_2',
+    email: 'jane.doe@example.com',
+    first_name: 'Jane',
+    last_name: 'Doe',
+    phone_number: '+1 987 654 3210',
+    is_recruiter: false,
+    roles: [
+      { code: 'statistical-programmer', label: 'Statistical Programmer' },
+    ],
+    claims: [
+      { activity_code: 'sas-prog', activity_label: 'SAS Programming', proficiency: 3, category: 'Programming Languages', category_sort_order: 1, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '3', last_used_year: 2024 },
+      { activity_code: 'cdisc-sdtm', activity_label: 'CDISC SDTM', proficiency: 2, category: 'Data Standards', category_sort_order: 2, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '2', last_used_year: 2023 },
+      { activity_code: 'python', activity_label: 'Python', proficiency: 4, category: 'Programming Languages', category_sort_order: 1, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '5', last_used_year: 2024 },
+      { activity_code: 'sql', activity_label: 'SQL', proficiency: 4, category: 'Database', category_sort_order: 6, role_code: 'statistical-programmer', is_ai_inferred: false, years_experience: '4', last_used_year: 2024 },
+    ]
+  },
+  {
+    id: 'prof_3',
+    email: 'robert.chen@example.com',
+    first_name: 'Robert',
+    last_name: 'Chen',
+    phone_number: '+1 555 123 4567',
+    is_recruiter: false,
+    roles: [
+      { code: 'statistical-programmer', label: 'Statistical Programmer' },
+    ],
+    claims: [
+      { activity_code: 'r-prog', activity_label: 'R', proficiency: 4, category: 'Programming Languages', category_sort_order: 1, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '6', last_used_year: 2024 },
+      { activity_code: 'clin-data', activity_label: 'Clinical Trial Data Management', proficiency: 4, category: 'Data Management', category_sort_order: 3, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '5', last_used_year: 2024 },
+      { activity_code: 'tlf-gen', activity_label: 'TLF Generation', proficiency: 2, category: 'Clinical Reporting', category_sort_order: 4, role_code: 'statistical-programmer', is_ai_inferred: true, years_experience: '2', last_used_year: 2022 },
+      { activity_code: 'e-sub', activity_label: 'eSubmission (FDA/EMA)', proficiency: 3, category: 'Regulatory', category_sort_order: 5, role_code: 'statistical-programmer', is_ai_inferred: false, years_experience: '3', last_used_year: 2024 },
+    ]
+  }
+];
+
+const MOCK_PROFILE = MOCK_PROFILES[0];
 
 const PROFICIENCY_LABELS: Record<number, string> = {
   1: 'Exposure',
@@ -71,11 +78,12 @@ type DemoStep = 'intro' | 'upload' | 'processing' | 'review' | 'profile' | 'sear
 
 export function DemoPage() {
   const [currentStep, setCurrentStep] = useState<DemoStep>('intro');
-  const [activeRoleCode, setActiveRoleCode] = useState<string>('statistical-programmer');
+
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  const profile = MOCK_PROFILE;
+  const [profile, setProfile] = useState(MOCK_PROFILE);
 
   useEffect(() => {
     if (currentStep === 'processing') {
@@ -87,14 +95,14 @@ export function DemoPage() {
   }, [currentStep]);
 
   useEffect(() => {
-    if (currentStep === 'search' && searchQuery) {
+    if (currentStep === 'search' && (searchQuery || selectedTags.length > 0)) {
       setIsSearching(true);
       const timer = setTimeout(() => {
         setIsSearching(false);
       }, 600);
       return () => clearTimeout(timer);
     }
-  }, [searchQuery, currentStep]);
+  }, [searchQuery, selectedTags, currentStep]);
 
   const renderTutorialSidebar = () => {
     let title = '';
@@ -123,7 +131,7 @@ export function DemoPage() {
         break;
       case 'search':
         title = '5. Recruiter Search';
-        description = 'Recruiters can now search for candidates based on actual verified skills and precise proficiencies, rather than relying on flawed keyword matching.';
+        description = 'Recruiters can now search for candidates based on actual verified skills and precise proficiencies, rather than relying on flawed keyword matching. In production, this powers both the UI and direct API integrations.';
         break;
     }
 
@@ -171,7 +179,25 @@ export function DemoPage() {
           </div>
           
           {currentStep === 'search' && (
-            <div className="mt-12 pt-8 border-t border-blue-800">
+            <div className="mt-8">
+              <h3 className="text-sm font-bold text-blue-200 mb-2 uppercase tracking-wider">API Integration</h3>
+              <div className="bg-blue-950 rounded-lg p-4 font-mono text-xs text-blue-300 overflow-x-auto border border-blue-800 shadow-inner">
+                <p className="text-blue-400 mb-1"># Search for expert SAS programmers</p>
+                <p className="text-white">curl -X POST https://api.hiredright.com/v1/search \</p>
+                <p className="text-white ml-4">-H "Authorization: Bearer YOUR_API_KEY" \</p>
+                <p className="text-white ml-4">-H "Content-Type: application/json" \</p>
+                <p className="text-white ml-4">-d '&#123;</p>
+                <p className="text-white ml-8">"role": "statistical-programmer",</p>
+                <p className="text-white ml-8">"skills": [</p>
+                <p className="text-white ml-12">&#123; "code": "sas-prog", "min_proficiency": 4 &#125;</p>
+                <p className="text-white ml-8">]</p>
+                <p className="text-white ml-4">&#125;'</p>
+              </div>
+            </div>
+          )}
+
+          {currentStep === 'search' && (
+            <div className="mt-8 pt-6 border-t border-blue-800">
               <p className="text-sm text-blue-200 mb-4">You have completed the demo!</p>
               <Link to="/signup" className="block w-full py-3 px-4 bg-white text-blue-900 text-center font-bold rounded-lg hover:bg-blue-50 transition-colors">
                 Sign up for real
@@ -283,7 +309,15 @@ export function DemoPage() {
                       {[1, 2, 3, 4].map(level => (
                         <div 
                           key={level} 
-                          className={`px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer border ${claim.proficiency === level ? 'bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-900/50 dark:border-blue-700 dark:text-blue-300' : 'bg-white border-zinc-200 text-zinc-600 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400'}`}
+                          onClick={() => {
+                            setProfile(prev => {
+                              const newClaims = [...prev.claims];
+                              const claimIndex = newClaims.findIndex(c => c.activity_code === claim.activity_code);
+                              newClaims[claimIndex] = { ...newClaims[claimIndex], proficiency: level };
+                              return { ...prev, claims: newClaims };
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer border transition-colors ${claim.proficiency === level ? 'bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-900/50 dark:border-blue-700 dark:text-blue-300' : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'}`}
                         >
                           {PROFICIENCY_LABELS[level]}
                         </div>
@@ -334,7 +368,9 @@ export function DemoPage() {
             
             <div className="space-y-4">
               {Object.values(
-                profile.claims.reduce((acc, claim) => {
+                profile.claims
+                  .filter(claim => claim.proficiency && claim.proficiency > 0)
+                  .reduce((acc, claim) => {
                   const cat = claim.category || 'General';
                   if (!acc[cat]) {
                     acc[cat] = { category: cat, sort_order: claim.category_sort_order ?? 999, claims: [] };
@@ -374,14 +410,20 @@ export function DemoPage() {
         );
 
       case 'search':
-        const matchesSearch = profile.claims.some(c => 
-          c.activity_label.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        const showResult = searchQuery === '' || matchesSearch;
+        const searchResults = MOCK_PROFILES.map((prof, index) => {
+          const profData = index === 0 ? profile : prof;
+          const matchesText = searchQuery === '' || profData.claims.some(c => 
+            c.activity_label.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+          const matchesTags = selectedTags.length === 0 || selectedTags.every(tag => 
+            profData.claims.some(c => c.activity_label.toLowerCase() === tag.toLowerCase() && c.proficiency > 0)
+          );
+          return { prof: profData, index: index + 1, matchesSearch: matchesText && matchesTags };
+        }).filter(item => item.matchesSearch);
 
         return (
           <div className="w-full max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 h-full flex flex-col">
-            <div className="bg-zinc-900 text-white rounded-xl p-6 mb-6 shadow-xl">
+            <div className="bg-zinc-900 text-white rounded-xl p-6 mb-6 shadow-xl shrink-0">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <Search className="w-5 h-5 text-blue-400" />
                 Find Candidates
@@ -402,37 +444,45 @@ export function DemoPage() {
                 </button>
               </div>
               <div className="flex gap-2 mt-4 overflow-x-auto hide-scrollbar">
-                {['SAS Programming', 'CDISC SDTM', 'Python'].map(tag => (
-                  <button 
-                    key={tag}
-                    onClick={() => setSearchQuery(tag)}
-                    className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-sm rounded-full border border-zinc-700 transition-colors whitespace-nowrap"
-                  >
-                    {tag}
-                  </button>
-                ))}
+                {['SAS Programming', 'CDISC SDTM', 'Python'].map(tag => {
+                  const isSelected = selectedTags.includes(tag);
+                  return (
+                    <button 
+                      key={tag}
+                      onClick={() => {
+                        setSelectedTags(prev => 
+                          isSelected ? prev.filter(t => t !== tag) : [...prev, tag]
+                        );
+                      }}
+                      className={`px-3 py-1 text-sm rounded-full border transition-colors whitespace-nowrap ${isSelected ? 'bg-blue-600 text-white border-blue-600' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'}`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 overflow-y-auto pb-8 space-y-4 pr-2">
               {isSearching ? (
                 <div className="py-12 flex justify-center">
                   <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                 </div>
-              ) : showResult ? (
-                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-blue-300 dark:hover:border-blue-700 transition-colors cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-300">
+              ) : searchResults.length > 0 ? (
+                searchResults.map(({ prof, index }) => (
+                <div key={prof.id} className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-blue-300 dark:hover:border-blue-700 transition-colors cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-300">
                   <div className="flex items-center gap-4">
                      <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xl font-bold shrink-0">
-                      {profile.first_name[0]}{profile.last_name[0]}
+                      P{index}
                     </div>
                     <div>
                       <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-                        {profile.first_name} {profile.last_name[0]}.
+                        Profile #{index}
                       </h4>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">Statistical Programmer</p>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400">{prof.roles[0]?.label}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
-                          98% Match
+                          {index === 1 ? '98% Match' : index === 2 ? '85% Match' : '72% Match'}
                         </Badge>
                       </div>
                     </div>
@@ -441,8 +491,10 @@ export function DemoPage() {
                   <div className="flex-1">
                     <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Verified Top Skills</p>
                     <div className="flex flex-wrap gap-2">
-                      {profile.claims.slice(0, 3).map((claim, idx) => {
-                        const isMatch = searchQuery && claim.activity_label.toLowerCase().includes(searchQuery.toLowerCase());
+                      {prof.claims.filter(c => c.proficiency && c.proficiency > 0).slice(0, 4).map((claim, idx) => {
+                        const isTextMatch = searchQuery && claim.activity_label.toLowerCase().includes(searchQuery.toLowerCase());
+                        const isTagMatch = selectedTags.some(tag => claim.activity_label.toLowerCase() === tag.toLowerCase());
+                        const isMatch = isTextMatch || isTagMatch;
                         return (
                           <span 
                             key={idx} 
@@ -455,6 +507,7 @@ export function DemoPage() {
                     </div>
                   </div>
                 </div>
+                ))
               ) : (
                 <div className="py-12 text-center">
                   <User className="w-12 h-12 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
@@ -470,13 +523,15 @@ export function DemoPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col lg:flex-row font-sans">
       {renderTutorialSidebar()}
-      <div className="flex-1 overflow-y-auto h-screen p-4 sm:p-8 lg:p-12 flex items-center justify-center bg-zinc-100 dark:bg-zinc-950/50 relative">
-        <div className="w-full max-w-4xl mx-auto absolute top-4 sm:top-8 right-4 sm:right-8 flex justify-end">
+      <div className="flex-1 overflow-y-auto h-screen p-4 sm:p-8 lg:p-12 bg-zinc-100 dark:bg-zinc-950/50 relative">
+        <div className="w-full max-w-4xl mx-auto flex justify-end mb-8">
           <Link to="/" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
             Exit Demo
           </Link>
         </div>
-        {renderAppContent()}
+        <div className="pt-8 sm:pt-16 pb-20">
+          {renderAppContent()}
+        </div>
       </div>
     </div>
   );

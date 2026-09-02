@@ -26,7 +26,7 @@ describe('CandidateProfilePage', () => {
 
   it('hides role tabs when user has only 1 role', async () => {
     // Mock fetch to return a profile with exactly 1 role
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         email: "test@example.com",
@@ -58,7 +58,7 @@ describe('CandidateProfilePage', () => {
   });
 
   it('shows role tabs when user has multiple roles', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         email: "test@example.com",

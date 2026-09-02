@@ -150,3 +150,12 @@ HireRight features an intelligent resume parsing engine powered by Google Gemini
 
 ---
 
+## Interactive Static Demo
+An interactive, static demonstration of the HiredRight platform journey is available at `/demo`. This page uses mocked state to showcase the resume upload, AI extraction, skills review, profile generation, and candidate search experience without requiring a backend or database.
+
+### Deploying the Demo to GitHub Pages
+To publish the static demo to GitHub Pages:
+1. Build the frontend: `cd apps/web && npm run build`
+2. Prepare routing for GH Pages: `cp dist/index.html dist/404.html`
+3. Push the `dist/` folder to your `gh-pages` branch. (Remember to configure `base` in `vite.config.ts` if deploying to a subdirectory).
+
