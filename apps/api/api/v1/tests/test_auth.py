@@ -68,6 +68,37 @@ class TestCandidateProfileView:
         assert response.status_code == status.HTTP_200_OK
         assert response.data["phone_number"] == "+15705555555"
 
+    def test_candidate_profile_view_returns_roles_and_claims(self, api_client):
+        from profiles.models import CandidateProfile, BuilderProgress, ActivityClaim
+        from taxonomy.models import Role, CompetencyArea, Activity
+
+        user = User.objects.create_user(email="testroles@example.com", password="pwd")
+        profile = CandidateProfile.objects.create(user=user)
+        role = Role.objects.create(code="test-role", label="Test Role")
+        area = CompetencyArea.objects.create(role=role, code="test-area", label="Test Area")
+        activity = Activity.objects.create(code="test-activity", label="Test Activity")
+        activity.competency_areas.add(area)
+        
+        # Candidate has builder progress
+        BuilderProgress.objects.create(profile=profile, role=role)
+        # Candidate has a claim
+        ActivityClaim.objects.create(profile=profile, activity=activity, proficiency=3)
+
+        api_client.force_authenticate(user=user)
+        url = reverse("candidate-profile")
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
+        assert "roles" in data
+        assert len(data["roles"]) == 1
+        assert data["roles"][0]["code"] == "test-role"
+        
+        assert "claims" in data
+        assert len(data["claims"]) == 1
+        assert data["claims"][0]["role_code"] == "test-role"
+        assert data["claims"][0]["activity_code"] == "test-activity"
+
 @pytest.mark.django_db
 class TestAuthPasswordReset:
     def test_password_reset_confirm_redirect(self, api_client):

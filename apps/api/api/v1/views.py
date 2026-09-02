@@ -426,7 +426,24 @@ class CandidateProfileView(APIView):
                 data["resume"] = profile.resume.url
                 
             # Fetch all claims
-            claims = ActivityClaim.objects.filter(profile=profile).select_related('activity').prefetch_related('activity__competency_areas')
+            claims = ActivityClaim.objects.filter(profile=profile).select_related('activity').prefetch_related('activity__competency_areas__role')
+            
+            # Identify roles the candidate has interacted with (via BuilderProgress)
+            from profiles.models import BuilderProgress
+            progresses = BuilderProgress.objects.filter(profile=profile).select_related('role')
+            
+            # Use dictionary to maintain uniqueness while preserving order
+            user_roles = {}
+            for p in progresses:
+                user_roles[p.role.code] = p.role.label
+                
+            # Also include any roles from claims just in case they have claims but no progress
+            for claim in claims:
+                for area in claim.activity.competency_areas.all():
+                    if area.role and area.role.code not in user_roles:
+                        user_roles[area.role.code] = area.role.label
+                        
+            data["roles"] = [{"code": code, "label": label} for code, label in user_roles.items()]
             
             # Format claims
             claims_data = []
@@ -434,12 +451,14 @@ class CandidateProfileView(APIView):
                 areas = list(claim.activity.competency_areas.all())
                 category_label = areas[0].label if areas else "General"
                 category_sort = areas[0].sort_order if areas else 999
+                role_code = areas[0].role.code if areas and areas[0].role else None
                 claims_data.append({
                     "activity_code": claim.activity.code,
                     "activity_label": claim.activity.label,
                     "proficiency": claim.proficiency,
                     "category": category_label,
                     "category_sort_order": category_sort,
+                    "role_code": role_code,
                     "is_ai_inferred": claim.is_ai_inferred,
                     "years_experience": str(claim.years_experience) if claim.years_experience else None,
                     "last_used_year": claim.last_used_year

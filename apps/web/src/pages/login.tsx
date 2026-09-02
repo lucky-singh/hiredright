@@ -35,7 +35,7 @@ export function LoginPage() {
       if (responseData.user?.is_recruiter) {
         navigate('/search');
       } else {
-        navigate('/functions');
+        navigate('/profile');
       }
     } catch (err: any) {
       console.error(err);

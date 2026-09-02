@@ -11,12 +11,14 @@ interface ProfileData {
   phone_number?: string;
   is_recruiter: boolean;
   resume?: string;
+  roles?: { code: string; label: string }[];
   claims: {
     activity_code: string;
     activity_label: string;
     proficiency: number | null;
     category?: string;
     category_sort_order?: number;
+    role_code?: string;
     is_ai_inferred?: boolean;
     years_experience?: string | null;
     last_used_year?: number | null;
@@ -42,6 +44,8 @@ export function CandidateProfilePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
 
 
+  const [activeRoleCode, setActiveRoleCode] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -56,6 +60,9 @@ export function CandidateProfilePage() {
         if (!res.ok) throw new Error('Failed to load profile');
         const data = await res.json();
         setProfile(data);
+        if (data.roles && data.roles.length > 0) {
+          setActiveRoleCode(data.roles[0].code);
+        }
         setEditForm({
           first_name: data.first_name || '',
           last_name: data.last_name || '',
@@ -193,10 +200,10 @@ export function CandidateProfilePage() {
           
           <div className="flex flex-col gap-3 w-full sm:w-auto">
             <button
-              onClick={() => navigate('/functions')}
+              onClick={() => navigate(activeRoleCode ? `/builder/${activeRoleCode}` : '/functions')}
               className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
             >
-              Edit Skills / Upload Resume
+              {activeRoleCode ? 'Edit Skills / Upload Resume' : 'Add Skills'}
             </button>
             {profile.resume && (
               <a 
@@ -214,15 +221,36 @@ export function CandidateProfilePage() {
 
         {/* Global Claims */}
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-6">
-            Verified Skills Summary
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Verified Skills Summary
+            </h2>
+            {profile.roles && profile.roles.length > 0 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
+                {profile.roles.map(role => (
+                  <button
+                    key={role.code}
+                    onClick={() => setActiveRoleCode(role.code)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeRoleCode === role.code ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'}`}
+                  >
+                    {role.label}
+                  </button>
+                ))}
+                <button
+                  onClick={() => navigate('/functions')}
+                  className="px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1"
+                >
+                  <span>+</span> Add Role
+                </button>
+              </div>
+            )}
+          </div>
           
-          {profile.claims.length === 0 ? (
+          {profile.claims.filter(claim => !activeRoleCode || claim.role_code === activeRoleCode).length === 0 ? (
             <div className="text-center py-16 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl">
-              <p className="text-zinc-500 dark:text-zinc-400">You haven't added any skills yet.</p>
+              <p className="text-zinc-500 dark:text-zinc-400">You haven't added any skills yet for this role.</p>
               <button
-                onClick={() => navigate('/functions')}
+                onClick={() => navigate(activeRoleCode ? `/builder/${activeRoleCode}` : '/functions')}
                 className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-500"
               >
                 Go to Builder &rarr;
@@ -231,7 +259,9 @@ export function CandidateProfilePage() {
           ) : (
             <div className="space-y-6">
               {Object.values(
-                profile.claims.reduce((acc, claim) => {
+                profile.claims
+                  .filter(claim => !activeRoleCode || claim.role_code === activeRoleCode)
+                  .reduce((acc, claim) => {
                   const cat = claim.category || 'General';
                   if (!acc[cat]) {
                     acc[cat] = {

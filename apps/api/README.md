@@ -125,6 +125,7 @@ The views (`api/v1/views.py`) expose four endpoints:
 | `/api/v1/builder/claims/` | `POST` | Candidate JWT | Debounced batch upsert/delete of claim deltas |
 | `/api/v1/builder/progress/` | `PUT` | Candidate JWT | Server-side resume state |
 | `/api/v1/search/` | `POST` | OAuth2 `candidates:search` | Recruiter matching |
+| `/api/v1/profile/` | `GET` | Candidate JWT | Candidate summary, including multiple `roles` selected by the candidate and all `claims` annotated with `role_code`. |
 
 #### Write-path validation
 
