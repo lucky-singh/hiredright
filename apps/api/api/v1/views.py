@@ -440,15 +440,18 @@ class CandidateProfileView(APIView):
         
         try:
             profile = CandidateProfile.objects.get(user=user)
+            
+            # Use Django proxy endpoints instead of raw MinIO URLs to prevent HTTPS Mixed Content errors
             if profile.resume:
-                data["resume"] = profile.resume.url
+                data["resume"] = "/api/v1/profile/resume/download/"
                 
             # Fetch all claims and role-specific resumes
             claims = ActivityClaim.objects.filter(profile=profile).select_related('activity').prefetch_related('activity__competency_areas__role')
             
             from profiles.models import BuilderProgress, CandidateResume
             progresses = BuilderProgress.objects.filter(profile=profile).select_related('role')
-            role_resumes = {cr.role.code: cr.file.url for cr in CandidateResume.objects.filter(profile=profile) if cr.file}
+            
+            role_resumes = {cr.role.code: f"/api/v1/profile/resume/download/{cr.role.code}/" for cr in CandidateResume.objects.filter(profile=profile) if cr.file}
             
             # Use dictionary to maintain uniqueness while preserving order
             user_roles = {}
@@ -541,3 +544,42 @@ class HealthCheckView(APIView):
             return Response({"status": "ok", "database": "connected"})
         except Exception as e:
             return Response({"status": "error", "database": "disconnected", "details": str(e)}, status=503)
+
+from django.http import HttpResponse, Http404
+import requests
+
+class ResumeDownloadView(APIView):
+    """GET /api/v1/profile/resume/download/[<role_code>/] — proxy the resume from MinIO to avoid Mixed Content errors."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, role_code=None):
+        profile = get_object_or_404(CandidateProfile, user=request.user)
+        
+        if role_code:
+            from profiles.models import CandidateResume
+            resume_obj = get_object_or_404(CandidateResume, profile=profile, role__code=role_code)
+            file_field = resume_obj.file
+        else:
+            file_field = profile.resume
+            
+        if not file_field:
+            raise Http404("No resume found")
+            
+        # Get the URL from storage
+        url = file_field.url
+        
+        # If the URL points to localhost or minio, proxy it through Django
+        try:
+            # We use stream=True to proxy the file in chunks
+            # If the URL uses localhost but we are in a docker container, replace with minio
+            internal_url = url.replace("localhost:9000", "minio:9000")
+            r = requests.get(internal_url, stream=True)
+            r.raise_for_status()
+            
+            response = HttpResponse(r.iter_content(chunk_size=8192), content_type=r.headers.get('Content-Type', 'application/pdf'))
+            response['Content-Disposition'] = f'inline; filename="{file_field.name.split("/")[-1]}"'
+            return response
+        except Exception as e:
+            # Fallback to redirect if proxy fails
+            from django.shortcuts import redirect
+            return redirect(url)

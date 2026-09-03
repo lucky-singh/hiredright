@@ -5,6 +5,7 @@ from django.views.generic import RedirectView
 from django.conf import settings
 
 from .views import (
+    ResumeDownloadView,
     BuilderProgressView,
     BuilderView,
     CandidateSearchView,
@@ -38,6 +39,8 @@ urlpatterns = [
     path("profile/resume/", ResumeUploadView.as_view(), name="resume-upload"),
     path("profile/resume/status/<str:task_id>/", ResumeTaskStatusView.as_view(), name="resume-status"),
     path("profile/", CandidateProfileView.as_view(), name="candidate-profile"),
+    path("profile/resume/download/", ResumeDownloadView.as_view(), name="resume-download"),
+    path("profile/resume/download/<slug:role_code>/", ResumeDownloadView.as_view(), name="role-resume-download"),
     path("builder/<slug:role_code>/", BuilderView.as_view(), name="builder"),
     path("search/", CandidateSearchView.as_view(), name="candidate-search"),
 ]

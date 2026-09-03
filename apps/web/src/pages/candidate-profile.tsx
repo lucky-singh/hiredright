@@ -232,20 +232,45 @@ export function CandidateProfilePage() {
             
             {(() => {
               const activeRole = profile.roles?.find(r => r.code === activeRoleCode);
-              const currentResume = activeRole?.resume || profile.resume;
+              const currentResumeUrl = activeRole?.resume || profile.resume;
+              const currentResume = currentResumeUrl 
+                ? (currentResumeUrl.startsWith('http') ? currentResumeUrl : `${import.meta.env.VITE_API_URL || ''}${currentResumeUrl}`) 
+                : undefined;
               
               if (!currentResume) return null;
               
               return (
-                <a 
-                  href={currentResume} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="px-4 py-2 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 mt-2"
+                <button 
+                  onClick={async () => {
+                    try {
+                      // Fetch as blob to pass auth token and bypass headers to the proxy view
+                      const token = localStorage.getItem('access_token');
+                      const response = await fetch(currentResume, { 
+                        method: 'GET',
+                        headers: {
+                          'bypass-tunnel-reminder': 'true',
+                          ...(token && token !== 'null' && token !== 'undefined' ? { Authorization: `Bearer ${token}` } : {})
+                        }
+                      });
+                      if (!response.ok) throw new Error("Failed to download");
+                      const blob = await response.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = "resume.pdf";
+                      document.body.appendChild(a);
+                      a.click();
+                      window.URL.revokeObjectURL(url);
+                      document.body.removeChild(a);
+                    } catch (err) {
+                      alert("Failed to download resume.");
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 mt-2 cursor-pointer"
                 >
                   <FileText className="w-4 h-4 text-zinc-400" />
-                  View Current Resume
-                </a>
+                  Download Resume
+                </button>
               );
             })()}
           </div>
