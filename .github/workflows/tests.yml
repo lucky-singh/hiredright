@@ -59,10 +59,20 @@ jobs:
           pip install pytest pytest-django pytest-cov faker
           
       - name: Create MinIO Bucket
+        env:
+          AWS_ACCESS_KEY_ID: minioadmin
+          AWS_SECRET_ACCESS_KEY: minioadmin
+          AWS_DEFAULT_REGION: us-east-1
         run: |
-          docker run --network host minio/mc alias set myminio http://localhost:9000 minioadmin minioadmin
-          docker run --network host minio/mc mb myminio/hiredright || true
-          docker run --network host minio/mc anonymous set download myminio/hiredright || true
+          # Wait for MinIO to be ready and create bucket using aws-cli
+          for i in {1..30}; do
+            if curl -s http://localhost:9000/minio/health/live; then
+              aws --endpoint-url http://localhost:9000 s3 mb s3://hiredright
+              break
+            fi
+            echo "Waiting for MinIO..."
+            sleep 1
+          done
           
       - name: Run Backend Tests
         working-directory: ./apps/api
