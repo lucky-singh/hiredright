@@ -25,7 +25,7 @@ HireRight replaces noisy keyword-based resume searches with a structured, verifi
 Traditional recruitment platforms fail in clinical research and life sciences because generic keyword matching cannot differentiate between candidate exposure, active production, and version-specific regulatory requirements (e.g. CDISC SDTM IG 3.3 vs 3.2, Define-XML 2.1, Pinnacle 21 issue resolution, or ISS/ISE data pooling).
 
 HireRight solves this through:
-- **A 107-parameter Clinical Statistical Programming Taxonomy** structured hierarchically into Roles, Competency Areas, and Activities.
+- **Three seeded domain taxonomies** — Statistical Programming (122 activities), Clinical Research Associate (150), and Clinical Data Management (150) — each spanning 14 competency areas and structured hierarchically into Roles, Competency Areas, and Activities.
 - **Granular Activity Claims** with proficiency levels (1–4), years of experience, recency tracking, and version multi-select variants.
 - **A Deterministic Matching Engine** that pre-filters candidate pools in SQL and scores matches using a pure, table-tested mathematical algorithm factoring in proficiency, recency decay, and variant overlap.
 - **A Zero-Latency Profile Builder** with debounced server-side autosave and cross-device resume capabilities.
@@ -37,47 +37,70 @@ HireRight solves this through:
 ```
 hiredright/
 ├── apps/
-│   └── api/                         # Backend API (Django 5.2, DRF 3.15+)
-│       ├── manage.py                # Django CLI entrypoint
-│       ├── Dockerfile               # API container image
-│       ├── config/                  # Project configuration
-│       │   ├── settings/            # base.py, dev.py, prod.py (env-driven)
-│       │   ├── urls.py              # Root routing (admin, auth, OAuth2, schema)
-│       │   ├── wsgi.py / asgi.py    # Server entrypoints
-│       │   └── celery.py            # Celery app (queue for CV parsing, etc.)
-│       ├── accounts/                # Custom User (email-first) + allauth + JWT
-│       │   ├── models.py            # User (email, phone, verification flags)
-│       │   └── sms/backends.py      # Pluggable OTP SMS backends
-│       ├── api/                     # REST API views & serializers (v1)
-│       │   └── v1/
-│       │       ├── views.py         # BuilderView, ClaimBatchView, SearchView
-│       │       ├── urls.py          # /api/v1/ route table
-│       │       ├── permissions.py   # OAuth2 scope gate for recruiter search
-│       │       └── serializers.py   # Dense builder & batch sync serializers
-│       ├── matching/                # Matching engine & pure scoring
-│       │   ├── scoring.py           # Pure scoring role & dataclasses
-│       │   ├── search.py            # SQL pre-filter & candidate search pipeline
-│       │   └── tests/
-│       │       └── test_scoring.py  # Table-driven test suite
-│       ├── profiles/                # Candidate profiles, claims & progress
-│       │   └── models.py            # CandidateProfile, ActivityClaim, BuilderProgress
-│       ├── taxonomy/                # Taxonomy domain engine
-│       │   ├── models.py            # Role, CompetencyArea, Activity
-│       │   ├── management/
-│       │   │   └── commands/
-│       │   │       └── seed_taxonomy.py # Idempotent YAML seed runner
-│       │   └── seed/
-│       │       └── statistical_programming.yaml # 107-item seed breakdown
-│       ├── requirements.txt         # Python dependencies
-│       ├── pytest.ini               # pytest-django configuration
-│       └── README.md                # Backend API documentation
-├── docker-compose.yml               # postgres, redis, minio, api, worker
+│   ├── api/                         # Backend API (Django 5.2, DRF 3.15+)
+│   │   ├── manage.py                # Django CLI entrypoint
+│   │   ├── Dockerfile               # Dev container image (runserver)
+│   │   ├── Dockerfile.prod          # Multi-stage production image (Gunicorn)
+│   │   ├── config/                  # Project configuration
+│   │   │   ├── settings/            # base.py, dev.py, prod.py (env-driven)
+│   │   │   ├── urls.py              # Root routing (admin, auth, OAuth2, schema)
+│   │   │   ├── wsgi.py / asgi.py    # Server entrypoints
+│   │   │   └── celery.py            # Celery app (queue for CV parsing, etc.)
+│   │   ├── accounts/                # Custom User (email-first) + allauth + JWT
+│   │   │   ├── models.py            # User (email, phone, verification, is_recruiter)
+│   │   │   └── sms/backends.py      # Pluggable OTP SMS backends
+│   │   ├── api/                     # REST API views & serializers (v1)
+│   │   │   └── v1/
+│   │   │       ├── views.py         # Builder, claims, search, resume, profile, health
+│   │   │       ├── urls.py          # /api/v1/ route table
+│   │   │       ├── permissions.py   # OAuth2 scope + is_recruiter gates for search
+│   │   │       ├── serializers.py   # Dense builder & batch sync serializers
+│   │   │       ├── auth_serializers.py # Custom registration serializer
+│   │   │       └── tests/           # auth, builder, claims, skills, search, resume, health
+│   │   ├── matching/                # Matching engine & pure scoring
+│   │   │   ├── scoring.py           # Pure scoring function & dataclasses
+│   │   │   ├── search.py            # SQL pre-filter & candidate search pipeline
+│   │   │   └── tests/               # test_scoring.py (pure), test_search.py (ORM)
+│   │   ├── profiles/                # Candidate profiles, claims & progress
+│   │   │   ├── models.py            # CandidateProfile, CandidateRole, CandidateResume,
+│   │   │   │                        # ActivityClaim, BuilderProgress
+│   │   │   └── tasks.py             # Celery `parse_resume_task` (Gemini extraction)
+│   │   ├── taxonomy/                # Taxonomy domain engine
+│   │   │   ├── models.py            # Role, CompetencyArea, Activity (+ cache signals)
+│   │   │   ├── management/commands/seed_taxonomy.py # Idempotent YAML seed runner
+│   │   │   ├── seed/                # statistical_programming.yaml (122 activities)
+│   │   │   │                        # clinical_research_associate.yaml (150)
+│   │   │   │                        # clinical_data_management.yaml (150)
+│   │   │   └── tests/               # test_models.py, test_seed.py
+│   │   ├── requirements.txt         # Python dependencies
+│   │   ├── pytest.ini               # pytest-django configuration
+│   │   └── README.md                # Backend API documentation
+│   └── web/                         # Frontend SPA (React 19, Vite, TypeScript)
+│       ├── src/
+│       │   ├── App.tsx              # Route table (react-router-dom v7)
+│       │   ├── pages/               # login, signup, functions, profile, search, demo,
+│       │   │                        # forgot-password, reset-password
+│       │   ├── components/builder/  # Builder shell, steps, sidebar, selectors
+│       │   ├── components/ui/       # Base UI primitives (button, card, input, …)
+│       │   ├── hooks/               # use-claim-sync (500ms debounce), use-progress
+│       │   ├── lib/api/             # client.ts, auth.ts, builder.ts, search.ts, types.ts
+│       │   └── stores/              # builder-store.ts (Zustand)
+│       ├── nginx/default.conf       # SPA routing + static caching for prod image
+│       ├── Dockerfile.prod          # Multi-stage build → Nginx
+│       ├── vite.config.ts           # Dev server :3000, /api proxy, Vitest config
+│       └── README.md                # Frontend guide
+├── docker-compose.yml               # db, redis, minio, createbuckets, api, worker
+├── k8s/base/                        # Cloud-agnostic Kubernetes manifests
+├── terraform/aws/                   # EKS + RDS provisioning (main.tf, variables.tf)
+├── .github/workflows/               # tests.yml, production-deploy.yml, gitleaks.yml
 ├── .env.example                     # Environment variable template
 ├── docs/                            # Deep-dive documentation
 │   ├── architecture.md              # System design & architectural patterns
+│   ├── deployment.md                # Terraform / Kubernetes production strategy
 │   ├── matching_engine.md           # Mathematical specification of scoring
 │   ├── taxonomy_guide.md            # Taxonomy authoring & seed guide
 │   └── api_reference.md             # REST API contracts & payload schemas
+├── CONTRIBUTING.md                  # Local setup, seeding, tests
 └── README.md                        # Root project documentation (this file)
 ```
 
@@ -89,9 +112,14 @@ hiredright/
 The taxonomy is structured into three levels:
 $$\text{Role} \longrightarrow \text{CompetencyArea} \longrightarrow \text{Activity}$$
 
-- **Role** (e.g. `statistical-programming`): Top-level pharma discipline.
-- **CompetencyArea** (e.g. `core-programming`, `cdisc-sdtm`, `cdisc-adam`, `tlf-biostatistics`, `regulatory-submissions`, `therapeutic-areas`, `integrated-summaries`, `tools-systems-automation`, `leadership-oversight`): Steps within the candidate builder.
-- **Activity** (e.g. `sdtm-implementation-guide`, `base-sas`, `sap-interpretation`): Atomic items that candidates claim and recruiters search against.
+- **Role**: Top-level pharma discipline. Three are seeded today:
+  | Role code | Label | Competency areas | Activities |
+  | :--- | :--- | :---: | :---: |
+  | `statistical-programming` | Statistical Programming | 14 | 122 |
+  | `clinical-research-associate` | Clinical Research Associate | 14 | 150 |
+  | `clinical-data-management` | Clinical Data Management | 14 | 150 |
+- **CompetencyArea**: Steps within the candidate builder. For Statistical Programming these are `core-programming`, `cdisc-sdtm`, `cdisc-adam`, `tlf-biostatistics`, `regulatory-submissions`, `therapeutic-areas`, `integrated-summaries`, `tools-systems-automation`, `leadership-oversight`, `ai-ml-automation`, `python-ecosystem`, `rwe-omop`, `cloud-native-computing`, and `complex-therapeutics-designs`.
+- **Activity** (e.g. `sdtm-implementation-guide`, `base-sas`, `sap-interpretation`): Atomic items that candidates claim and recruiters search against. Activities attach to competency areas many-to-many, so a shared item such as ICH-GCP compliance is reused across roles rather than duplicated.
 
 ### 2. Claim Types & Signal Quality
 To prevent score inflation and preserve data integrity, activities are classified into three types:
@@ -135,20 +163,25 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for full instructions on:
 | [**Frontend Guide**](apps/web/README.md) | React frontend architecture, Vite configuration, routing, and state management. |
 
 ### Recruiter Search Dashboard
-The system includes a dedicated Recruiter Search interface (`http://localhost:3000/search`) allowing authenticated recruiters to search candidate profiles. 
-- You must create a user with the `is_recruiter=True` flag in the Django admin to access the underlying API endpoints (`/api/v1/search/`).
-- The login page automatically detects the `is_recruiter` role on login and redirects recruiters to the Search Dashboard, while standard candidates are routed to the Profile Builder.
+The system includes a dedicated Recruiter Search interface (`http://localhost:3000/search`) allowing authenticated recruiters to search candidate profiles.
+- `/api/v1/search/` accepts **two** credentials and no third (`HasRecruiterSearchScope | IsRecruiterUser`): an OAuth2 client-credentials token carrying the `candidates:search` scope (service-to-service), or a logged-in user whose `is_recruiter` flag is `True` (the browser dashboard). A plain candidate JWT is rejected with `403`.
+- Create a user with `is_recruiter=True` in the Django admin to use the dashboard.
+- The login page reads `is_recruiter` off the auth response and redirects recruiters to the Search Dashboard, while standard candidates are routed to the Profile Builder.
 - The dashboard allows configuring multiple skill requirements (Required vs. Optional) per role and instantly calculates a candidate % match score via the internal `scoring.py` engine based on skill recency and proficiency.
+- Results carry no candidate PII — only `profile_id` and match diagnostics.
 - A global User Menu is available in the top right corner across all authenticated pages to display the active profile's role and allow quick navigation.
 
 ## Smart Resume Parsing (AI)
-HireRight features an intelligent resume parsing engine powered by Google Gemini (e.g., `gemini-3.6-flash`).
-1. **Upload**: Users upload their PDF resume on the frontend Builder screen.
-2. **Storage**: The document is securely pushed to MinIO via `django-storages`.
+HireRight features an intelligent resume parsing engine powered by Google Gemini (`gemini-3.6-flash`, via the `google-genai` SDK).
+1. **Upload**: Users upload their PDF resume on the frontend Builder screen, tagged with the role they are building.
+2. **Storage**: The document is pushed to MinIO via `django-storages`, stored both as a role-specific `CandidateResume` and on `CandidateProfile.resume`. Files are named `<Name>_<role-code>_Resume.pdf`.
 3. **Queue**: A Celery task (`parse_resume_task`) is dispatched into the Redis queue.
 4. **Extraction**: The worker extracts raw text via `pypdf`.
-5. **Contextual Matching**: The text, along with the *context-specific* taxonomy for the active job role, is sent to Gemini.
-6. **Auto-Fill**: Gemini returns a JSON object of validated Activity codes which are automatically inserted as `ActivityClaim` rows in Postgres.
+5. **Contextual Matching**: The text, along with the *context-specific* taxonomy for the active job role, is sent to Gemini with `response_mime_type: application/json`.
+6. **Auto-Fill**: Gemini returns a JSON object of validated Activity codes which are inserted as `ActivityClaim` rows in Postgres with `is_ai_inferred=True`. If `GEMINI_API_KEY` is unset the task logs a warning and creates no claims.
+
+### Resume downloads
+Resumes are served through Django rather than by linking at MinIO directly. `GET /api/v1/profile/resume/download/` (global) and `/api/v1/profile/resume/download/<role_code>/` (role-specific) stream the file back through the API, so an HTTPS-hosted frontend never issues a plain-HTTP request to MinIO and trips browser Mixed Content blocking. `GET /api/v1/profile/` therefore returns these proxy paths in `resume` and `roles[].resume`, not raw storage URLs.
 
 ---
 

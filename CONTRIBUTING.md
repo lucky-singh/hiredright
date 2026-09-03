@@ -69,7 +69,7 @@ The frontend is a Vite + React application located in `apps/web`. It runs on you
    npm install
    npm run dev
    ```
-   *This starts the Vite dev server (usually on `http://localhost:5173`) which points to your local backend API.*
+   *This starts the Vite dev server on `http://localhost:3000` (set explicitly in `vite.config.ts`). Vite proxies `/api` to `http://localhost:8000`, so no CORS configuration is needed in dev. Setting `VITE_API_URL` in `apps/web/.env.local` overrides that and points the SPA at an absolute backend URL instead.*
 
 6. **Create the local demo user in PostgreSQL-backed auth:**
    The frontend logs into the API through the normal Django auth flow. Create a local dev user before testing the builder:
