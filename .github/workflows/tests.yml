@@ -12,7 +12,7 @@ jobs:
   test-backend:
     runs-on: ubuntu-latest
     
-    # Run a postgres and redis service for Django tests
+    # Run a postgres, redis, and minio service for Django tests
     services:
       postgres:
         image: postgres:15
@@ -31,6 +31,16 @@ jobs:
         image: redis:7
         ports:
           - 6379:6379
+      minio:
+        image: minio/minio:latest
+        ports:
+          - 9000:9000
+          - 9001:9001
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        command: server /data --console-address ":9001"
+
 
     steps:
       - uses: actions/checkout@v4
@@ -48,6 +58,12 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-django pytest-cov faker
           
+      - name: Create MinIO Bucket
+        run: |
+          docker run --network host minio/mc alias set myminio http://localhost:9000 minioadmin minioadmin
+          docker run --network host minio/mc mb myminio/hiredright || true
+          docker run --network host minio/mc anonymous set download myminio/hiredright || true
+          
       - name: Run Backend Tests
         working-directory: ./apps/api
         env:
@@ -60,6 +76,10 @@ jobs:
           CELERY_BROKER_URL: redis://localhost:6379/1
           SECRET_KEY: test_secret_key
           DEBUG: True
+          AWS_S3_ENDPOINT_URL: http://localhost:9000
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+          AWS_STORAGE_BUCKET_NAME: hiredright
         run: |
           pytest --cov=. --cov-report=xml
 
