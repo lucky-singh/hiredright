@@ -114,19 +114,3 @@ def profile(candidate):
     from profiles.models import CandidateProfile
 
     return CandidateProfile.objects.create(user=candidate)
-
-@pytest.fixture(autouse=True)
-def override_storage(settings, tmp_path):
-    """Force tests to use local filesystem storage instead of MinIO/S3."""
-    settings.STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-            "OPTIONS": {
-                "location": str(tmp_path / "media"),
-            },
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
-    settings.MEDIA_ROOT = str(tmp_path / "media")
